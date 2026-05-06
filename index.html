@@ -195,6 +195,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
@@ -245,6 +247,24 @@
     .saved-badge::before {
       content: '🔒';
       font-size: 10px;
+    }
+    .export-import-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .btn-small:hover {
+      border-color: var(--twitch);
+      color: var(--twitch);
     }
 
     /* DELAY CONTROL */
@@ -400,6 +420,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .clear-favs-btn {
       font-size: 9px;
@@ -497,6 +519,7 @@
       .input-group{flex-direction:column;width:100%;}
       .input-group .btn{width:100%;}
       .delay-control{flex-direction:column;align-items:flex-start;}
+      .card-label{flex-direction:column;align-items:flex-start;}
     }
   </style>
 </head>
@@ -552,14 +575,18 @@
     <!-- YOUTUBE SEARCH -->
     <div class="card">
       <div class="card-label">
-        // youtube api key
+        <span>// youtube api key</span>
         <span id="apiKeySavedBadge" class="saved-badge" style="display:none;">Salva</span>
       </div>
       <div class="row" style="margin-bottom:14px; flex-direction:column; align-items:stretch;">
         <div class="input-group">
           <input type="password" id="apiKey" placeholder="YouTube Data API v3 key..."/>
-          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMAZENAR</button>
+          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMazenar</button>
           <button class="btn btn-clear" id="clearApiKeyBtn" onclick="clearApiKey()" style="display:none;">🗑️ Limpar</button>
+        </div>
+        <div class="export-import-buttons">
+          <button class="btn-small" onclick="exportFavorites()" id="exportFavBtn" style="display:none;">📤 Exportar favoritos</button>
+          <button class="btn-small" onclick="importFavorites()" id="importFavBtn" style="display:none;">📥 Importar favoritos</button>
         </div>
       </div>
       <div class="card-label">// pesquisar vídeo</div>
@@ -584,7 +611,10 @@
     <div class="card">
       <div class="section-label" style="margin-bottom:16px;">
         ⭐ MÚSICAS FAVORITAS
-        <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
+        <div style="display: flex; gap: 8px;">
+          <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
+          <span class="clear-favs-btn" onclick="manualSyncFavorites()" id="syncFavBtn" style="display:none;">🔄 Sincronizar</span>
+        </div>
       </div>
       <div class="results-grid" id="favoritesGrid"></div>
     </div>
@@ -649,14 +679,13 @@
   let pendingMessages = new Map();
   let currentLoggedUser = null;
   let nextUniqueId = 1;
-  let currentApiKeyHash = '';
   
   // ── API KEY STORAGE ────────────────────────────────────────────────────────
   const API_KEY_STORAGE_KEY = 'songrequest_youtube_api_key';
   const FAVORITES_STORAGE_PREFIX = 'songrequest_favorites_';
+  const LEGACY_FAVORITES_KEY = 'songrequest_favorites';
   
   function getApiKeyHash(apiKey) {
-    // Simple hash for API key to use as namespace
     let hash = 0;
     for (let i = 0; i < apiKey.length; i++) {
       hash = ((hash << 5) - hash) + apiKey.charCodeAt(i);
@@ -675,6 +704,24 @@
     return FAVORITES_STORAGE_PREFIX + 'default';
   }
   
+  // Tenta migrar favoritos antigos (antes da vinculação com API Key)
+  function migrateLegacyFavorites() {
+    const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
+    if (legacyFavs) {
+      try {
+        const oldFavorites = JSON.parse(legacyFavs);
+        if (oldFavorites && oldFavorites.length > 0) {
+          const currentKey = getFavoritesStorageKey();
+          const currentFavs = localStorage.getItem(currentKey);
+          if (!currentFavs) {
+            localStorage.setItem(currentKey, legacyFavs);
+            console.log('Favoritos antigos migrados com sucesso!');
+          }
+        }
+      } catch(e) {}
+    }
+  }
+  
   function loadSavedApiKey() {
     const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
     if (savedKey) {
@@ -682,9 +729,15 @@
       apiKeyInput.value = savedKey;
       const clearBtn = document.getElementById('clearApiKeyBtn');
       const savedBadge = document.getElementById('apiKeySavedBadge');
+      const exportBtn = document.getElementById('exportFavBtn');
+      const importBtn = document.getElementById('importFavBtn');
+      const syncBtn = document.getElementById('syncFavBtn');
       if (clearBtn) clearBtn.style.display = 'inline-flex';
       if (savedBadge) savedBadge.style.display = 'inline-flex';
-      currentApiKeyHash = getApiKeyHash(savedKey);
+      if (exportBtn) exportBtn.style.display = 'inline-flex';
+      if (importBtn) importBtn.style.display = 'inline-flex';
+      if (syncBtn) syncBtn.style.display = 'inline-flex';
+      migrateLegacyFavorites();
       loadFavorites();
     }
   }
@@ -699,12 +752,19 @@
     }
     
     localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
-    currentApiKeyHash = getApiKeyHash(apiKey);
+    migrateLegacyFavorites();
+    loadFavorites();
     
     const clearBtn = document.getElementById('clearApiKeyBtn');
     const savedBadge = document.getElementById('apiKeySavedBadge');
+    const exportBtn = document.getElementById('exportFavBtn');
+    const importBtn = document.getElementById('importFavBtn');
+    const syncBtn = document.getElementById('syncFavBtn');
     if (clearBtn) clearBtn.style.display = 'inline-flex';
     if (savedBadge) savedBadge.style.display = 'inline-flex';
+    if (exportBtn) exportBtn.style.display = 'inline-flex';
+    if (importBtn) importBtn.style.display = 'inline-flex';
+    if (syncBtn) syncBtn.style.display = 'inline-flex';
     
     const saveBtn = document.getElementById('saveApiKeyBtn');
     const originalText = saveBtn.innerHTML;
@@ -716,21 +776,23 @@
       saveBtn.style.background = '';
       saveBtn.style.borderColor = '';
     }, 2000);
-    
-    loadFavorites();
   }
   
   function clearApiKey() {
-    if (confirm('Tem certeza que deseja remover a API Key salva? As músicas favoritas vinculadas a esta chave também serão removidas.')) {
+    if (confirm('Tem certeza que deseja remover a API Key salva?')) {
       localStorage.removeItem(API_KEY_STORAGE_KEY);
-      const storageKey = getFavoritesStorageKey();
-      localStorage.removeItem(storageKey);
       const apiKeyInput = document.getElementById('apiKey');
       apiKeyInput.value = '';
       const clearBtn = document.getElementById('clearApiKeyBtn');
       const savedBadge = document.getElementById('apiKeySavedBadge');
+      const exportBtn = document.getElementById('exportFavBtn');
+      const importBtn = document.getElementById('importFavBtn');
+      const syncBtn = document.getElementById('syncFavBtn');
       if (clearBtn) clearBtn.style.display = 'none';
       if (savedBadge) savedBadge.style.display = 'none';
+      if (exportBtn) exportBtn.style.display = 'none';
+      if (importBtn) importBtn.style.display = 'none';
+      if (syncBtn) syncBtn.style.display = 'none';
       
       favorites = [];
       renderFavoritesGrid();
@@ -747,6 +809,57 @@
     }
   }
   
+  // Exportar favoritos como arquivo JSON
+  function exportFavorites() {
+    if (favorites.length === 0) {
+      alert('Nenhum favorito para exportar.');
+      return;
+    }
+    const dataStr = JSON.stringify(favorites, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `songrequest_favorites_${new Date().toISOString().slice(0,19)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('Favoritos exportados com sucesso!');
+  }
+  
+  // Importar favoritos de arquivo JSON
+  function importFavorites() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            favorites = imported;
+            saveFavoritesToStorage();
+            alert(`${imported.length} favoritos importados com sucesso!`);
+          } else {
+            alert('Arquivo inválido.');
+          }
+        } catch(err) {
+          alert('Erro ao ler o arquivo.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+  
+  // Forçar sincronização manual dos favoritos
+  function manualSyncFavorites() {
+    loadFavorites();
+    alert('Favoritos sincronizados!');
+  }
+  
   // FAVORITES - vinculados à API Key
   let favorites = [];
   
@@ -759,8 +872,21 @@
         renderFavoritesGrid();
       } catch(e) {}
     } else {
-      favorites = [];
-      renderFavoritesGrid();
+      // Tenta carregar do legacy novamente
+      const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
+      if (legacyFavs) {
+        try {
+          favorites = JSON.parse(legacyFavs);
+          saveFavoritesToStorage();
+          renderFavoritesGrid();
+        } catch(e) {
+          favorites = [];
+          renderFavoritesGrid();
+        }
+      } else {
+        favorites = [];
+        renderFavoritesGrid();
+      }
     }
   }
   
