@@ -1,7 +1,7 @@
 # 🎵 Song Request Queue - Twitch + YouTube
 
 <div align="center">
-  <img src="assets/SR Logo.png" alt="Song Request Logo" width="120" height="120">
+  <img src="assets/sr-logo.png" alt="Song Request Logo" width="120" height="120">
 </div>
 
 <br>
