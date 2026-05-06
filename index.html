@@ -581,7 +581,7 @@
       <div class="row" style="margin-bottom:14px; flex-direction:column; align-items:stretch;">
         <div class="input-group">
           <input type="password" id="apiKey" placeholder="YouTube Data API v3 key..."/>
-          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMazenar</button>
+          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMAZENAR</button>
           <button class="btn btn-clear" id="clearApiKeyBtn" onclick="clearApiKey()" style="display:none;">🗑️ Limpar</button>
         </div>
         <div class="export-import-buttons">
@@ -669,62 +669,9 @@
 </div>
 
 <script>
-
-    // ── CONFIGURAÇÃO DO BACKEND ─────────────────────────────────────────────────
-const BACKEND_URL = 'https://seu-backend.railway.app'; // Substitua pela URL do seu backend
-
-// Função para sincronizar favoritos com o banco de dados
-async function syncFavoritesWithBackend(apiKey) {
-    if (!apiKey) return false;
-    
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/auth`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ apiKey })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.favorites) {
-            // Converter o formato do backend para o formato do frontend
-            favorites = data.favorites.map(f => ({
-                id: f.video_id,
-                title: f.title,
-                channel: f.channel,
-                thumb: f.thumbnail
-            }));
-            
-            renderFavoritesGrid();
-            saveFavoritesToStorage(); // Salvar localmente também como cache
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('Erro ao sincronizar com backend:', error);
-        return false;
-    }
-}
-
-// Função para salvar favoritos no backend
-async function saveFavoritesToBackend(apiKey, favs) {
-    if (!apiKey) return false;
-    
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/favorites`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ apiKey, favorites: favs })
-        });
-        
-        const data = await response.json();
-        return data.success;
-    } catch (error) {
-        console.error('Erro ao salvar no backend:', error);
-        return false;
-    }
-}
-    
+  // ── CONFIGURAÇÃO DO BACKEND ─────────────────────────────────────────────────
+  const BACKEND_URL = 'https://song-request-backend-production.up.railway.app';
+  
   // ── STATE ──────────────────────────────────────────────────────────────────
   let queue = [];
   let addedIds = new Set();
@@ -760,7 +707,55 @@ async function saveFavoritesToBackend(apiKey, favs) {
     return FAVORITES_STORAGE_PREFIX + 'default';
   }
   
-  // Tenta migrar favoritos antigos (antes da vinculação com API Key)
+  async function syncFavoritesWithBackend(apiKey) {
+    if (!apiKey) return false;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.favorites) {
+        favorites = data.favorites.map(f => ({
+          id: f.video_id,
+          title: f.title,
+          channel: f.channel,
+          thumb: f.thumbnail
+        }));
+        
+        renderFavoritesGrid();
+        saveFavoritesToStorage();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro ao sincronizar com backend:', error);
+      return false;
+    }
+  }
+  
+  async function saveFavoritesToBackend(apiKey, favs) {
+    if (!apiKey) return false;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, favorites: favs })
+      });
+      
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('Erro ao salvar no backend:', error);
+      return false;
+    }
+  }
+  
   function migrateLegacyFavorites() {
     const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
     if (legacyFavs) {
@@ -771,7 +766,6 @@ async function saveFavoritesToBackend(apiKey, favs) {
           const currentFavs = localStorage.getItem(currentKey);
           if (!currentFavs) {
             localStorage.setItem(currentKey, legacyFavs);
-            console.log('Favoritos antigos migrados com sucesso!');
           }
         }
       } catch(e) {}
@@ -794,7 +788,13 @@ async function saveFavoritesToBackend(apiKey, favs) {
       if (importBtn) importBtn.style.display = 'inline-flex';
       if (syncBtn) syncBtn.style.display = 'inline-flex';
       migrateLegacyFavorites();
-      loadFavorites();
+      
+      // Tentar sincronizar com backend
+      syncFavoritesWithBackend(savedKey).then(success => {
+        if (!success) {
+          loadFavorites();
+        }
+      });
     }
   }
   
@@ -808,14 +808,21 @@ async function saveFavoritesToBackend(apiKey, favs) {
     }
     
     localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
-    migrateLegacyFavorites();
-    loadFavorites();
+    
+    // Sincronizar com o backend
+    syncFavoritesWithBackend(apiKey).then(success => {
+      if (!success) {
+        migrateLegacyFavorites();
+        loadFavorites();
+      }
+    });
     
     const clearBtn = document.getElementById('clearApiKeyBtn');
     const savedBadge = document.getElementById('apiKeySavedBadge');
     const exportBtn = document.getElementById('exportFavBtn');
     const importBtn = document.getElementById('importFavBtn');
     const syncBtn = document.getElementById('syncFavBtn');
+    
     if (clearBtn) clearBtn.style.display = 'inline-flex';
     if (savedBadge) savedBadge.style.display = 'inline-flex';
     if (exportBtn) exportBtn.style.display = 'inline-flex';
@@ -858,14 +865,13 @@ async function saveFavoritesToBackend(apiKey, favs) {
       saveBtn.style.background = 'rgba(255,60,95,0.2)';
       saveBtn.style.borderColor = 'var(--accent)';
       setTimeout(() => {
-        saveBtn.innerHTML = '💾 ARMazenar';
+        saveBtn.innerHTML = '💾 ARMAZENAR';
         saveBtn.style.background = '';
         saveBtn.style.borderColor = '';
       }, 2000);
     }
   }
   
-  // Exportar favoritos como arquivo JSON
   function exportFavorites() {
     if (favorites.length === 0) {
       alert('Nenhum favorito para exportar.');
@@ -882,7 +888,6 @@ async function saveFavoritesToBackend(apiKey, favs) {
     alert('Favoritos exportados com sucesso!');
   }
   
-  // Importar favoritos de arquivo JSON
   function importFavorites() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -910,13 +915,17 @@ async function saveFavoritesToBackend(apiKey, favs) {
     input.click();
   }
   
-  // Forçar sincronização manual dos favoritos
   function manualSyncFavorites() {
-    loadFavorites();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (apiKey) {
+      syncFavoritesWithBackend(apiKey);
+    } else {
+      loadFavorites();
+    }
     alert('Favoritos sincronizados!');
   }
   
-  // FAVORITES - vinculados à API Key
+  // FAVORITES
   let favorites = [];
   
   function loadFavorites() {
@@ -928,7 +937,6 @@ async function saveFavoritesToBackend(apiKey, favs) {
         renderFavoritesGrid();
       } catch(e) {}
     } else {
-      // Tenta carregar do legacy novamente
       const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
       if (legacyFavs) {
         try {
@@ -950,6 +958,11 @@ async function saveFavoritesToBackend(apiKey, favs) {
     const storageKey = getFavoritesStorageKey();
     localStorage.setItem(storageKey, JSON.stringify(favorites));
     renderFavoritesGrid();
+    
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (apiKey && BACKEND_URL) {
+      saveFavoritesToBackend(apiKey, favorites);
+    }
   }
   
   function addToFavorites(video) {
@@ -972,6 +985,15 @@ async function saveFavoritesToBackend(apiKey, favs) {
     if (confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) {
       favorites = [];
       saveFavoritesToStorage();
+      
+      const apiKey = document.getElementById('apiKey').value.trim();
+      if (apiKey && BACKEND_URL) {
+        fetch(`${BACKEND_URL}/api/favorites/all`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey })
+        }).catch(err => console.error('Erro ao limpar backend:', err));
+      }
     }
   }
   
