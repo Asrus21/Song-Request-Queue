@@ -1,4 +1,676 @@
-// ── CONFIGURAÇÃO DO BACKEND ─────────────────────────────────────────────────
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/sr-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/sr-logo.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/sr-logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/sr-logo.png">
+  <link rel="shortcut icon" href="assets/sr-logo.png">
+  
+  <title>Song Request Queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: #2a2a3a;
+      --accent: #ff3c5f;
+      --accent2: #7b2fff;
+      --twitch: #9147ff;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --green: #00e5a0;
+      --yellow: #ffd166;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    .blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .blob-1 { width: 600px; height: 600px; background: rgba(145,71,255,0.08); top: -200px; right: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: rgba(255,60,95,0.07); bottom: 100px; left: -100px; }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 100px;
+    }
+
+    /* HEADER */
+    header {
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .logo-block { display: flex; flex-direction: column; }
+    .logo-tag { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: clamp(26px, 5vw, 42px);
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--twitch));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .counter-badge {
+      margin-left: auto;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .counter-badge span {
+      display: block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--green);
+      margin-top: 2px;
+    }
+    .github-link {
+      margin-left: 8px;
+      opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+    }
+    .github-link:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 8px 20px;
+      cursor: pointer;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text); background: var(--surface2); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--twitch), var(--accent));
+      color: white;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+    /* FAVORITE STAR */
+    .fav-star {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .fav-star:hover { transform: scale(1.1); background: rgba(0,0,0,0.8); }
+    .fav-star svg { width: 16px; height: 16px; }
+    .fav-star.active svg { fill: var(--yellow); stroke: var(--yellow); }
+    .fav-star:not(.active) svg { fill: none; stroke: white; stroke-width: 1.5; }
+
+    /* QUANTITY BADGE */
+    .qty-badge {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: var(--accent);
+      color: white;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 20px;
+      z-index: 10;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    /* INPUT GROUP WITH BUTTON */
+    .input-group {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .input-group input {
+      flex: 1;
+      min-width: 200px;
+    }
+    .btn-save {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--green);
+      padding: 11px 16px;
+      font-size: 11px;
+    }
+    .btn-save:hover {
+      border-color: var(--green);
+      background: rgba(0,229,160,0.1);
+    }
+    .btn-clear {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 11px 16px;
+      font-size: 11px;
+    }
+    .btn-clear:hover {
+      border-color: var(--accent);
+      background: rgba(255,60,95,0.1);
+    }
+    .saved-badge {
+      font-size: 9px;
+      background: rgba(0,229,160,0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: var(--green);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .saved-badge::before {
+      content: '🔒';
+      font-size: 10px;
+    }
+    .export-import-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .btn-small:hover {
+      border-color: var(--twitch);
+      color: var(--twitch);
+    }
+
+    /* DELAY CONTROL */
+    .delay-control {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .delay-control input[type="number"] {
+      width: 70px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      text-align: center;
+    }
+    .delay-control input[type="number"]:focus {
+      border-color: var(--green);
+      outline: none;
+    }
+    .delay-control input[type="number"]::-webkit-inner-spin-button,
+    .delay-control input[type="number"]::-webkit-outer-spin-button {
+      opacity: 0.5;
+    }
+
+    /* INPUTS */
+    input[type="text"], input[type="password"] {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      padding: 11px 15px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus { border-color: var(--accent2); }
+    input::placeholder { color: #3a3a50; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .btn-red { background: var(--accent); color: #fff; }
+    .btn-red:not(:disabled):hover { background: #ff5575; transform: translateY(-1px); }
+    .btn-twitch { background: var(--twitch); color: #fff; }
+    .btn-twitch:not(:disabled):hover { background: #a259ff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(145,71,255,0.35); }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
+    .btn-send {
+      background: linear-gradient(135deg, var(--twitch), var(--accent));
+      color: #fff;
+      width: 100%;
+      padding: 15px;
+      font-size: 13px;
+      border-radius: 12px;
+      letter-spacing: 1px;
+    }
+    .btn-send:not(:disabled):hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(145,71,255,0.35); }
+
+    /* LOADER */
+    .spin {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TWITCH STATUS */
+    .twitch-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+      margin-top: 12px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    .twitch-status.disconnected { background: rgba(255,60,95,0.07); border-color: rgba(255,60,95,0.2); color: var(--muted); }
+    .twitch-status.connecting  { background: rgba(255,209,102,0.07); border-color: rgba(255,209,102,0.2); color: var(--yellow); }
+    .twitch-status.connected   { background: rgba(0,229,160,0.07); border-color: rgba(0,229,160,0.2); color: var(--green); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .disconnected .status-dot { background: var(--muted); }
+    .connecting  .status-dot  { background: var(--yellow); animation: blink 0.8s ease infinite; }
+    .connected   .status-dot  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* SEND PROGRESS */
+    .send-progress {
+      display: none;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .progress-bar-wrap { background: var(--bg); border-radius: 100px; height: 6px; overflow: hidden; margin-bottom: 14px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); border-radius: 100px; width: 0%; transition: width 0.4s ease; }
+    .progress-log { max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+    .log-line { font-size: 11px; padding: 4px 8px; border-radius: 5px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+    .log-line.ok   { background: rgba(0,229,160,0.08); color: var(--green); }
+    .log-line.wait { background: rgba(255,209,102,0.08); color: var(--yellow); }
+    .log-line.err  { background: rgba(255,60,95,0.08); color: var(--accent); }
+    .log-line.done { background: rgba(145,71,255,0.08); color: var(--twitch); }
+
+    /* RESULTS GRID */
+    .results-section { margin-bottom: 20px; }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .clear-favs-btn {
+      font-size: 9px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .video-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,60,95,0.12); }
+    .thumb-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #111; overflow: hidden; }
+    .thumb-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .play-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.2s;
+    }
+    .video-card:hover .play-overlay { opacity: 1; }
+    .card-info { padding: 10px 12px; }
+    .card-title { font-size: 11px; line-height: 1.4; color: var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:4px; }
+    .card-channel { font-size: 10px; color: var(--muted); }
+
+    .empty-state { text-align:center; padding:40px 24px; color:var(--muted); }
+    .empty-state .icon { font-size:36px; margin-bottom:10px; }
+    .empty-state p { font-size:12px; line-height:1.6; }
+
+    .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:24px 0; }
+
+    /* QUEUE */
+    .queue-wrap { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:16px; }
+    .queue-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:var(--surface2); }
+    .queue-header-left { display:flex; align-items:center; gap:10px; }
+    .queue-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); animation:pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .queue-title { font-family:'Unbounded',sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; }
+    .queue-item {
+      display:flex; align-items:center; gap:12px;
+      padding:11px 20px; border-bottom:1px solid var(--border);
+      animation:slideIn 0.25s ease;
+      transition: background 0.3s, opacity 0.3s;
+    }
+    .queue-item:last-child { border-bottom:none; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
+    .queue-item.sending { background:rgba(145,71,255,0.07); }
+    .queue-item.sent { opacity:0.45; }
+    .queue-num { font-family:'Unbounded',sans-serif; font-size:10px; color:var(--accent); width:22px; flex-shrink:0; }
+    .queue-thumb { width:56px; height:32px; border-radius:5px; object-fit:cover; flex-shrink:0; }
+    .queue-info { flex:1; min-width:0; }
+    .queue-item-title { font-size:11px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .queue-id { font-size:10px; color:var(--muted); margin-top:2px; }
+    .queue-status { font-size:10px; flex-shrink:0; padding:3px 8px; border-radius:4px; min-width:70px; text-align:center; }
+    .queue-status.sending-badge { background:rgba(145,71,255,0.15); color:var(--twitch); }
+    .queue-status.sent-badge { background:rgba(0,229,160,0.12); color:var(--green); }
+    .btn-remove {
+      background:none; border:1px solid transparent; color:var(--muted);
+      cursor:pointer; font-size:14px; padding:4px 7px; border-radius:6px;
+      transition:all 0.15s; flex-shrink:0; font-family:'Space Mono',monospace;
+    }
+    .btn-remove:hover { border-color:var(--accent); color:var(--accent); background:rgba(255,60,95,0.08); }
+
+    /* HELP */
+    .help-box {
+      background:rgba(145,71,255,0.06);
+      border:1px solid rgba(145,71,255,0.2);
+      border-radius:10px;
+      padding:12px 16px;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.9;
+      margin-top:12px;
+    }
+    .help-box a { color:var(--twitch); text-decoration:none; }
+    .help-box a:hover { text-decoration:underline; }
+    .help-box strong { color:var(--text); }
+
+    @media(max-width:600px){
+      .row{flex-direction:column;}
+      header{flex-direction:column;align-items:flex-start;}
+      .counter-badge{margin-left:0;}
+      .results-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+      .tabs{flex-wrap:wrap;}
+      .input-group{flex-direction:column;width:100%;}
+      .input-group .btn{width:100%;}
+      .delay-control{flex-direction:column;align-items:flex-start;}
+      .card-label{flex-direction:column;align-items:flex-start;}
+    }
+  </style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="wrapper">
+
+  <header>
+    <div class="logo-block">
+      <span class="logo-tag">// twitch × youtube</span>
+      <h1>Song Request</h1>
+    </div>
+    <div class="counter-badge">
+      na fila
+      <span id="queueCount">0</span>
+    </div>
+    <a href="https://github.com/asrus21/Song-Request-Queue" target="_blank" class="github-link" title="Ver código no GitHub">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="28" height="28">
+    </a>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="search">🔍 PESQUISAR</button>
+    <button class="tab-btn" data-tab="favorites">⭐ FAVORITOS</button>
+  </div>
+
+  <!-- TAB: SEARCH -->
+  <div class="tab-pane active" id="tab-search">
+    <!-- TWITCH CONFIG -->
+    <div class="card">
+      <div class="card-label">// conexão twitch irc</div>
+      <div class="row" style="margin-bottom:10px; flex-wrap:wrap;">
+        <input type="password" id="twitchToken" placeholder="OAuth Token  (oauth:xxxxxxxxxxxxxxxxxx)" style="min-width:200px"/>
+        <input type="text" id="twitchChannel" placeholder="nome do canal" style="max-width:200px; min-width:140px"/>
+        <button class="btn btn-twitch" id="connectBtn" onclick="twitchConnect()">CONECTAR</button>
+      </div>
+      <div class="help-box">
+        <strong>Como obter o token:</strong> acesse
+        <a href="https://twitchtokengenerator.com/" target="_blank" rel="noopener">twitchtokengenerator.com/</a>
+        → autorize com sua conta Twitch → copie o access_token gerado.<br>
+        <strong>Canal:</strong> escreva o nome do canal onde os <strong>!sr</strong> serão enviados.<br>
+        <strong>Atenção:</strong> o token funciona como senha da sua conta — nunca o compartilhe.
+      </div>
+      <div class="twitch-status disconnected" id="twitchStatus">
+        <div class="status-dot"></div>
+        <span id="statusText">Desconectado</span>
+      </div>
+    </div>
+
+    <!-- YOUTUBE SEARCH -->
+    <div class="card">
+      <div class="card-label">
+        <span>// youtube api key</span>
+        <span id="apiKeySavedBadge" class="saved-badge" style="display:none;">Salva</span>
+      </div>
+      <div class="row" style="margin-bottom:14px; flex-direction:column; align-items:stretch;">
+        <div class="input-group">
+          <input type="password" id="apiKey" placeholder="YouTube Data API v3 key..."/>
+          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMazenar</button>
+          <button class="btn btn-clear" id="clearApiKeyBtn" onclick="clearApiKey()" style="display:none;">🗑️ Limpar</button>
+        </div>
+        <div class="export-import-buttons">
+          <button class="btn-small" onclick="exportFavorites()" id="exportFavBtn" style="display:none;">📤 Exportar favoritos</button>
+          <button class="btn-small" onclick="importFavorites()" id="importFavBtn" style="display:none;">📥 Importar favoritos</button>
+        </div>
+      </div>
+      <div class="card-label">// pesquisar vídeo</div>
+      <div class="row">
+        <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..."/>
+        <button class="btn btn-red" id="searchBtn" onclick="searchYouTube()">
+          <span id="searchLoader" class="spin" style="display:none"></span>
+          <span id="searchBtnText">BUSCAR</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-section" id="resultsSection" style="display:none">
+      <div class="section-label">// resultados — clique para adicionar à fila (múltiplas vezes)</div>
+      <div class="results-grid" id="resultsGrid"></div>
+    </div>
+  </div>
+
+  <!-- TAB: FAVORITES -->
+  <div class="tab-pane" id="tab-favorites">
+    <div class="card">
+      <div class="section-label" style="margin-bottom:16px;">
+        ⭐ MÚSICAS FAVORITAS
+        <div style="display: flex; gap: 8px;">
+          <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
+          <span class="clear-favs-btn" onclick="manualSyncFavorites()" id="syncFavBtn" style="display:none;">🔄 Sincronizar</span>
+        </div>
+      </div>
+      <div class="results-grid" id="favoritesGrid"></div>
+    </div>
+  </div>
+
+  <div class="divider" id="divider" style="display:none"></div>
+
+  <!-- QUEUE + SEND -->
+  <div id="queueSection" style="display:none">
+    <div class="queue-wrap">
+      <div class="queue-header">
+        <div class="queue-header-left">
+          <div class="queue-dot"></div>
+          <span class="queue-title">FILA DE PEDIDOS</span>
+        </div>
+        <button class="btn btn-ghost" id="clearBtn" onclick="clearQueue()" style="padding:5px 12px;font-size:10px;">LIMPAR</button>
+      </div>
+      <div id="queueList"></div>
+    </div>
+
+    <!-- Delay Control -->
+    <div class="delay-control">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 11px; color: var(--muted);">⏱️ Intervalo entre comandos:</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="number" id="delaySeconds" min="1" max="10" value="6" step="1">
+          <span style="font-size: 11px; color: var(--muted);">segundos</span>
+        </div>
+      </div>
+      <div style="font-size: 10px; color: var(--muted); background: rgba(0,229,160,0.1); padding: 4px 10px; border-radius: 20px;">
+        💡 Mín: 1s | Máx: 10s
+      </div>
+    </div>
+
+    <button class="btn btn-send" id="sendBtn" onclick="startSending()">
+      <span id="sendLoader" class="spin" style="display:none"></span>
+      <span id="sendBtnText">📡 ENVIAR TODOS PELO CHAT DA TWITCH</span>
+    </button>
+
+    <div class="send-progress" id="sendProgress">
+      <div class="progress-header">
+        <span id="progressLabel">Enviando...</span>
+        <span id="progressFraction">0 / 0</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-log" id="progressLog"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+    // ── CONFIGURAÇÃO DO BACKEND ─────────────────────────────────────────────────
 const BACKEND_URL = 'https://seu-backend.railway.app'; // Substitua pela URL do seu backend
 
 // Função para sincronizar favoritos com o banco de dados
@@ -52,3 +724,778 @@ async function saveFavoritesToBackend(apiKey, favs) {
         return false;
     }
 }
+    
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  let queue = [];
+  let addedIds = new Set();
+  let videoMap = {};
+  let twitchWs = null;
+  let twitchConnected = false;
+  let isSending = false;
+  let pendingMessages = new Map();
+  let currentLoggedUser = null;
+  let nextUniqueId = 1;
+  
+  // ── API KEY STORAGE ────────────────────────────────────────────────────────
+  const API_KEY_STORAGE_KEY = 'songrequest_youtube_api_key';
+  const FAVORITES_STORAGE_PREFIX = 'songrequest_favorites_';
+  const LEGACY_FAVORITES_KEY = 'songrequest_favorites';
+  
+  function getApiKeyHash(apiKey) {
+    let hash = 0;
+    for (let i = 0; i < apiKey.length; i++) {
+      hash = ((hash << 5) - hash) + apiKey.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  }
+  
+  function getFavoritesStorageKey() {
+    const apiKeyInput = document.getElementById('apiKey');
+    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+    if (apiKey) {
+      const hash = getApiKeyHash(apiKey);
+      return FAVORITES_STORAGE_PREFIX + hash;
+    }
+    return FAVORITES_STORAGE_PREFIX + 'default';
+  }
+  
+  // Tenta migrar favoritos antigos (antes da vinculação com API Key)
+  function migrateLegacyFavorites() {
+    const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
+    if (legacyFavs) {
+      try {
+        const oldFavorites = JSON.parse(legacyFavs);
+        if (oldFavorites && oldFavorites.length > 0) {
+          const currentKey = getFavoritesStorageKey();
+          const currentFavs = localStorage.getItem(currentKey);
+          if (!currentFavs) {
+            localStorage.setItem(currentKey, legacyFavs);
+            console.log('Favoritos antigos migrados com sucesso!');
+          }
+        }
+      } catch(e) {}
+    }
+  }
+  
+  function loadSavedApiKey() {
+    const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+    if (savedKey) {
+      const apiKeyInput = document.getElementById('apiKey');
+      apiKeyInput.value = savedKey;
+      const clearBtn = document.getElementById('clearApiKeyBtn');
+      const savedBadge = document.getElementById('apiKeySavedBadge');
+      const exportBtn = document.getElementById('exportFavBtn');
+      const importBtn = document.getElementById('importFavBtn');
+      const syncBtn = document.getElementById('syncFavBtn');
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      if (savedBadge) savedBadge.style.display = 'inline-flex';
+      if (exportBtn) exportBtn.style.display = 'inline-flex';
+      if (importBtn) importBtn.style.display = 'inline-flex';
+      if (syncBtn) syncBtn.style.display = 'inline-flex';
+      migrateLegacyFavorites();
+      loadFavorites();
+    }
+  }
+  
+  function saveApiKey() {
+    const apiKeyInput = document.getElementById('apiKey');
+    const apiKey = apiKeyInput.value.trim();
+    
+    if (!apiKey) {
+      alert('Digite uma API Key do YouTube para salvar.');
+      return;
+    }
+    
+    localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    migrateLegacyFavorites();
+    loadFavorites();
+    
+    const clearBtn = document.getElementById('clearApiKeyBtn');
+    const savedBadge = document.getElementById('apiKeySavedBadge');
+    const exportBtn = document.getElementById('exportFavBtn');
+    const importBtn = document.getElementById('importFavBtn');
+    const syncBtn = document.getElementById('syncFavBtn');
+    if (clearBtn) clearBtn.style.display = 'inline-flex';
+    if (savedBadge) savedBadge.style.display = 'inline-flex';
+    if (exportBtn) exportBtn.style.display = 'inline-flex';
+    if (importBtn) importBtn.style.display = 'inline-flex';
+    if (syncBtn) syncBtn.style.display = 'inline-flex';
+    
+    const saveBtn = document.getElementById('saveApiKeyBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '✓ SALVO!';
+    saveBtn.style.background = 'rgba(0,229,160,0.2)';
+    saveBtn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      saveBtn.innerHTML = originalText;
+      saveBtn.style.background = '';
+      saveBtn.style.borderColor = '';
+    }, 2000);
+  }
+  
+  function clearApiKey() {
+    if (confirm('Tem certeza que deseja remover a API Key salva?')) {
+      localStorage.removeItem(API_KEY_STORAGE_KEY);
+      const apiKeyInput = document.getElementById('apiKey');
+      apiKeyInput.value = '';
+      const clearBtn = document.getElementById('clearApiKeyBtn');
+      const savedBadge = document.getElementById('apiKeySavedBadge');
+      const exportBtn = document.getElementById('exportFavBtn');
+      const importBtn = document.getElementById('importFavBtn');
+      const syncBtn = document.getElementById('syncFavBtn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (savedBadge) savedBadge.style.display = 'none';
+      if (exportBtn) exportBtn.style.display = 'none';
+      if (importBtn) importBtn.style.display = 'none';
+      if (syncBtn) syncBtn.style.display = 'none';
+      
+      favorites = [];
+      renderFavoritesGrid();
+      
+      const saveBtn = document.getElementById('saveApiKeyBtn');
+      saveBtn.innerHTML = '🗑️ REMOVIDO';
+      saveBtn.style.background = 'rgba(255,60,95,0.2)';
+      saveBtn.style.borderColor = 'var(--accent)';
+      setTimeout(() => {
+        saveBtn.innerHTML = '💾 ARMazenar';
+        saveBtn.style.background = '';
+        saveBtn.style.borderColor = '';
+      }, 2000);
+    }
+  }
+  
+  // Exportar favoritos como arquivo JSON
+  function exportFavorites() {
+    if (favorites.length === 0) {
+      alert('Nenhum favorito para exportar.');
+      return;
+    }
+    const dataStr = JSON.stringify(favorites, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `songrequest_favorites_${new Date().toISOString().slice(0,19)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('Favoritos exportados com sucesso!');
+  }
+  
+  // Importar favoritos de arquivo JSON
+  function importFavorites() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            favorites = imported;
+            saveFavoritesToStorage();
+            alert(`${imported.length} favoritos importados com sucesso!`);
+          } else {
+            alert('Arquivo inválido.');
+          }
+        } catch(err) {
+          alert('Erro ao ler o arquivo.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+  
+  // Forçar sincronização manual dos favoritos
+  function manualSyncFavorites() {
+    loadFavorites();
+    alert('Favoritos sincronizados!');
+  }
+  
+  // FAVORITES - vinculados à API Key
+  let favorites = [];
+  
+  function loadFavorites() {
+    const storageKey = getFavoritesStorageKey();
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        favorites = JSON.parse(saved);
+        renderFavoritesGrid();
+      } catch(e) {}
+    } else {
+      // Tenta carregar do legacy novamente
+      const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
+      if (legacyFavs) {
+        try {
+          favorites = JSON.parse(legacyFavs);
+          saveFavoritesToStorage();
+          renderFavoritesGrid();
+        } catch(e) {
+          favorites = [];
+          renderFavoritesGrid();
+        }
+      } else {
+        favorites = [];
+        renderFavoritesGrid();
+      }
+    }
+  }
+  
+  function saveFavoritesToStorage() {
+    const storageKey = getFavoritesStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(favorites));
+    renderFavoritesGrid();
+  }
+  
+  function addToFavorites(video) {
+    if (favorites.some(f => f.id === video.id)) return;
+    favorites.unshift(video);
+    if (favorites.length > 50) favorites.pop();
+    saveFavoritesToStorage();
+  }
+  
+  function removeFromFavorites(id) {
+    favorites = favorites.filter(f => f.id !== id);
+    saveFavoritesToStorage();
+  }
+  
+  function isFavorite(id) {
+    return favorites.some(f => f.id === id);
+  }
+  
+  function clearAllFavorites() {
+    if (confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) {
+      favorites = [];
+      saveFavoritesToStorage();
+    }
+  }
+  
+  function getCountInQueue(videoId) {
+    return queue.filter(item => item.id === videoId).length;
+  }
+  
+  function renderFavoritesGrid() {
+    const grid = document.getElementById('favoritesGrid');
+    if (!favorites.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">⭐</div><p>Nenhuma música favorita ainda.<br>Clique na estrela ⭐ nos resultados para adicionar.</p></div>`;
+      return;
+    }
+    
+    grid.innerHTML = favorites.map(v => {
+      const countInQueue = getCountInQueue(v.id);
+      return `
+        <div class="video-card" data-id="${v.id}">
+          <div class="fav-star active" onclick="event.stopPropagation(); toggleFavoriteFromCard('${v.id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
+          ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
+          <div class="thumb-wrap">
+            <img src="${v.thumb}" alt="" loading="lazy"/>
+            <div class="play-overlay">
+              <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="rgba(255,60,95,0.85)"/>
+                <path d="M16 13l14 7-14 7V13z" fill="white"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="card-title">${escapeHtml(v.title)}</div>
+            <div class="card-channel">${escapeHtml(v.channel)}</div>
+          </div>
+        </div>`;
+    }).join('');
+    
+    grid.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.fav-star')) return;
+        const id = card.dataset.id;
+        const video = favorites.find(f => f.id === id);
+        if (video) addToQueue(video);
+      });
+    });
+  }
+  
+  function toggleFavoriteFromCard(id) {
+    if (isFavorite(id)) {
+      removeFromFavorites(id);
+    } else {
+      const video = videoMap[id];
+      if (video) addToFavorites(video);
+    }
+    renderFavoritesGrid();
+    const searchCard = document.getElementById(`card-${id}`);
+    if (searchCard) {
+      const star = searchCard.querySelector('.fav-star');
+      if (star) {
+        if (isFavorite(id)) star.classList.add('active');
+        else star.classList.remove('active');
+      }
+      const qtyBadge = searchCard.querySelector('.qty-badge');
+      const countInQueue = getCountInQueue(id);
+      if (countInQueue > 0) {
+        if (qtyBadge) qtyBadge.textContent = countInQueue;
+        else {
+          const badge = document.createElement('div');
+          badge.className = 'qty-badge';
+          badge.textContent = countInQueue;
+          searchCard.appendChild(badge);
+        }
+      } else if (qtyBadge) qtyBadge.remove();
+    }
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // ── TWITCH IRC via WebSocket ───────────────────────────────────────────────
+  function setStatus(state, text) {
+    const el = document.getElementById('twitchStatus');
+    el.className = 'twitch-status ' + state;
+    document.getElementById('statusText').textContent = text;
+  }
+
+  function twitchConnect() {
+    const rawToken  = document.getElementById('twitchToken').value.trim();
+    const channel   = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
+    if (!rawToken || !channel) { alert('Preencha o token OAuth e o nome do canal.'); return; }
+
+    const token = rawToken.startsWith('oauth:') ? rawToken : 'oauth:' + rawToken;
+
+    if (twitchWs) { twitchWs.onclose = null; twitchWs.close(); twitchWs = null; }
+    twitchConnected = false;
+    currentLoggedUser = null;
+    setStatus('connecting', 'Conectando ao Twitch IRC...');
+    document.getElementById('connectBtn').disabled = true;
+
+    twitchWs = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+
+    twitchWs.onopen = () => {
+      twitchWs.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
+      twitchWs.send(`PASS ${token}`);
+      twitchWs.send(`NICK ${channel}`);
+      twitchWs.send(`JOIN #${channel}`);
+    };
+
+    twitchWs.onmessage = (e) => {
+      const raw = e.data;
+      if (raw.startsWith('PING')) { twitchWs.send('PONG :tmi.twitch.tv'); return; }
+
+      if (raw.includes('NOTICE') && raw.includes('#') && raw.includes('!sr')) {
+        const waitMatch = raw.match(/wait (\d+) seconds?/i);
+        if (waitMatch || raw.includes('you have to wait') || raw.includes('slow mode')) {
+          const lastMsgId = [...pendingMessages.keys()].pop();
+          if (lastMsgId && pendingMessages.has(lastMsgId)) {
+            pendingMessages.get(lastMsgId).resolve({ success: false, error: 'Rate limit: aguarde o intervalo configurado entre comandos' });
+          }
+        }
+      }
+
+      const welcomeMatch = raw.match(/^:\S+ 001 (\w+)/i);
+      if (welcomeMatch && !currentLoggedUser) currentLoggedUser = welcomeMatch[1];
+
+      if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && currentLoggedUser) {
+        twitchConnected = true;
+        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
+        setStatus('connected', `✅ Conectado como @${currentLoggedUser} → #${targetChannel}`);
+        document.getElementById('connectBtn').textContent = 'RECONECTAR';
+        document.getElementById('connectBtn').disabled = false;
+      }
+      
+      if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && !currentLoggedUser) {
+        twitchConnected = true;
+        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
+        setStatus('connected', `✅ Conectado → #${targetChannel}`);
+        document.getElementById('connectBtn').textContent = 'RECONECTAR';
+        document.getElementById('connectBtn').disabled = false;
+      }
+      
+      if (raw.includes('Login authentication failed') || raw.includes(':Login unsuccessful')) {
+        twitchConnected = false;
+        setStatus('disconnected', '✗ Token inválido ou expirado');
+        document.getElementById('connectBtn').disabled = false;
+      }
+    };
+
+    twitchWs.onerror = () => {
+      twitchConnected = false;
+      setStatus('disconnected', '✗ Erro de conexão.');
+      document.getElementById('connectBtn').disabled = false;
+    };
+
+    twitchWs.onclose = () => {
+      if (twitchConnected) {
+        twitchConnected = false;
+        setStatus('disconnected', 'Conexão encerrada. Clique em RECONECTAR.');
+        document.getElementById('connectBtn').disabled = false;
+      }
+    };
+  }
+
+  function sendIRC(channel, message) {
+    if (!twitchWs || twitchWs.readyState !== WebSocket.OPEN || !twitchConnected) return false;
+    twitchWs.send(`PRIVMSG #${channel.toLowerCase().replace('#','')} :${message}`);
+    return true;
+  }
+
+  // ── SEND QUEUE ─────────────────────────────────────────────────────────────
+  async function startSending() {
+    if (!queue.length) { alert('A fila está vazia.'); return; }
+    if (!twitchConnected) { alert('Conecte-se à Twitch primeiro.'); return; }
+    if (isSending) return;
+
+    const channel = document.getElementById('twitchChannel').value.trim();
+    const total   = queue.length;
+    const delaySec = parseInt(document.getElementById('delaySeconds').value) || 6;
+    isSending     = true;
+
+    const sendBtn  = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    document.getElementById('sendLoader').style.display = 'inline-block';
+    document.getElementById('sendBtnText').textContent  = 'ENVIANDO...';
+    document.getElementById('clearBtn').disabled = true;
+
+    const progress = document.getElementById('sendProgress');
+    progress.style.display = 'block';
+    const logEl    = document.getElementById('progressLog');
+    logEl.innerHTML = '';
+
+    function addLog(text, type) {
+      const line = document.createElement('div');
+      line.className = `log-line ${type}`;
+      line.textContent = text;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setProgress(done, total) {
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressFraction').textContent = `${done} / ${total}`;
+    }
+
+    async function sendWithAck(video) {
+      return new Promise((resolve) => {
+        const msgId = `${Date.now()}-${Math.random()}`;
+        const timeoutId = setTimeout(() => {
+          if (pendingMessages.has(msgId)) {
+            pendingMessages.delete(msgId);
+            resolve({ success: false, error: 'Timeout' });
+          }
+        }, 3000);
+        
+        pendingMessages.set(msgId, {
+          resolve: (result) => {
+            clearTimeout(timeoutId);
+            pendingMessages.delete(msgId);
+            resolve(result);
+          }
+        });
+        
+        const ok = sendIRC(channel, `!sr ${video.id}`);
+        if (!ok) {
+          clearTimeout(timeoutId);
+          pendingMessages.delete(msgId);
+          resolve({ success: false, error: 'Falha no envio' });
+        }
+      });
+    }
+
+    async function waitWithCountdown(seconds, index, total) {
+      for (let s = seconds; s > 0; s--) {
+        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${index+1}/${total}...`;
+        await sleep(1000);
+      }
+    }
+
+    for (let i = 0; i < queue.length; i++) {
+      const v = queue[i];
+      setQueueItemState(v.uniqueId, 'sending');
+      setProgress(i, total);
+      
+      if (i > 0) {
+        addLog(`⏱  Aguardando ${delaySec} segundos antes do ${i+1}º envio...`, 'wait');
+        await waitWithCountdown(delaySec, i, total);
+      }
+      
+      document.getElementById('progressLabel').textContent = `Enviando ${i+1}/${total}...`;
+      addLog(`📤 Enviando: !sr ${v.id} - "${v.title.substring(0,40)}..."`, 'wait');
+      
+      const result = await sendWithAck(v);
+      
+      if (result.success !== false) {
+        addLog(`✓ [${i+1}/${total}]  !sr ${v.id} aceito`, 'ok');
+        setQueueItemState(v.uniqueId, 'sent');
+      } else {
+        addLog(`✗ [${i+1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
+        setQueueItemState(v.uniqueId, '');
+        if (result.error?.includes('Rate limit')) {
+          addLog(`⚠️  Envio interrompido.`, 'err');
+          break;
+        }
+      }
+      setProgress(i + 1, total);
+    }
+
+    addLog(`🎉  Envio finalizado!`, 'done');
+    document.getElementById('progressLabel').textContent = `Concluído`;
+
+    isSending = false;
+    sendBtn.disabled = false;
+    document.getElementById('sendLoader').style.display = 'none';
+    document.getElementById('sendBtnText').textContent = '📡 ENVIAR TODOS PELO CHAT DA TWITCH';
+    document.getElementById('clearBtn').disabled = false;
+  }
+
+  function setQueueItemState(uniqueId, state) {
+    const item = document.querySelector(`.queue-item[data-qid="${uniqueId}"]`);
+    if (!item) return;
+    item.className = 'queue-item' + (state ? ' ' + state : '');
+    const badge = item.querySelector('.queue-status');
+    if (!badge) return;
+    if (state === 'sending') { 
+      badge.textContent = '⏳ enviando'; 
+      badge.className = 'queue-status sending-badge'; 
+    }
+    else if (state === 'sent') { 
+      badge.textContent = '✓ enviado'; 
+      badge.className = 'queue-status sent-badge'; 
+    }
+    else { 
+      badge.textContent = ''; 
+      badge.className = 'queue-status'; 
+    }
+  }
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // ── YOUTUBE SEARCH ─────────────────────────────────────────────────────────
+  async function searchYouTube() {
+    const query  = document.getElementById('searchInput').value.trim();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey) { alert('Cole sua YouTube Data API v3 key.'); return; }
+    if (!query)  return;
+
+    const btn    = document.getElementById('searchBtn');
+    btn.disabled = true;
+    document.getElementById('searchLoader').style.display = 'inline-block';
+    document.getElementById('searchBtnText').textContent  = '';
+
+    try {
+      const res  = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${apiKey}`);
+      const data = await res.json();
+      if (data.error) { alert('Erro YouTube API: ' + data.error.message); return; }
+      renderResults(data.items || []);
+    } catch { alert('Erro ao buscar.'); }
+    finally {
+      btn.disabled = false;
+      document.getElementById('searchLoader').style.display = 'none';
+      document.getElementById('searchBtnText').textContent  = 'BUSCAR';
+    }
+  }
+
+  function renderResults(items) {
+    const section = document.getElementById('resultsSection');
+    const grid    = document.getElementById('resultsGrid');
+
+    if (!items.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado.</p></div>`;
+      section.style.display = 'block';
+      return;
+    }
+
+    items.forEach(item => {
+      const id = item.id.videoId;
+      if (!videoMap[id]) {
+        videoMap[id] = {
+          id,
+          title:   item.snippet.title,
+          channel: item.snippet.channelTitle,
+          thumb:   item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url
+        };
+      }
+    });
+
+    grid.innerHTML = items.map(item => {
+      const id = item.id.videoId;
+      const v  = videoMap[id];
+      const isFav = isFavorite(id);
+      const countInQueue = getCountInQueue(id);
+      return `
+        <div class="video-card" data-id="${id}">
+          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard('${id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
+          ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
+          <div class="thumb-wrap">
+            <img src="${v.thumb}" alt="" loading="lazy"/>
+            <div class="play-overlay">
+              <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="rgba(255,60,95,0.85)"/>
+                <path d="M16 13l14 7-14 7V13z" fill="white"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="card-title">${escapeHtml(v.title)}</div>
+            <div class="card-channel">${escapeHtml(v.channel)}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.fav-star')) return;
+        const id = card.dataset.id;
+        if (id && videoMap[id]) addToQueue(videoMap[id]);
+      });
+    });
+
+    section.style.display = 'block';
+    document.getElementById('divider').style.display = queue.length ? 'block' : 'none';
+  }
+
+  // ── QUEUE MANAGEMENT ───────────────────────────────────────────────────────
+  function addToQueue(v) {
+    const queueItem = {
+      ...v,
+      uniqueId: `${v.id}-${Date.now()}-${nextUniqueId++}`
+    };
+    queue.push(queueItem);
+    
+    const searchCard = document.getElementById(`card-${v.id}`);
+    if (searchCard) {
+      let qtyBadge = searchCard.querySelector('.qty-badge');
+      const newCount = getCountInQueue(v.id);
+      if (newCount > 0) {
+        if (qtyBadge) qtyBadge.textContent = newCount;
+        else {
+          const badge = document.createElement('div');
+          badge.className = 'qty-badge';
+          badge.textContent = newCount;
+          searchCard.appendChild(badge);
+        }
+      } else if (qtyBadge) qtyBadge.remove();
+    }
+    
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+  }
+
+  function removeFromQueue(uniqueId) {
+    if (isSending) return;
+    const removedItem = queue.find(item => item.uniqueId === uniqueId);
+    if (removedItem) {
+      queue = queue.filter(item => item.uniqueId !== uniqueId);
+      
+      const searchCard = document.getElementById(`card-${removedItem.id}`);
+      if (searchCard) {
+        const newCount = getCountInQueue(removedItem.id);
+        let qtyBadge = searchCard.querySelector('.qty-badge');
+        if (newCount > 0) {
+          if (qtyBadge) qtyBadge.textContent = newCount;
+          else {
+            const badge = document.createElement('div');
+            badge.className = 'qty-badge';
+            badge.textContent = newCount;
+            searchCard.appendChild(badge);
+          }
+        } else if (qtyBadge) qtyBadge.remove();
+      }
+      
+      renderQueue();
+      updateCounter();
+      renderFavoritesGrid();
+    }
+  }
+
+  function clearQueue() {
+    if (isSending) return;
+    queue = [];
+    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+    document.getElementById('sendProgress').style.display = 'none';
+  }
+
+  function renderQueue() {
+    const section = document.getElementById('queueSection');
+    const list    = document.getElementById('queueList');
+    const divider = document.getElementById('divider');
+
+    if (!queue.length) {
+      section.style.display = 'none';
+      divider.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    divider.style.display = 'block';
+
+    list.innerHTML = queue.map((v, i) => `
+      <div class="queue-item" data-qid="${v.uniqueId}">
+        <span class="queue-num">${String(i+1).padStart(2,'0')}</span>
+        <img class="queue-thumb" src="${v.thumb}" alt=""/>
+        <div class="queue-info">
+          <div class="queue-item-title">${escapeHtml(v.title)}</div>
+          <div class="queue-id">!sr ${v.id}</div>
+        </div>
+        <span class="queue-status"></span>
+        <button class="btn-remove" data-remove="${v.uniqueId}" title="Remover">✕</button>
+      </div>`
+    ).join('');
+
+    list.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', () => removeFromQueue(btn.dataset.remove));
+    });
+  }
+
+  function updateCounter() {
+    document.getElementById('queueCount').textContent = queue.length;
+  }
+
+  // ── TAB SYSTEM ─────────────────────────────────────────────────────────────
+  function initTabs() {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = document.querySelectorAll('.tab-pane');
+    
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panes.forEach(pane => pane.classList.remove('active'));
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+      });
+    });
+  }
+
+  // ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchYouTube(); });
+  document.getElementById('twitchToken').addEventListener('keydown', e => { if (e.key === 'Enter') twitchConnect(); });
+  document.getElementById('twitchChannel').addEventListener('keydown', e => { if (e.key === 'Enter') twitchConnect(); });
+  document.getElementById('apiKey').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
+
+  // INIT
+  loadSavedApiKey();
+  initTabs();
+</script>
+</body>
+</html>
