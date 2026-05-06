@@ -113,6 +113,42 @@
       transform: scale(1.05);
     }
 
+    /* USER INFO */
+    .user-info {
+      background: linear-gradient(135deg, var(--surface2), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 16px 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--twitch);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .user-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: var(--accent); }
+
     /* SERVICE BUTTONS */
     .service-buttons {
       display: flex;
@@ -158,9 +194,7 @@
       border-color: var(--spotify);
       background: rgba(29,185,84,0.1);
     }
-    .service-icon {
-      font-size: 18px;
-    }
+    .service-icon { font-size: 18px; }
 
     /* TABS */
     .tabs {
@@ -270,111 +304,57 @@
     }
     .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-    /* INPUT GROUP WITH BUTTON */
-    .input-group {
-      display: flex;
-      gap: 10px;
-      flex: 1;
-      align-items: center;
-      flex-wrap: wrap;
+    /* LOGIN SECTION */
+    .login-section {
+      text-align: center;
+      padding: 20px;
     }
-    .input-group input {
-      flex: 1;
-      min-width: 200px;
-    }
-    .btn-save {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--green);
-      padding: 11px 16px;
-      font-size: 11px;
-    }
-    .btn-save:hover {
-      border-color: var(--green);
-      background: rgba(0,229,160,0.1);
-    }
-    .btn-clear {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 11px 16px;
-      font-size: 11px;
-    }
-    .btn-clear:hover {
-      border-color: var(--accent);
-      background: rgba(255,60,95,0.1);
-    }
-    .saved-badge {
-      font-size: 9px;
-      background: rgba(0,229,160,0.15);
-      padding: 4px 10px;
-      border-radius: 20px;
-      color: var(--green);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .saved-badge::before {
-      content: '🔒';
-      font-size: 10px;
-    }
-    .export-import-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .btn-small:hover {
-      border-color: var(--twitch);
-      color: var(--twitch);
-    }
-    .btn-add-all {
-      background: linear-gradient(135deg, var(--green), var(--twitch));
+    .twitch-login-btn {
+      background: var(--twitch);
       color: white;
       border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 40px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
     }
-    .btn-add-all:hover {
-      opacity: 0.9;
+    .twitch-login-btn:hover {
       transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(145,71,255,0.5);
     }
-
-    /* DELAY CONTROL */
-    .delay-control {
+    .channel-config {
+      margin-top: 16px;
+      padding: 16px;
       background: var(--surface2);
       border-radius: 12px;
-      padding: 12px 20px;
-      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 10px;
     }
-    .delay-control input[type="number"] {
-      width: 70px;
+    .channel-config input {
+      flex: 1;
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-family: 'Space Mono', monospace;
-      text-align: center;
+      font-size: 13px;
     }
-    .delay-control input[type="number"]:focus {
-      border-color: var(--green);
-      outline: none;
-    }
-    .delay-control input[type="number"]::-webkit-inner-spin-button,
-    .delay-control input[type="number"]::-webkit-outer-spin-button {
-      opacity: 0.5;
+    .channel-config button {
+      background: var(--green);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     /* INPUTS */
@@ -414,8 +394,6 @@
     .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
     .btn-red { background: var(--accent); color: #fff; }
     .btn-red:not(:disabled):hover { background: #ff5575; transform: translateY(-1px); }
-    .btn-twitch { background: var(--twitch); color: #fff; }
-    .btn-twitch:not(:disabled):hover { background: #a259ff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(145,71,255,0.35); }
     .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
     .btn-search {
@@ -423,9 +401,7 @@
       color: var(--text);
       border: 1px solid var(--border);
     }
-    .btn-search:hover {
-      transform: translateY(-1px);
-    }
+    .btn-search:hover { transform: translateY(-1px); }
     .btn-search.youtube:hover { border-color: var(--youtube); color: var(--youtube); }
     .btn-search.spotify:hover { border-color: var(--spotify); color: var(--spotify); }
     .btn-send {
@@ -449,27 +425,6 @@
       animation: spin 0.7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* TWITCH STATUS */
-    .twitch-status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 11px;
-      margin-top: 12px;
-      border: 1px solid transparent;
-      transition: all 0.3s;
-    }
-    .twitch-status.disconnected { background: rgba(255,60,95,0.07); border-color: rgba(255,60,95,0.2); color: var(--muted); }
-    .twitch-status.connecting  { background: rgba(255,209,102,0.07); border-color: rgba(255,209,102,0.2); color: var(--yellow); }
-    .twitch-status.connected   { background: rgba(0,229,160,0.07); border-color: rgba(0,229,160,0.2); color: var(--green); }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .disconnected .status-dot { background: var(--muted); }
-    .connecting  .status-dot  { background: var(--yellow); animation: blink 0.8s ease infinite; }
-    .connected   .status-dot  { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
     /* SEND PROGRESS */
     .send-progress {
@@ -607,17 +562,37 @@
     .help-box a:hover { text-decoration:underline; }
     .help-box strong { color:var(--text); }
 
+    .delay-control {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .delay-control input[type="number"] {
+      width: 70px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      text-align: center;
+    }
+
     @media(max-width:600px){
       .row{flex-direction:column;}
       header{flex-direction:column;align-items:flex-start;}
       .counter-badge{margin-left:0;}
       .results-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
       .tabs{flex-wrap:wrap;}
-      .input-group{flex-direction:column;width:100%;}
-      .input-group .btn{width:100%;}
-      .delay-control{flex-direction:column;align-items:flex-start;}
-      .card-label{flex-direction:column;align-items:flex-start;}
       .service-buttons{flex-wrap:wrap;}
+      .delay-control{flex-direction:column;align-items:flex-start;}
+      .user-info{width:100%;justify-content:space-between;}
     }
   </style>
 </head>
@@ -641,6 +616,33 @@
     </a>
   </header>
 
+  <!-- USER INFO & LOGIN -->
+  <div id="authSection" class="card" style="text-align: center;">
+    <div id="loginContainer">
+      <button class="twitch-login-btn" onclick="loginWithTwitch()">
+        <span>🎮</span> Login com Twitch
+      </button>
+      <div class="help-box" style="margin-top: 16px; text-align: left;">
+        <strong>🔐 Login com Twitch</strong><br>
+        Clique no botão acima para autenticar com sua conta Twitch.<br>
+        Uma janela popup abrirá para autorizar o aplicativo.<br>
+        Após autorizar, você poderá configurar o canal e usar a fila de pedidos.
+      </div>
+    </div>
+    <div id="userInfoContainer" style="display: none;">
+      <div class="user-info" style="margin-bottom: 16px;">
+        <div class="user-avatar" id="userAvatar">🎮</div>
+        <span class="user-name" id="userDisplayName"></span>
+        <button class="logout-btn" onclick="logout()" title="Sair">🚪</button>
+      </div>
+      <div class="channel-config" id="channelConfig">
+        <input type="text" id="channelNameInput" placeholder="Nome do canal onde enviar os !sr (ex: meucanal)">
+        <button onclick="saveChannelName()" id="saveChannelBtn">💾 SALVAR CANAL</button>
+      </div>
+      <div id="channelStatus" style="font-size: 11px; color: var(--green); margin-top: 8px;"></div>
+    </div>
+  </div>
+
   <!-- SERVICE SELECTOR -->
   <div class="service-buttons">
     <button class="service-btn youtube active" id="serviceYouTubeBtn" onclick="setActiveService('youtube')">
@@ -659,51 +661,8 @@
 
   <!-- TAB: SEARCH -->
   <div class="tab-pane active" id="tab-search">
-    <!-- TWITCH CONFIG -->
     <div class="card">
-      <div class="card-label">// conexão twitch irc</div>
-      <div class="row" style="margin-bottom:10px; flex-wrap:wrap;">
-        <input type="password" id="twitchToken" placeholder="OAuth Token  (oauth:xxxxxxxxxxxxxxxxxx)" style="min-width:200px"/>
-        <input type="text" id="twitchChannel" placeholder="nome do canal" style="max-width:200px; min-width:140px"/>
-        <button class="btn btn-twitch" id="connectBtn" onclick="twitchConnect()">CONECTAR</button>
-      </div>
-      <div class="help-box">
-        <strong>Como obter o token:</strong> acesse
-        <a href="https://twitchtokengenerator.com/" target="_blank" rel="noopener">twitchtokengenerator.com/</a>
-        → autorize com sua conta Twitch → copie o access_token gerado.<br>
-        <strong>Canal:</strong> escreva o nome do canal onde os <strong>!sr</strong> serão enviados.<br>
-        <strong>Atenção:</strong> o token funciona como senha da sua conta — nunca o compartilhe.
-      </div>
-      <div class="twitch-status disconnected" id="twitchStatus">
-        <div class="status-dot"></div>
-        <span id="statusText">Desconectado</span>
-      </div>
-    </div>
-
-    <!-- API KEYS SECTION -->
-    <div class="card">
-      <div class="card-label">
-        <span>// youtube api key</span>
-        <span id="apiKeySavedBadge" class="saved-badge" style="display:none;">Salva</span>
-      </div>
-      <div class="row" style="margin-bottom:14px; flex-direction:column; align-items:stretch;">
-        <div class="input-group">
-          <input type="password" id="youtubeApiKey" placeholder="YouTube Data API v3 key..."/>
-          <button class="btn btn-save" id="saveYoutubeApiKeyBtn" onclick="saveYoutubeApiKey()">💾 ARMAZENAR</button>
-        </div>
-        <div class="export-import-buttons">
-          <button class="btn-small" onclick="exportFavorites()" id="exportFavBtn" style="display:none;">📤 Exportar favoritos</button>
-          <button class="btn-small" onclick="importFavorites()" id="importFavBtn" style="display:none;">📥 Importar favoritos</button>
-        </div>
-      </div>
-      <div class="help-box" style="margin-top: 0;">
-        <strong>YouTube API Key:</strong> acesse <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> → crie um projeto → ative YouTube Data API v3 → gere uma API Key.
-      </div>
-    </div>
-
-    <!-- SEARCH SECTION -->
-    <div class="card">
-      <div class="card-label">// pesquisar</div>
+      <div class="card-label">// pesquisar música</div>
       <div class="row">
         <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..."/>
         <button class="btn btn-search youtube" id="searchBtn" onclick="performSearch()">
@@ -729,9 +688,8 @@
       <div class="section-label" style="margin-bottom:16px;">
         ⭐ MÚSICAS FAVORITAS
         <div style="display: flex; gap: 8px;">
-          <button class="clear-favs-btn btn-add-all" onclick="addAllFavoritesToQueue()" style="background: linear-gradient(135deg, var(--green), var(--twitch)); color: white;">➕ ADICIONAR TUDO</button>
+          <button class="clear-favs-btn" onclick="addAllFavoritesToQueue()" style="background: linear-gradient(135deg, var(--green), var(--twitch)); color: white;">➕ ADICIONAR TUDO</button>
           <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
-          <span class="clear-favs-btn" onclick="manualSyncFavorites()" id="syncFavBtn" style="display:none;">🔄 Sincronizar</span>
         </div>
       </div>
       <div class="results-grid" id="favoritesGrid"></div>
@@ -792,25 +750,21 @@
   
   // ── STATE ──────────────────────────────────────────────────────────────────
   let queue = [];
-  let addedIds = new Set();
   let videoMap = {};
-  let twitchWs = null;
-  let twitchConnected = false;
   let isSending = false;
   let pendingMessages = new Map();
-  let currentLoggedUser = null;
   let nextUniqueId = 1;
-  let activeService = 'youtube'; // 'youtube' or 'spotify'
+  let activeService = 'youtube';
+  let sessionUUID = null;
+  let isAuthenticated = false;
+  let userChannelName = null;
   
-  // ── STORAGE KEYS ───────────────────────────────────────────────────────────
-  const YOUTUBE_API_KEY_STORAGE = 'songrequest_youtube_api_key';
-  const FAVORITES_STORAGE_PREFIX = 'songrequest_favorites_';
-  const LEGACY_FAVORITES_KEY = 'songrequest_favorites';
+  // ── FAVORITES ──────────────────────────────────────────────────────────────
+  let favorites = [];
   
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
   function setActiveService(service) {
     activeService = service;
-    
     const youtubeBtn = document.getElementById('serviceYouTubeBtn');
     const spotifyBtn = document.getElementById('serviceSpotifyBtn');
     const searchBtn = document.getElementById('searchBtn');
@@ -831,59 +785,178 @@
     }
   }
   
-  // ── SAVE CREDENTIALS ───────────────────────────────────────────────────────
-  function saveYoutubeApiKey() {
-    const apiKey = document.getElementById('youtubeApiKey').value.trim();
-    if (!apiKey) {
-      alert('Digite uma YouTube API Key para salvar.');
+  // ── AUTH FUNCTIONS ─────────────────────────────────────────────────────────
+  function loginWithTwitch() {
+    fetch(`${BACKEND_URL}/api/auth/twitch`)
+      .then(res => res.json())
+      .then(data => {
+        const popup = window.open(data.url, 'Twitch Login', 'width=600,height=700,left=100,top=100');
+        
+        // Verificar quando o popup fechar
+        const interval = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(interval);
+            checkAuthFromUrl();
+          }
+        }, 500);
+      })
+      .catch(err => {
+        console.error('Erro ao iniciar login:', err);
+        alert('Erro ao conectar com Twitch. Tente novamente.');
+      });
+  }
+  
+  function checkAuthFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const loginSuccess = urlParams.get('login');
+    const uuid = urlParams.get('uuid');
+    
+    if (loginSuccess === 'success' && uuid) {
+      sessionUUID = uuid;
+      localStorage.setItem('songrequest_session_uuid', uuid);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      verifySession();
+    } else {
+      const savedUUID = localStorage.getItem('songrequest_session_uuid');
+      if (savedUUID) {
+        sessionUUID = savedUUID;
+        verifySession();
+      }
+    }
+  }
+  
+  async function verifySession() {
+    if (!sessionUUID) return;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID })
+      });
+      
+      const data = await response.json();
+      
+      if (data.authenticated) {
+        isAuthenticated = true;
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('userInfoContainer').style.display = 'block';
+        document.getElementById('userDisplayName').textContent = data.user.displayName;
+        
+        if (data.user.channelName) {
+          userChannelName = data.user.channelName;
+          document.getElementById('channelNameInput').value = data.user.channelName;
+          document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${data.user.channelName}`;
+        }
+        
+        // Carregar favoritos
+        if (data.favorites && data.favorites.length > 0) {
+          favorites = data.favorites.map(f => ({
+            id: f.video_id,
+            title: f.title,
+            channel: f.channel,
+            thumb: f.thumbnail,
+            service: f.service || 'youtube'
+          }));
+          renderFavoritesGrid();
+        }
+        
+        // Habilitar funcionalidades
+        enableFeatures();
+      } else {
+        localStorage.removeItem('songrequest_session_uuid');
+        sessionUUID = null;
+      }
+    } catch (err) {
+      console.error('Erro ao verificar sessão:', err);
+    }
+  }
+  
+  async function saveChannelName() {
+    const channelName = document.getElementById('channelNameInput').value.trim().toLowerCase().replace('#', '');
+    
+    if (!channelName) {
+      alert('Digite o nome do canal');
       return;
     }
-    localStorage.setItem(YOUTUBE_API_KEY_STORAGE, apiKey);
     
-    const saveBtn = document.getElementById('saveYoutubeApiKeyBtn');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '✓ SALVO!';
-    saveBtn.style.background = 'rgba(0,229,160,0.2)';
-    saveBtn.style.borderColor = 'var(--green)';
-    setTimeout(() => {
-      saveBtn.innerHTML = originalText;
-      saveBtn.style.background = '';
-      saveBtn.style.borderColor = '';
-    }, 2000);
-    
-    updateSavedBadge();
-  }
-  
-  function loadSavedCredentials() {
-    const youtubeKey = localStorage.getItem(YOUTUBE_API_KEY_STORAGE);
-    if (youtubeKey) {
-      document.getElementById('youtubeApiKey').value = youtubeKey;
-    }
-    updateSavedBadge();
-  }
-  
-  function updateSavedBadge() {
-    const hasYoutube = localStorage.getItem(YOUTUBE_API_KEY_STORAGE);
-    const savedBadge = document.getElementById('apiKeySavedBadge');
-    const exportBtn = document.getElementById('exportFavBtn');
-    const importBtn = document.getElementById('importFavBtn');
-    const syncBtn = document.getElementById('syncFavBtn');
-    
-    if (hasYoutube) {
-      if (savedBadge) savedBadge.style.display = 'inline-flex';
-      if (exportBtn) exportBtn.style.display = 'inline-flex';
-      if (importBtn) importBtn.style.display = 'inline-flex';
-      if (syncBtn) syncBtn.style.display = 'inline-flex';
-    } else {
-      if (savedBadge) savedBadge.style.display = 'none';
-      if (exportBtn) exportBtn.style.display = 'none';
-      if (importBtn) importBtn.style.display = 'none';
-      if (syncBtn) syncBtn.style.display = 'none';
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/user/channel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, channelName })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        userChannelName = channelName;
+        document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${channelName}`;
+        alert(`Canal #${channelName} configurado com sucesso!`);
+      } else {
+        alert('Erro ao salvar canal');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar canal:', err);
+      alert('Erro ao conectar com servidor');
     }
   }
   
-  // ── SEARCH FUNCTION ────────────────────────────────────────────────────────
+  function logout() {
+    localStorage.removeItem('songrequest_session_uuid');
+    sessionUUID = null;
+    isAuthenticated = false;
+    favorites = [];
+    queue = [];
+    renderQueue();
+    renderFavoritesGrid();
+    updateCounter();
+    document.getElementById('loginContainer').style.display = 'block';
+    document.getElementById('userInfoContainer').style.display = 'none';
+    document.getElementById('channelStatus').innerHTML = '';
+    document.getElementById('channelNameInput').value = '';
+    disableFeatures();
+  }
+  
+  function enableFeatures() {
+    document.getElementById('searchInput').disabled = false;
+    document.getElementById('searchBtn').disabled = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('clearBtn').disabled = false;
+  }
+  
+  function disableFeatures() {
+    document.getElementById('searchInput').disabled = true;
+    document.getElementById('searchBtn').disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('clearBtn').disabled = true;
+  }
+  
+  // ── SAVE FAVORITES TO BACKEND ─────────────────────────────────────────────
+  async function saveFavoritesToBackend() {
+    if (!sessionUUID) return false;
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, favorites })
+      });
+      const data = await response.json();
+      return data.success;
+    } catch (err) {
+      console.error('Erro ao salvar favoritos:', err);
+      return false;
+    }
+  }
+  
+  // ── SEARCH FUNCTIONS ───────────────────────────────────────────────────────
   async function performSearch() {
+    if (!isAuthenticated) {
+      alert('Faça login com Twitch primeiro!');
+      return;
+    }
+    
     if (activeService === 'youtube') {
       await searchYouTube();
     } else {
@@ -893,12 +966,6 @@
   
   async function searchYouTube() {
     const query = document.getElementById('searchInput').value.trim();
-    const apiKey = document.getElementById('youtubeApiKey').value.trim();
-    
-    if (!apiKey) {
-      alert('Cole sua YouTube Data API v3 key.');
-      return;
-    }
     if (!query) return;
     
     const btn = document.getElementById('searchBtn');
@@ -907,15 +974,22 @@
     document.getElementById('searchBtnText').textContent = '';
     
     try {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${apiKey}`);
-      const data = await res.json();
+      const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      
+      const data = await response.json();
+      
       if (data.error) {
-        alert('Erro YouTube API: ' + data.error.message);
+        alert('Erro YouTube: ' + data.error);
         return;
       }
+      
       renderResults(data.items || [], 'youtube');
-    } catch {
-      alert('Erro ao buscar no YouTube.');
+    } catch (error) {
+      alert('Erro ao buscar no YouTube: ' + error.message);
     } finally {
       btn.disabled = false;
       document.getElementById('searchLoader').style.display = 'none';
@@ -948,7 +1022,6 @@
       
       const items = data.tracks?.items || [];
       renderResults(items, 'spotify');
-      
     } catch (error) {
       alert('Erro ao buscar no Spotify: ' + error.message);
     } finally {
@@ -963,7 +1036,7 @@
     const grid = document.getElementById('resultsGrid');
     
     if (!items.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado encontrado no ${service === 'youtube' ? 'YouTube' : 'Spotify'}.<br>Tente outra busca.</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado encontrado.</p></div>`;
       section.style.display = 'block';
       return;
     }
@@ -993,8 +1066,8 @@
     });
     
     grid.innerHTML = results.map(v => {
-      const isFav = isFavorite(v.id);
-      const countInQueue = getCountInQueue(v.id);
+      const isFav = favorites.some(f => f.id === v.id);
+      const countInQueue = queue.filter(item => item.id === v.id).length;
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
       return `
@@ -1002,7 +1075,7 @@
           <div class="service-badge ${serviceClass}">
             ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
           </div>
-          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard('${v.id}')">
+          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${v.id}')">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
             </svg>
@@ -1036,181 +1109,32 @@
     document.getElementById('divider').style.display = queue.length ? 'block' : 'none';
   }
   
-  // ── FAVORITES SYSTEM ───────────────────────────────────────────────────────
-  let favorites = [];
-  
-  function getFavoritesStorageKey() {
-    return FAVORITES_STORAGE_PREFIX + 'default';
-  }
-  
-  function loadFavorites() {
-    const storageKey = getFavoritesStorageKey();
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        favorites = JSON.parse(saved);
-        renderFavoritesGrid();
-      } catch(e) {}
+  // ── FAVORITES MANAGEMENT ───────────────────────────────────────────────────
+  async function toggleFavorite(videoId) {
+    const video = videoMap[videoId];
+    if (!video) return;
+    
+    const exists = favorites.some(f => f.id === videoId);
+    
+    if (exists) {
+      favorites = favorites.filter(f => f.id !== videoId);
     } else {
-      const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
-      if (legacyFavs) {
-        try {
-          favorites = JSON.parse(legacyFavs);
-          saveFavoritesToStorage();
-        } catch(e) { favorites = []; renderFavoritesGrid(); }
-      } else {
-        favorites = [];
-        renderFavoritesGrid();
-      }
+      favorites.unshift(video);
+      if (favorites.length > 50) favorites.pop();
     }
-  }
-  
-  function saveFavoritesToStorage() {
-    const storageKey = getFavoritesStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(favorites));
+    
     renderFavoritesGrid();
+    await saveFavoritesToBackend();
     
-    // Salvar no backend também
-    const apiKey = document.getElementById('youtubeApiKey').value.trim();
-    if (apiKey && BACKEND_URL) {
-      fetch(`${BACKEND_URL}/api/favorites`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, favorites })
-      }).catch(err => console.error('Erro ao salvar no backend:', err));
-    }
-  }
-  
-  async function syncFavoritesWithBackend(apiKey) {
-    if (!apiKey) return false;
-    
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey })
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.favorites) {
-        favorites = data.favorites.map(f => ({
-          id: f.video_id,
-          title: f.title,
-          channel: f.channel,
-          thumb: f.thumbnail,
-          service: f.service || 'youtube'
-        }));
-        
-        renderFavoritesGrid();
-        saveFavoritesToStorage();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Erro ao sincronizar com backend:', error);
-      return false;
-    }
-  }
-  
-  function addToFavorites(video) {
-    if (favorites.some(f => f.id === video.id)) return;
-    favorites.unshift(video);
-    if (favorites.length > 50) favorites.pop();
-    saveFavoritesToStorage();
-  }
-  
-  function removeFromFavorites(id) {
-    favorites = favorites.filter(f => f.id !== id);
-    saveFavoritesToStorage();
-  }
-  
-  function isFavorite(id) {
-    return favorites.some(f => f.id === id);
-  }
-  
-  function clearAllFavorites() {
-    if (confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) {
-      favorites = [];
-      saveFavoritesToStorage();
-      
-      const apiKey = document.getElementById('youtubeApiKey').value.trim();
-      if (apiKey && BACKEND_URL) {
-        fetch(`${BACKEND_URL}/api/favorites/all`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey })
-        }).catch(err => console.error('Erro ao limpar backend:', err));
+    // Update star in search results
+    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${videoId}"]`);
+    if (searchCard) {
+      const star = searchCard.querySelector('.fav-star');
+      if (star) {
+        if (!exists) star.classList.add('active');
+        else star.classList.remove('active');
       }
     }
-  }
-  
-  function addAllFavoritesToQueue() {
-    if (favorites.length === 0) {
-      alert('Nenhum favorito para adicionar.');
-      return;
-    }
-    
-    let addedCount = 0;
-    for (const fav of favorites) {
-      addToQueue(fav);
-      addedCount++;
-    }
-    
-    alert(`${addedCount} música(s) adicionada(s) à fila!`);
-  }
-  
-  function manualSyncFavorites() {
-    const apiKey = document.getElementById('youtubeApiKey').value.trim();
-    if (apiKey) {
-      syncFavoritesWithBackend(apiKey);
-    } else {
-      loadFavorites();
-    }
-    alert('Favoritos sincronizados!');
-  }
-  
-  function exportFavorites() {
-    if (favorites.length === 0) {
-      alert('Nenhum favorito para exportar.');
-      return;
-    }
-    const dataStr = JSON.stringify(favorites, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `songrequest_favorites_${new Date().toISOString().slice(0, 19)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    alert('Favoritos exportados com sucesso!');
-  }
-  
-  function importFavorites() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const imported = JSON.parse(event.target.result);
-          if (Array.isArray(imported)) {
-            favorites = imported;
-            saveFavoritesToStorage();
-            alert(`${imported.length} favoritos importados com sucesso!`);
-          } else {
-            alert('Arquivo inválido.');
-          }
-        } catch (err) {
-          alert('Erro ao ler o arquivo.');
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
   }
   
   function renderFavoritesGrid() {
@@ -1221,7 +1145,7 @@
     }
     
     grid.innerHTML = favorites.map(v => {
-      const countInQueue = getCountInQueue(v.id);
+      const countInQueue = queue.filter(item => item.id === v.id).length;
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
       return `
@@ -1229,7 +1153,7 @@
           <div class="service-badge ${serviceClass}">
             ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
           </div>
-          <div class="fav-star active" onclick="event.stopPropagation(); toggleFavoriteFromCard('${v.id}')">
+          <div class="fav-star active" onclick="event.stopPropagation(); toggleFavorite('${v.id}')">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
             </svg>
@@ -1261,47 +1185,23 @@
     });
   }
   
-  function toggleFavoriteFromCard(id) {
-    if (isFavorite(id)) {
-      removeFromFavorites(id);
-    } else {
-      const video = videoMap[id];
-      if (video) addToFavorites(video);
-    }
+  async function clearAllFavorites() {
+    if (!confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) return;
+    favorites = [];
     renderFavoritesGrid();
-    const searchCard = document.querySelector(`.video-card[data-id="${id}"]`);
-    if (searchCard && !searchCard.closest('#favoritesGrid')) {
-      const star = searchCard.querySelector('.fav-star');
-      if (star) {
-        if (isFavorite(id)) star.classList.add('active');
-        else star.classList.remove('active');
-      }
-      const qtyBadge = searchCard.querySelector('.qty-badge');
-      const countInQueue = getCountInQueue(id);
-      if (countInQueue > 0) {
-        if (qtyBadge) qtyBadge.textContent = countInQueue;
-        else {
-          const badge = document.createElement('div');
-          badge.className = 'qty-badge';
-          badge.textContent = countInQueue;
-          searchCard.appendChild(badge);
-        }
-      } else if (qtyBadge) qtyBadge.remove();
+    await saveFavoritesToBackend();
+  }
+  
+  function addAllFavoritesToQueue() {
+    if (favorites.length === 0) {
+      alert('Nenhum favorito para adicionar.');
+      return;
     }
-  }
-  
-  function getCountInQueue(videoId) {
-    return queue.filter(item => item.id === videoId).length;
-  }
-  
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
+    
+    for (const fav of favorites) {
+      addToQueue(fav);
+    }
+    alert(`${favorites.length} música(s) adicionada(s) à fila!`);
   }
   
   // ── QUEUE MANAGEMENT ───────────────────────────────────────────────────────
@@ -1314,53 +1214,19 @@
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
-    
-    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${v.id}"]`);
-    if (searchCard) {
-      let qtyBadge = searchCard.querySelector('.qty-badge');
-      const newCount = getCountInQueue(v.id);
-      if (newCount > 0) {
-        if (qtyBadge) qtyBadge.textContent = newCount;
-        else {
-          const badge = document.createElement('div');
-          badge.className = 'qty-badge';
-          badge.textContent = newCount;
-          searchCard.appendChild(badge);
-        }
-      } else if (qtyBadge) qtyBadge.remove();
-    }
   }
   
   function removeFromQueue(uniqueId) {
     if (isSending) return;
-    const removedItem = queue.find(item => item.uniqueId === uniqueId);
-    if (removedItem) {
-      queue = queue.filter(item => item.uniqueId !== uniqueId);
-      renderQueue();
-      updateCounter();
-      renderFavoritesGrid();
-      
-      const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${removedItem.id}"]`);
-      if (searchCard) {
-        const newCount = getCountInQueue(removedItem.id);
-        let qtyBadge = searchCard.querySelector('.qty-badge');
-        if (newCount > 0) {
-          if (qtyBadge) qtyBadge.textContent = newCount;
-          else {
-            const badge = document.createElement('div');
-            badge.className = 'qty-badge';
-            badge.textContent = newCount;
-            searchCard.appendChild(badge);
-          }
-        } else if (qtyBadge) qtyBadge.remove();
-      }
-    }
+    queue = queue.filter(item => item.uniqueId !== uniqueId);
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
   }
   
   function clearQueue() {
     if (isSending) return;
     queue = [];
-    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
@@ -1409,119 +1275,22 @@
     document.getElementById('queueCount').textContent = queue.length;
   }
   
-  // ── TWITCH IRC ─────────────────────────────────────────────────────────────
-  function setStatus(state, text) {
-    const el = document.getElementById('twitchStatus');
-    el.className = 'twitch-status ' + state;
-    document.getElementById('statusText').textContent = text;
-  }
-  
-  function twitchConnect() {
-    const rawToken = document.getElementById('twitchToken').value.trim();
-    const channel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
-    if (!rawToken || !channel) {
-      alert('Preencha o token OAuth e o nome do canal.');
-      return;
-    }
-    
-    const token = rawToken.startsWith('oauth:') ? rawToken : 'oauth:' + rawToken;
-    
-    if (twitchWs) {
-      twitchWs.onclose = null;
-      twitchWs.close();
-      twitchWs = null;
-    }
-    twitchConnected = false;
-    currentLoggedUser = null;
-    setStatus('connecting', 'Conectando ao Twitch IRC...');
-    document.getElementById('connectBtn').disabled = true;
-    
-    twitchWs = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
-    
-    twitchWs.onopen = () => {
-      twitchWs.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
-      twitchWs.send(`PASS ${token}`);
-      twitchWs.send(`NICK ${channel}`);
-      twitchWs.send(`JOIN #${channel}`);
-    };
-    
-    twitchWs.onmessage = (e) => {
-      const raw = e.data;
-      if (raw.startsWith('PING')) {
-        twitchWs.send('PONG :tmi.twitch.tv');
-        return;
-      }
-      
-      if (raw.includes('NOTICE') && raw.includes('#') && raw.includes('!sr')) {
-        const waitMatch = raw.match(/wait (\d+) seconds?/i);
-        if (waitMatch || raw.includes('you have to wait') || raw.includes('slow mode')) {
-          const lastMsgId = [...pendingMessages.keys()].pop();
-          if (lastMsgId && pendingMessages.has(lastMsgId)) {
-            pendingMessages.get(lastMsgId).resolve({ success: false, error: 'Rate limit: aguarde o intervalo configurado entre comandos' });
-          }
-        }
-      }
-      
-      const welcomeMatch = raw.match(/^:\S+ 001 (\w+)/i);
-      if (welcomeMatch && !currentLoggedUser) currentLoggedUser = welcomeMatch[1];
-      
-      if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && currentLoggedUser) {
-        twitchConnected = true;
-        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
-        setStatus('connected', `✅ Conectado como @${currentLoggedUser} → #${targetChannel}`);
-        document.getElementById('connectBtn').textContent = 'RECONECTAR';
-        document.getElementById('connectBtn').disabled = false;
-      }
-      
-      if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && !currentLoggedUser) {
-        twitchConnected = true;
-        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
-        setStatus('connected', `✅ Conectado → #${targetChannel}`);
-        document.getElementById('connectBtn').textContent = 'RECONECTAR';
-        document.getElementById('connectBtn').disabled = false;
-      }
-      
-      if (raw.includes('Login authentication failed') || raw.includes(':Login unsuccessful')) {
-        twitchConnected = false;
-        setStatus('disconnected', '✗ Token inválido ou expirado');
-        document.getElementById('connectBtn').disabled = false;
-      }
-    };
-    
-    twitchWs.onerror = () => {
-      twitchConnected = false;
-      setStatus('disconnected', '✗ Erro de conexão.');
-      document.getElementById('connectBtn').disabled = false;
-    };
-    
-    twitchWs.onclose = () => {
-      if (twitchConnected) {
-        twitchConnected = false;
-        setStatus('disconnected', 'Conexão encerrada. Clique em RECONECTAR.');
-        document.getElementById('connectBtn').disabled = false;
-      }
-    };
-  }
-  
-  function sendIRC(channel, message) {
-    if (!twitchWs || twitchWs.readyState !== WebSocket.OPEN || !twitchConnected) return false;
-    twitchWs.send(`PRIVMSG #${channel.toLowerCase().replace('#', '')} :${message}`);
-    return true;
-  }
-  
-  // ── SEND QUEUE ─────────────────────────────────────────────────────────────
+  // ── SEND QUEUE TO TWITCH ───────────────────────────────────────────────────
   async function startSending() {
     if (!queue.length) {
       alert('A fila está vazia.');
       return;
     }
-    if (!twitchConnected) {
-      alert('Conecte-se à Twitch primeiro.');
+    if (!isAuthenticated) {
+      alert('Faça login com Twitch primeiro.');
+      return;
+    }
+    if (!userChannelName) {
+      alert('Configure o canal primeiro.');
       return;
     }
     if (isSending) return;
     
-    const channel = document.getElementById('twitchChannel').value.trim();
     const total = queue.length;
     const delaySec = parseInt(document.getElementById('delaySeconds').value) || 6;
     isSending = true;
@@ -1551,31 +1320,24 @@
       document.getElementById('progressFraction').textContent = `${done} / ${total}`;
     }
     
-    async function sendWithAck(video) {
-      return new Promise((resolve) => {
-        const msgId = `${Date.now()}-${Math.random()}`;
-        const timeoutId = setTimeout(() => {
-          if (pendingMessages.has(msgId)) {
-            pendingMessages.delete(msgId);
-            resolve({ success: false, error: 'Timeout' });
-          }
-        }, 3000);
-        
-        pendingMessages.set(msgId, {
-          resolve: (result) => {
-            clearTimeout(timeoutId);
-            pendingMessages.delete(msgId);
-            resolve(result);
-          }
+    async function sendToBackend(video, index) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uuid: sessionUUID,
+            videoId: video.id,
+            title: video.title,
+            service: video.service
+          })
         });
         
-        const ok = sendIRC(channel, `!sr ${video.id}`);
-        if (!ok) {
-          clearTimeout(timeoutId);
-          pendingMessages.delete(msgId);
-          resolve({ success: false, error: 'Falha no envio' });
-        }
-      });
+        const data = await response.json();
+        return { success: data.success, error: data.error };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
     }
     
     async function waitWithCountdown(seconds, index, total) {
@@ -1598,18 +1360,14 @@
       document.getElementById('progressLabel').textContent = `Enviando ${i + 1}/${total}...`;
       addLog(`📤 Enviando: !sr ${v.id} - "${v.title.substring(0, 40)}..." [${v.service === 'youtube' ? 'YouTube' : 'Spotify'}]`, 'wait');
       
-      const result = await sendWithAck(v);
+      const result = await sendToBackend(v, i);
       
-      if (result.success !== false) {
+      if (result.success) {
         addLog(`✓ [${i + 1}/${total}]  !sr ${v.id} aceito`, 'ok');
         setQueueItemState(v.uniqueId, 'sent');
       } else {
         addLog(`✗ [${i + 1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
         setQueueItemState(v.uniqueId, '');
-        if (result.error?.includes('Rate limit')) {
-          addLog(`⚠️  Envio interrompido.`, 'err');
-          break;
-        }
       }
       setProgress(i + 1, total);
     }
@@ -1642,6 +1400,17 @@
     }
   }
   
+  // ── UTILITIES ──────────────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, m => {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   
   // ── TABS ───────────────────────────────────────────────────────────────────
@@ -1664,18 +1433,12 @@
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') performSearch();
   });
-  document.getElementById('twitchToken').addEventListener('keydown', e => {
-    if (e.key === 'Enter') twitchConnect();
-  });
-  document.getElementById('twitchChannel').addEventListener('keydown', e => {
-    if (e.key === 'Enter') twitchConnect();
-  });
   
   // ── INIT ───────────────────────────────────────────────────────────────────
-  loadSavedCredentials();
-  loadFavorites();
   initTabs();
   setActiveService('youtube');
+  disableFeatures();
+  checkAuthFromUrl();
 </script>
 </body>
   </html>
