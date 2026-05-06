@@ -7,7 +7,7 @@
 
 > **Gerencie pedidos de músicas na sua live da Twitch com integração direta ao YouTube**
 
-![Song Request Queue Preview](https://via.placeholder.com/800x400?text=Song+Request+Queue+Preview)
+[![Song Request Queue Preview](https://via.placeholder.com/800x400/0a0a0f/9147ff?text=Clique+para+Abrir+o+App)](https://asrus21.github.io/Song-Request-Queue/)
 
 ## ✨ Funcionalidades
 
@@ -19,7 +19,11 @@
 - 💾 **Persistência local** - Favoritos salvos no seu navegador
 - 🎨 **Design moderno** - Interface dark mode com efeitos neon
 
-## 🚀 Como usar
+## 🚀 Acesse agora
+
+**👉 [Clique aqui para abrir o Song Request Queue](https://asrus21.github.io/Song-Request-Queue/) 👈**
+
+## 🔧 Como usar
 
 ### 1. Obter as credenciais necessárias
 
@@ -35,11 +39,11 @@
 2. Clique em "Custom Scope"
 3. Selecione apenas a permissão: `chat:read` e `chat:edit`
 4. Autorize com sua conta Twitch
-5. Copie o `access_token` gerado (começa com `oauth:`)
+5. Copie o `access_token` gerado
 
 ### 2. Configurar a aplicação
 
-1. Abra o arquivo `index.html` no seu navegador
+1. Acesse [Song Request Queue](https://asrus21.github.io/Song-Request-Queue/)
 2. Cole sua **YouTube API Key**
 3. Cole seu **Twitch OAuth Token**
 4. Digite o **nome do canal** onde os comandos serão enviados
@@ -53,18 +57,18 @@
 - 📡 **Clique em "ENVIAR TODOS"** para enviar os comandos `!sr` no chat
 - ❌ **Remova itens individualmente** com o botão X
 
-## 📦 Deploy no GitHub Pages
+## 📦 Deploy
 
-### Instalação automática:
-```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/song-request-queue.git
+Este projeto está hospedado no GitHub Pages:  
+**https://asrus21.github.io/Song-Request-Queue/**
 
-# Entre na pasta
-cd song-request-queue
+## 🛠️ Tecnologias utilizadas
 
-# Adicione o arquivo (já deve estar lá)
-# Commit e push
-git add index.html
-git commit -m "Initial commit - Song Request Queue"
-git push origin main
+- **HTML5** - Estrutura da página
+- **CSS3** - Estilização com variáveis CSS e animações
+- **JavaScript (ES6+)** - Lógica da aplicação
+- **Twitch IRC WebSocket** - Conexão direta com chat da Twitch
+- **YouTube Data API v3** - Busca de vídeos
+- **LocalStorage** - Persistência de favoritos
+
+## 📋 Estrutura do projeto
