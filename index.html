@@ -2,9 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="assets/sr-logo.png">
-  <link rel="apple-touch-icon" href="assets/sr-logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/sr-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/sr-logo.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/sr-logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/sr-logo.png">
+  <link rel="shortcut icon" href="assets/sr-logo.png">
+  
   <title>Song Request Queue</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
@@ -513,7 +519,8 @@
 
 <script>
   // ── STATE ──────────────────────────────────────────────────────────────────
-  let queue = [];           // Array de objetos, cada um com { id, title, channel, thumb, uniqueId }
+  let queue = [];
+  let addedIds = new Set();
   let videoMap = {};
   let twitchWs = null;
   let twitchConnected = false;
@@ -525,7 +532,6 @@
   // FAVORITES
   let favorites = [];
   
-  // Load favorites from localStorage
   function loadFavorites() {
     const saved = localStorage.getItem('songrequest_favorites');
     if (saved) {
@@ -650,7 +656,7 @@
     });
   }
 
-  // ── TWITCH IRC via WebSocket (mesmo código anterior) ───────────────────────
+  // ── TWITCH IRC via WebSocket ───────────────────────────────────────────────
   function setStatus(state, text) {
     const el = document.getElementById('twitchStatus');
     el.className = 'twitch-status ' + state;
@@ -966,7 +972,6 @@
     };
     queue.push(queueItem);
     
-    // Atualiza o badge de quantidade no card de pesquisa
     const searchCard = document.getElementById(`card-${v.id}`);
     if (searchCard) {
       let qtyBadge = searchCard.querySelector('.qty-badge');
@@ -984,7 +989,7 @@
     
     renderQueue();
     updateCounter();
-    renderFavoritesGrid(); // Atualiza favoritos também
+    renderFavoritesGrid();
   }
 
   function removeFromQueue(uniqueId) {
@@ -993,7 +998,6 @@
     if (removedItem) {
       queue = queue.filter(item => item.uniqueId !== uniqueId);
       
-      // Atualiza badge no card de pesquisa
       const searchCard = document.getElementById(`card-${removedItem.id}`);
       if (searchCard) {
         const newCount = getCountInQueue(removedItem.id);
@@ -1018,10 +1022,7 @@
   function clearQueue() {
     if (isSending) return;
     queue = [];
-    
-    // Remove todos os badges de quantidade
     document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
-    
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
