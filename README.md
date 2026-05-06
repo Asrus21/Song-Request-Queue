@@ -1,5 +1,11 @@
 # 🎵 Song Request Queue - Twitch + YouTube
 
+<div align="center">
+  <img src="assets/SR Logo.png" alt="Song Request Logo" width="120" height="120">
+</div>
+
+<br>
+
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Twitch](https://img.shields.io/badge/Twitch-IRC-purple)
@@ -7,7 +13,17 @@
 
 > **Gerencie pedidos de músicas na sua live da Twitch com integração direta ao YouTube**
 
-[![Song Request Queue Preview](https://via.placeholder.com/800x400/0a0a0f/9147ff?text=Clique+para+Abrir+o+App)](https://asrus21.github.io/Song-Request-Queue/)
+<div align="center">
+  <a href="https://asrus21.github.io/Song-Request-Queue/">
+    <img src="https://via.placeholder.com/800x400/0a0a0f/9147ff?text=Clique+para+Abrir+o+App" alt="Song Request Queue Preview">
+  </a>
+</div>
+
+<br>
+
+## 🚀 Acesse agora
+
+**👉 [Clique aqui para abrir o Song Request Queue](https://asrus21.github.io/Song-Request-Queue/) 👈**
 
 ## ✨ Funcionalidades
 
@@ -18,10 +34,6 @@
 - ⏱️ **Limite de rate respeitado** - 6 segundos entre cada comando
 - 💾 **Persistência local** - Favoritos salvos no seu navegador
 - 🎨 **Design moderno** - Interface dark mode com efeitos neon
-
-## 🚀 Acesse agora
-
-**👉 [Clique aqui para abrir o Song Request Queue](https://asrus21.github.io/Song-Request-Queue/) 👈**
 
 ## 🔧 Como usar
 
@@ -72,3 +84,53 @@ Este projeto está hospedado no GitHub Pages:
 - **LocalStorage** - Persistência de favoritos
 
 ## 📋 Estrutura do projeto
+Song-Request-Queue/
+├── assets/
+│ └── SR Logo.png # Logo do projeto
+├── index.html # Aplicação principal
+├── README.md # Documentação
+└── LICENSE # Licença MIT
+
+text
+
+## ⚠️ Avisos importantes
+
+### Segurança da API Key
+- Sua **YouTube API Key** fica visível no frontend
+- **Recomendação:** Restrinja a chave no Google Cloud Console para seu domínio específico
+
+### Twitch Token
+- O token **NUNCA deve ser compartilhado**
+- Funciona como senha da sua conta Twitch
+- Expira periodicamente - gere um novo quando necessário
+
+### Limitações da Twitch
+- Comandos respeitam o rate limit (6 segundos entre cada)
+- O bot do canal precisa permitir comandos `!sr`
+
+## 🐛 Solução de problemas
+
+### "Erro de conexão com Twitch"
+- Verifique se o token está correto
+- Confirme se o nome do canal está correto (sem o #)
+- O token pode ter expirado - gere um novo
+
+### "Erro na API do YouTube"
+- Verifique se a API Key está correta
+- Confirme se a YouTube Data API v3 está ativada
+
+## 🙏 Agradecimentos
+
+- [Twitch IRC Docs](https://dev.twitch.tv/docs/irc)
+- [YouTube Data API](https://developers.google.com/youtube/v3)
+- [Google Fonts](https://fonts.google.com/) - Fontes Space Mono e Unbounded
+
+## 📄 Licença
+
+Distribuído sob a licença MIT.
+
+---
+
+## ⚡ Acesso rápido
+
+**👉 https://asrus21.github.io/Song-Request-Queue/ 👈**
