@@ -336,6 +336,15 @@
       border-color: var(--twitch);
       color: var(--twitch);
     }
+    .btn-add-all {
+      background: linear-gradient(135deg, var(--green), var(--twitch));
+      color: white;
+      border: none;
+    }
+    .btn-add-all:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
 
     /* DELAY CONTROL */
     .delay-control {
@@ -726,6 +735,7 @@
       <div class="section-label" style="margin-bottom:16px;">
         ⭐ MÚSICAS FAVORITAS
         <div style="display: flex; gap: 8px;">
+          <button class="clear-favs-btn btn-add-all" onclick="addAllFavoritesToQueue()" style="background: linear-gradient(135deg, var(--green), var(--twitch)); color: white;">➕ ADICIONAR TUDO</button>
           <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
           <span class="clear-favs-btn" onclick="manualSyncFavorites()" id="syncFavBtn" style="display:none;">🔄 Sincronizar</span>
         </div>
@@ -811,7 +821,6 @@
   function setActiveService(service) {
     activeService = service;
     
-    // Update UI
     const youtubeBtn = document.getElementById('serviceYouTubeBtn');
     const spotifyBtn = document.getElementById('serviceSpotifyBtn');
     const searchBtn = document.getElementById('searchBtn');
@@ -823,20 +832,17 @@
       searchBtn.classList.remove('spotify');
       searchBtn.classList.add('youtube');
       activeLabel.innerHTML = '<span style="color: var(--youtube);">YouTube</span>';
-      activeLabel.style.color = 'var(--youtube)';
     } else {
       youtubeBtn.classList.remove('active');
       spotifyBtn.classList.add('active');
       searchBtn.classList.remove('youtube');
       searchBtn.classList.add('spotify');
       activeLabel.innerHTML = '<span style="color: var(--spotify);">Spotify</span>';
-      activeLabel.style.color = 'var(--spotify)';
     }
   }
   
   // ── SPOTIFY AUTH ───────────────────────────────────────────────────────────
   async function getSpotifyAccessToken() {
-    // Check if cached token is still valid
     if (spotifyAccessToken && spotifyTokenExpiry && Date.now() < spotifyTokenExpiry) {
       return spotifyAccessToken;
     }
@@ -903,7 +909,6 @@
     localStorage.setItem(SPOTIFY_CLIENT_ID_STORAGE, clientId);
     localStorage.setItem(SPOTIFY_CLIENT_SECRET_STORAGE, clientSecret);
     
-    // Reset token cache
     spotifyAccessToken = null;
     spotifyTokenExpiry = null;
     
@@ -1170,6 +1175,21 @@
     }
   }
   
+  function addAllFavoritesToQueue() {
+    if (favorites.length === 0) {
+      alert('Nenhum favorito para adicionar.');
+      return;
+    }
+    
+    let addedCount = 0;
+    for (const fav of favorites) {
+      addToQueue(fav);
+      addedCount++;
+    }
+    
+    alert(`${addedCount} música(s) adicionada(s) à fila!`);
+  }
+  
   function manualSyncFavorites() {
     loadFavorites();
     alert('Favoritos sincronizados!');
@@ -1275,7 +1295,7 @@
     }
     renderFavoritesGrid();
     const searchCard = document.querySelector(`.video-card[data-id="${id}"]`);
-    if (searchCard) {
+    if (searchCard && !searchCard.closest('#favoritesGrid')) {
       const star = searchCard.querySelector('.fav-star');
       if (star) {
         if (isFavorite(id)) star.classList.add('active');
@@ -1319,19 +1339,55 @@
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
+    
+    // Update quantity badge on search cards
+    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${v.id}"]`);
+    if (searchCard) {
+      let qtyBadge = searchCard.querySelector('.qty-badge');
+      const newCount = getCountInQueue(v.id);
+      if (newCount > 0) {
+        if (qtyBadge) qtyBadge.textContent = newCount;
+        else {
+          const badge = document.createElement('div');
+          badge.className = 'qty-badge';
+          badge.textContent = newCount;
+          searchCard.appendChild(badge);
+        }
+      } else if (qtyBadge) qtyBadge.remove();
+    }
   }
   
   function removeFromQueue(uniqueId) {
     if (isSending) return;
-    queue = queue.filter(item => item.uniqueId !== uniqueId);
-    renderQueue();
-    updateCounter();
-    renderFavoritesGrid();
+    const removedItem = queue.find(item => item.uniqueId === uniqueId);
+    if (removedItem) {
+      queue = queue.filter(item => item.uniqueId !== uniqueId);
+      renderQueue();
+      updateCounter();
+      renderFavoritesGrid();
+      
+      // Update quantity badge on search cards
+      const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${removedItem.id}"]`);
+      if (searchCard) {
+        const newCount = getCountInQueue(removedItem.id);
+        let qtyBadge = searchCard.querySelector('.qty-badge');
+        if (newCount > 0) {
+          if (qtyBadge) qtyBadge.textContent = newCount;
+          else {
+            const badge = document.createElement('div');
+            badge.className = 'qty-badge';
+            badge.textContent = newCount;
+            searchCard.appendChild(badge);
+          }
+        } else if (qtyBadge) qtyBadge.remove();
+      }
+    }
   }
   
   function clearQueue() {
     if (isSending) return;
     queue = [];
+    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
