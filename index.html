@@ -27,6 +27,8 @@
       --muted: #6b6b80;
       --green: #00e5a0;
       --yellow: #ffd166;
+      --youtube: #ff0000;
+      --spotify: #1db954;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,6 +113,55 @@
       transform: scale(1.05);
     }
 
+    /* SERVICE BUTTONS */
+    .service-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .service-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .service-btn.active {
+      border-width: 2px;
+    }
+    .service-btn.youtube.active {
+      background: var(--youtube);
+      color: white;
+      border-color: var(--youtube);
+      box-shadow: 0 0 15px rgba(255,0,0,0.3);
+    }
+    .service-btn.spotify.active {
+      background: var(--spotify);
+      color: white;
+      border-color: var(--spotify);
+      box-shadow: 0 0 15px rgba(29,185,84,0.3);
+    }
+    .service-btn.youtube:hover:not(.active) {
+      border-color: var(--youtube);
+      background: rgba(255,0,0,0.1);
+    }
+    .service-btn.spotify:hover:not(.active) {
+      border-color: var(--spotify);
+      background: rgba(29,185,84,0.1);
+    }
+    .service-icon {
+      font-size: 18px;
+    }
+
     /* TABS */
     .tabs {
       display: flex;
@@ -162,6 +213,25 @@
     .fav-star svg { width: 16px; height: 16px; }
     .fav-star.active svg { fill: var(--yellow); stroke: var(--yellow); }
     .fav-star:not(.active) svg { fill: none; stroke: white; stroke-width: 1.5; }
+
+    /* SERVICE BADGE ON CARDS */
+    .service-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 9px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+    .service-badge.youtube { background: var(--youtube); }
+    .service-badge.spotify { background: var(--spotify); }
 
     /* QUANTITY BADGE */
     .qty-badge {
@@ -339,6 +409,16 @@
     .btn-twitch:not(:disabled):hover { background: #a259ff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(145,71,255,0.35); }
     .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
+    .btn-search {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-search:hover {
+      transform: translateY(-1px);
+    }
+    .btn-search.youtube:hover { border-color: var(--youtube); color: var(--youtube); }
+    .btn-search.spotify:hover { border-color: var(--spotify); color: var(--spotify); }
     .btn-send {
       background: linear-gradient(135deg, var(--twitch), var(--accent));
       color: #fff;
@@ -485,6 +565,14 @@
     .queue-info { flex:1; min-width:0; }
     .queue-item-title { font-size:11px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .queue-id { font-size:10px; color:var(--muted); margin-top:2px; }
+    .queue-service-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      margin-left: 8px;
+    }
+    .queue-service-badge.youtube { background: var(--youtube); color: white; }
+    .queue-service-badge.spotify { background: var(--spotify); color: white; }
     .queue-status { font-size:10px; flex-shrink:0; padding:3px 8px; border-radius:4px; min-width:70px; text-align:center; }
     .queue-status.sending-badge { background:rgba(145,71,255,0.15); color:var(--twitch); }
     .queue-status.sent-badge { background:rgba(0,229,160,0.12); color:var(--green); }
@@ -520,6 +608,7 @@
       .input-group .btn{width:100%;}
       .delay-control{flex-direction:column;align-items:flex-start;}
       .card-label{flex-direction:column;align-items:flex-start;}
+      .service-buttons{flex-wrap:wrap;}
     }
   </style>
 </head>
@@ -531,7 +620,7 @@
 
   <header>
     <div class="logo-block">
-      <span class="logo-tag">// twitch × youtube</span>
+      <span class="logo-tag">// twitch × youtube × spotify</span>
       <h1>Song Request</h1>
     </div>
     <div class="counter-badge">
@@ -542,6 +631,16 @@
       <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="28" height="28">
     </a>
   </header>
+
+  <!-- SERVICE SELECTOR -->
+  <div class="service-buttons">
+    <button class="service-btn youtube active" id="serviceYouTubeBtn" onclick="setActiveService('youtube')">
+      <span class="service-icon">▶️</span> YouTube
+    </button>
+    <button class="service-btn spotify" id="serviceSpotifyBtn" onclick="setActiveService('spotify')">
+      <span class="service-icon">🎵</span> Spotify
+    </button>
+  </div>
 
   <!-- TABS -->
   <div class="tabs">
@@ -572,30 +671,45 @@
       </div>
     </div>
 
-    <!-- YOUTUBE SEARCH -->
+    <!-- API KEYS SECTION -->
     <div class="card">
       <div class="card-label">
-        <span>// youtube api key</span>
+        <span>// api keys</span>
         <span id="apiKeySavedBadge" class="saved-badge" style="display:none;">Salva</span>
       </div>
       <div class="row" style="margin-bottom:14px; flex-direction:column; align-items:stretch;">
         <div class="input-group">
-          <input type="password" id="apiKey" placeholder="YouTube Data API v3 key..."/>
-          <button class="btn btn-save" id="saveApiKeyBtn" onclick="saveApiKey()">💾 ARMAZENAR</button>
-          <button class="btn btn-clear" id="clearApiKeyBtn" onclick="clearApiKey()" style="display:none;">🗑️ Limpar</button>
+          <input type="password" id="youtubeApiKey" placeholder="YouTube Data API v3 key..."/>
+          <button class="btn btn-save" id="saveYoutubeApiKeyBtn" onclick="saveYoutubeApiKey()">💾 ARMAZENAR</button>
+        </div>
+        <div class="input-group" style="margin-top: 10px;">
+          <input type="password" id="spotifyClientId" placeholder="Spotify Client ID"/>
+          <input type="password" id="spotifyClientSecret" placeholder="Spotify Client Secret"/>
+          <button class="btn btn-save" id="saveSpotifyCredsBtn" onclick="saveSpotifyCredentials()">💾 ARMAZENAR</button>
         </div>
         <div class="export-import-buttons">
           <button class="btn-small" onclick="exportFavorites()" id="exportFavBtn" style="display:none;">📤 Exportar favoritos</button>
           <button class="btn-small" onclick="importFavorites()" id="importFavBtn" style="display:none;">📥 Importar favoritos</button>
         </div>
       </div>
-      <div class="card-label">// pesquisar vídeo</div>
+      <div class="help-box" style="margin-top: 0;">
+        <strong>YouTube API Key:</strong> acesse <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> → crie um projeto → ative YouTube Data API v3 → gere uma API Key.<br>
+        <strong>Spotify API:</strong> acesse <a href="https://developer.spotify.com/dashboard/" target="_blank">Spotify Developer Dashboard</a> → crie uma aplicação → copie Client ID e Client Secret.
+      </div>
+    </div>
+
+    <!-- SEARCH SECTION -->
+    <div class="card">
+      <div class="card-label">// pesquisar</div>
       <div class="row">
         <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..."/>
-        <button class="btn btn-red" id="searchBtn" onclick="searchYouTube()">
+        <button class="btn btn-search youtube" id="searchBtn" onclick="performSearch()">
           <span id="searchLoader" class="spin" style="display:none"></span>
-          <span id="searchBtnText">BUSCAR</span>
+          <span id="searchBtnText">🔍 BUSCAR</span>
         </button>
+      </div>
+      <div style="font-size: 10px; color: var(--muted); margin-top: 8px; text-align: center;">
+        🔍 Pesquisando no: <span id="activeServiceLabel" style="color: var(--youtube); font-weight: bold;">YouTube</span>
       </div>
     </div>
 
@@ -682,154 +796,88 @@
   let pendingMessages = new Map();
   let currentLoggedUser = null;
   let nextUniqueId = 1;
+  let activeService = 'youtube'; // 'youtube' or 'spotify'
+  let spotifyAccessToken = null;
+  let spotifyTokenExpiry = null;
   
-  // ── API KEY STORAGE ────────────────────────────────────────────────────────
-  const API_KEY_STORAGE_KEY = 'songrequest_youtube_api_key';
+  // ── STORAGE KEYS ───────────────────────────────────────────────────────────
+  const YOUTUBE_API_KEY_STORAGE = 'songrequest_youtube_api_key';
+  const SPOTIFY_CLIENT_ID_STORAGE = 'songrequest_spotify_client_id';
+  const SPOTIFY_CLIENT_SECRET_STORAGE = 'songrequest_spotify_client_secret';
   const FAVORITES_STORAGE_PREFIX = 'songrequest_favorites_';
   const LEGACY_FAVORITES_KEY = 'songrequest_favorites';
   
-  function getApiKeyHash(apiKey) {
-    let hash = 0;
-    for (let i = 0; i < apiKey.length; i++) {
-      hash = ((hash << 5) - hash) + apiKey.charCodeAt(i);
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(36);
-  }
-  
-  function getFavoritesStorageKey() {
-    const apiKeyInput = document.getElementById('apiKey');
-    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
-    if (apiKey) {
-      const hash = getApiKeyHash(apiKey);
-      return FAVORITES_STORAGE_PREFIX + hash;
-    }
-    return FAVORITES_STORAGE_PREFIX + 'default';
-  }
-  
-  async function syncFavoritesWithBackend(apiKey) {
-    if (!apiKey) return false;
+  // ── SERVICE SELECTION ──────────────────────────────────────────────────────
+  function setActiveService(service) {
+    activeService = service;
     
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey })
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.favorites) {
-        favorites = data.favorites.map(f => ({
-          id: f.video_id,
-          title: f.title,
-          channel: f.channel,
-          thumb: f.thumbnail
-        }));
-        
-        renderFavoritesGrid();
-        saveFavoritesToStorage();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Erro ao sincronizar com backend:', error);
-      return false;
-    }
-  }
-  
-  async function saveFavoritesToBackend(apiKey, favs) {
-    if (!apiKey) return false;
+    // Update UI
+    const youtubeBtn = document.getElementById('serviceYouTubeBtn');
+    const spotifyBtn = document.getElementById('serviceSpotifyBtn');
+    const searchBtn = document.getElementById('searchBtn');
+    const activeLabel = document.getElementById('activeServiceLabel');
     
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, favorites: favs })
-      });
-      
-      const data = await response.json();
-      return data.success;
-    } catch (error) {
-      console.error('Erro ao salvar no backend:', error);
-      return false;
+    if (service === 'youtube') {
+      youtubeBtn.classList.add('active');
+      spotifyBtn.classList.remove('active');
+      searchBtn.classList.remove('spotify');
+      searchBtn.classList.add('youtube');
+      activeLabel.innerHTML = '<span style="color: var(--youtube);">YouTube</span>';
+      activeLabel.style.color = 'var(--youtube)';
+    } else {
+      youtubeBtn.classList.remove('active');
+      spotifyBtn.classList.add('active');
+      searchBtn.classList.remove('youtube');
+      searchBtn.classList.add('spotify');
+      activeLabel.innerHTML = '<span style="color: var(--spotify);">Spotify</span>';
+      activeLabel.style.color = 'var(--spotify)';
     }
   }
   
-  function migrateLegacyFavorites() {
-    const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
-    if (legacyFavs) {
-      try {
-        const oldFavorites = JSON.parse(legacyFavs);
-        if (oldFavorites && oldFavorites.length > 0) {
-          const currentKey = getFavoritesStorageKey();
-          const currentFavs = localStorage.getItem(currentKey);
-          if (!currentFavs) {
-            localStorage.setItem(currentKey, legacyFavs);
-          }
-        }
-      } catch(e) {}
-    }
-  }
-  
-  function loadSavedApiKey() {
-    const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
-    if (savedKey) {
-      const apiKeyInput = document.getElementById('apiKey');
-      apiKeyInput.value = savedKey;
-      const clearBtn = document.getElementById('clearApiKeyBtn');
-      const savedBadge = document.getElementById('apiKeySavedBadge');
-      const exportBtn = document.getElementById('exportFavBtn');
-      const importBtn = document.getElementById('importFavBtn');
-      const syncBtn = document.getElementById('syncFavBtn');
-      if (clearBtn) clearBtn.style.display = 'inline-flex';
-      if (savedBadge) savedBadge.style.display = 'inline-flex';
-      if (exportBtn) exportBtn.style.display = 'inline-flex';
-      if (importBtn) importBtn.style.display = 'inline-flex';
-      if (syncBtn) syncBtn.style.display = 'inline-flex';
-      migrateLegacyFavorites();
-      
-      // Tentar sincronizar com backend
-      syncFavoritesWithBackend(savedKey).then(success => {
-        if (!success) {
-          loadFavorites();
-        }
-      });
-    }
-  }
-  
-  function saveApiKey() {
-    const apiKeyInput = document.getElementById('apiKey');
-    const apiKey = apiKeyInput.value.trim();
-    
-    if (!apiKey) {
-      alert('Digite uma API Key do YouTube para salvar.');
-      return;
+  // ── SPOTIFY AUTH ───────────────────────────────────────────────────────────
+  async function getSpotifyAccessToken() {
+    // Check if cached token is still valid
+    if (spotifyAccessToken && spotifyTokenExpiry && Date.now() < spotifyTokenExpiry) {
+      return spotifyAccessToken;
     }
     
-    localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    const clientId = document.getElementById('spotifyClientId').value.trim();
+    const clientSecret = document.getElementById('spotifyClientSecret').value.trim();
     
-    // Sincronizar com o backend
-    syncFavoritesWithBackend(apiKey).then(success => {
-      if (!success) {
-        migrateLegacyFavorites();
-        loadFavorites();
-      }
+    if (!clientId || !clientSecret) {
+      throw new Error('Spotify Client ID e Client Secret são obrigatórios');
+    }
+    
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
+      },
+      body: 'grant_type=client_credentials'
     });
     
-    const clearBtn = document.getElementById('clearApiKeyBtn');
-    const savedBadge = document.getElementById('apiKeySavedBadge');
-    const exportBtn = document.getElementById('exportFavBtn');
-    const importBtn = document.getElementById('importFavBtn');
-    const syncBtn = document.getElementById('syncFavBtn');
+    const data = await response.json();
     
-    if (clearBtn) clearBtn.style.display = 'inline-flex';
-    if (savedBadge) savedBadge.style.display = 'inline-flex';
-    if (exportBtn) exportBtn.style.display = 'inline-flex';
-    if (importBtn) importBtn.style.display = 'inline-flex';
-    if (syncBtn) syncBtn.style.display = 'inline-flex';
+    if (!response.ok) {
+      throw new Error(data.error_description || 'Erro ao autenticar no Spotify');
+    }
     
-    const saveBtn = document.getElementById('saveApiKeyBtn');
+    spotifyAccessToken = data.access_token;
+    spotifyTokenExpiry = Date.now() + (data.expires_in * 1000);
+    return spotifyAccessToken;
+  }
+  
+  // ── SAVE CREDENTIALS ───────────────────────────────────────────────────────
+  function saveYoutubeApiKey() {
+    const apiKey = document.getElementById('youtubeApiKey').value.trim();
+    if (!apiKey) {
+      alert('Digite uma YouTube API Key para salvar.');
+      return;
+    }
+    localStorage.setItem(YOUTUBE_API_KEY_STORAGE, apiKey);
+    
+    const saveBtn = document.getElementById('saveYoutubeApiKeyBtn');
     const originalText = saveBtn.innerHTML;
     saveBtn.innerHTML = '✓ SALVO!';
     saveBtn.style.background = 'rgba(0,229,160,0.2)';
@@ -839,37 +887,292 @@
       saveBtn.style.background = '';
       saveBtn.style.borderColor = '';
     }, 2000);
+    
+    updateSavedBadge();
   }
   
-  function clearApiKey() {
-    if (confirm('Tem certeza que deseja remover a API Key salva?')) {
-      localStorage.removeItem(API_KEY_STORAGE_KEY);
-      const apiKeyInput = document.getElementById('apiKey');
-      apiKeyInput.value = '';
-      const clearBtn = document.getElementById('clearApiKeyBtn');
-      const savedBadge = document.getElementById('apiKeySavedBadge');
-      const exportBtn = document.getElementById('exportFavBtn');
-      const importBtn = document.getElementById('importFavBtn');
-      const syncBtn = document.getElementById('syncFavBtn');
-      if (clearBtn) clearBtn.style.display = 'none';
+  function saveSpotifyCredentials() {
+    const clientId = document.getElementById('spotifyClientId').value.trim();
+    const clientSecret = document.getElementById('spotifyClientSecret').value.trim();
+    
+    if (!clientId || !clientSecret) {
+      alert('Preencha ambos: Client ID e Client Secret do Spotify.');
+      return;
+    }
+    
+    localStorage.setItem(SPOTIFY_CLIENT_ID_STORAGE, clientId);
+    localStorage.setItem(SPOTIFY_CLIENT_SECRET_STORAGE, clientSecret);
+    
+    // Reset token cache
+    spotifyAccessToken = null;
+    spotifyTokenExpiry = null;
+    
+    const saveBtn = document.getElementById('saveSpotifyCredsBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '✓ SALVO!';
+    saveBtn.style.background = 'rgba(0,229,160,0.2)';
+    saveBtn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      saveBtn.innerHTML = originalText;
+      saveBtn.style.background = '';
+      saveBtn.style.borderColor = '';
+    }, 2000);
+    
+    updateSavedBadge();
+  }
+  
+  function loadSavedCredentials() {
+    const youtubeKey = localStorage.getItem(YOUTUBE_API_KEY_STORAGE);
+    if (youtubeKey) {
+      document.getElementById('youtubeApiKey').value = youtubeKey;
+    }
+    
+    const spotifyId = localStorage.getItem(SPOTIFY_CLIENT_ID_STORAGE);
+    const spotifySecret = localStorage.getItem(SPOTIFY_CLIENT_SECRET_STORAGE);
+    if (spotifyId) document.getElementById('spotifyClientId').value = spotifyId;
+    if (spotifySecret) document.getElementById('spotifyClientSecret').value = spotifySecret;
+    
+    updateSavedBadge();
+  }
+  
+  function updateSavedBadge() {
+    const hasYoutube = localStorage.getItem(YOUTUBE_API_KEY_STORAGE);
+    const hasSpotifyId = localStorage.getItem(SPOTIFY_CLIENT_ID_STORAGE);
+    const hasSpotifySecret = localStorage.getItem(SPOTIFY_CLIENT_SECRET_STORAGE);
+    const savedBadge = document.getElementById('apiKeySavedBadge');
+    const exportBtn = document.getElementById('exportFavBtn');
+    const importBtn = document.getElementById('importFavBtn');
+    const syncBtn = document.getElementById('syncFavBtn');
+    
+    if (hasYoutube || (hasSpotifyId && hasSpotifySecret)) {
+      if (savedBadge) savedBadge.style.display = 'inline-flex';
+      if (exportBtn) exportBtn.style.display = 'inline-flex';
+      if (importBtn) importBtn.style.display = 'inline-flex';
+      if (syncBtn) syncBtn.style.display = 'inline-flex';
+    } else {
       if (savedBadge) savedBadge.style.display = 'none';
       if (exportBtn) exportBtn.style.display = 'none';
       if (importBtn) importBtn.style.display = 'none';
       if (syncBtn) syncBtn.style.display = 'none';
-      
-      favorites = [];
-      renderFavoritesGrid();
-      
-      const saveBtn = document.getElementById('saveApiKeyBtn');
-      saveBtn.innerHTML = '🗑️ REMOVIDO';
-      saveBtn.style.background = 'rgba(255,60,95,0.2)';
-      saveBtn.style.borderColor = 'var(--accent)';
-      setTimeout(() => {
-        saveBtn.innerHTML = '💾 ARMAZENAR';
-        saveBtn.style.background = '';
-        saveBtn.style.borderColor = '';
-      }, 2000);
     }
+  }
+  
+  // ── SEARCH FUNCTION ────────────────────────────────────────────────────────
+  async function performSearch() {
+    if (activeService === 'youtube') {
+      await searchYouTube();
+    } else {
+      await searchSpotify();
+    }
+  }
+  
+  async function searchYouTube() {
+    const query = document.getElementById('searchInput').value.trim();
+    const apiKey = document.getElementById('youtubeApiKey').value.trim();
+    
+    if (!apiKey) {
+      alert('Cole sua YouTube Data API v3 key.');
+      return;
+    }
+    if (!query) return;
+    
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    document.getElementById('searchLoader').style.display = 'inline-block';
+    document.getElementById('searchBtnText').textContent = '';
+    
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${apiKey}`);
+      const data = await res.json();
+      if (data.error) {
+        alert('Erro YouTube API: ' + data.error.message);
+        return;
+      }
+      renderResults(data.items || [], 'youtube');
+    } catch {
+      alert('Erro ao buscar no YouTube.');
+    } finally {
+      btn.disabled = false;
+      document.getElementById('searchLoader').style.display = 'none';
+      document.getElementById('searchBtnText').textContent = '🔍 BUSCAR';
+    }
+  }
+  
+  async function searchSpotify() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+    
+    try {
+      const token = await getSpotifyAccessToken();
+      
+      const btn = document.getElementById('searchBtn');
+      btn.disabled = true;
+      document.getElementById('searchLoader').style.display = 'inline-block';
+      document.getElementById('searchBtnText').textContent = '';
+      
+      const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=8`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const data = await res.json();
+      
+      if (data.error) {
+        alert('Erro Spotify API: ' + data.error.message);
+        return;
+      }
+      
+      const items = data.tracks?.items || [];
+      renderResults(items, 'spotify');
+      
+    } catch (error) {
+      alert('Erro ao buscar no Spotify: ' + error.message);
+    } finally {
+      const btn = document.getElementById('searchBtn');
+      btn.disabled = false;
+      document.getElementById('searchLoader').style.display = 'none';
+      document.getElementById('searchBtnText').textContent = '🔍 BUSCAR';
+    }
+  }
+  
+  function renderResults(items, service) {
+    const section = document.getElementById('resultsSection');
+    const grid = document.getElementById('resultsGrid');
+    
+    if (!items.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado encontrado no ${service === 'youtube' ? 'YouTube' : 'Spotify'}.<br>Tente outra busca.</p></div>`;
+      section.style.display = 'block';
+      return;
+    }
+    
+    const results = items.map(item => {
+      let id, title, channel, thumb, serviceType;
+      
+      if (service === 'youtube') {
+        id = item.id.videoId;
+        title = item.snippet.title;
+        channel = item.snippet.channelTitle;
+        thumb = item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url;
+        serviceType = 'youtube';
+      } else {
+        id = item.id;
+        title = item.name;
+        channel = item.artists?.map(a => a.name).join(', ') || 'Artista desconhecido';
+        thumb = item.album?.images?.[0]?.url || '';
+        serviceType = 'spotify';
+      }
+      
+      if (!videoMap[id]) {
+        videoMap[id] = { id, title, channel, thumb, service: serviceType };
+      }
+      
+      return { id, title, channel, thumb, service: serviceType };
+    });
+    
+    grid.innerHTML = results.map(v => {
+      const isFav = isFavorite(v.id);
+      const countInQueue = getCountInQueue(v.id);
+      const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
+      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
+      return `
+        <div class="video-card" data-id="${v.id}">
+          <div class="service-badge ${serviceClass}">
+            ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
+          </div>
+          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard('${v.id}')">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
+          ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
+          <div class="thumb-wrap">
+            <img src="${v.thumb || 'https://placehold.co/300x200/111118/6b6b80?text=No+Image'}" alt="" loading="lazy"/>
+            <div class="play-overlay">
+              <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="rgba(255,60,95,0.85)"/>
+                <path d="M16 13l14 7-14 7V13z" fill="white"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="card-title">${escapeHtml(v.title)}</div>
+            <div class="card-channel">${escapeHtml(v.channel)}</div>
+          </div>
+        </div>`;
+    }).join('');
+    
+    grid.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.fav-star')) return;
+        const id = card.dataset.id;
+        if (id && videoMap[id]) addToQueue(videoMap[id]);
+      });
+    });
+    
+    section.style.display = 'block';
+    document.getElementById('divider').style.display = queue.length ? 'block' : 'none';
+  }
+  
+  // ── FAVORITES SYSTEM ───────────────────────────────────────────────────────
+  let favorites = [];
+  
+  function getFavoritesStorageKey() {
+    return FAVORITES_STORAGE_PREFIX + 'default';
+  }
+  
+  function loadFavorites() {
+    const storageKey = getFavoritesStorageKey();
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        favorites = JSON.parse(saved);
+        renderFavoritesGrid();
+      } catch(e) {}
+    } else {
+      const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
+      if (legacyFavs) {
+        try {
+          favorites = JSON.parse(legacyFavs);
+          saveFavoritesToStorage();
+        } catch(e) { favorites = []; renderFavoritesGrid(); }
+      } else {
+        favorites = [];
+        renderFavoritesGrid();
+      }
+    }
+  }
+  
+  function saveFavoritesToStorage() {
+    const storageKey = getFavoritesStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(favorites));
+    renderFavoritesGrid();
+  }
+  
+  function addToFavorites(video) {
+    if (favorites.some(f => f.id === video.id)) return;
+    favorites.unshift(video);
+    if (favorites.length > 50) favorites.pop();
+    saveFavoritesToStorage();
+  }
+  
+  function removeFromFavorites(id) {
+    favorites = favorites.filter(f => f.id !== id);
+    saveFavoritesToStorage();
+  }
+  
+  function isFavorite(id) {
+    return favorites.some(f => f.id === id);
+  }
+  
+  function clearAllFavorites() {
+    if (confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) {
+      favorites = [];
+      saveFavoritesToStorage();
+    }
+  }
+  
+  function manualSyncFavorites() {
+    loadFavorites();
+    alert('Favoritos sincronizados!');
   }
   
   function exportFavorites() {
@@ -878,11 +1181,11 @@
       return;
     }
     const dataStr = JSON.stringify(favorites, null, 2);
-    const blob = new Blob([dataStr], {type: 'application/json'});
+    const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `songrequest_favorites_${new Date().toISOString().slice(0,19)}.json`;
+    a.download = `songrequest_favorites_${new Date().toISOString().slice(0, 19)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     alert('Favoritos exportados com sucesso!');
@@ -906,99 +1209,13 @@
           } else {
             alert('Arquivo inválido.');
           }
-        } catch(err) {
+        } catch (err) {
           alert('Erro ao ler o arquivo.');
         }
       };
       reader.readAsText(file);
     };
     input.click();
-  }
-  
-  function manualSyncFavorites() {
-    const apiKey = document.getElementById('apiKey').value.trim();
-    if (apiKey) {
-      syncFavoritesWithBackend(apiKey);
-    } else {
-      loadFavorites();
-    }
-    alert('Favoritos sincronizados!');
-  }
-  
-  // FAVORITES
-  let favorites = [];
-  
-  function loadFavorites() {
-    const storageKey = getFavoritesStorageKey();
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        favorites = JSON.parse(saved);
-        renderFavoritesGrid();
-      } catch(e) {}
-    } else {
-      const legacyFavs = localStorage.getItem(LEGACY_FAVORITES_KEY);
-      if (legacyFavs) {
-        try {
-          favorites = JSON.parse(legacyFavs);
-          saveFavoritesToStorage();
-          renderFavoritesGrid();
-        } catch(e) {
-          favorites = [];
-          renderFavoritesGrid();
-        }
-      } else {
-        favorites = [];
-        renderFavoritesGrid();
-      }
-    }
-  }
-  
-  function saveFavoritesToStorage() {
-    const storageKey = getFavoritesStorageKey();
-    localStorage.setItem(storageKey, JSON.stringify(favorites));
-    renderFavoritesGrid();
-    
-    const apiKey = document.getElementById('apiKey').value.trim();
-    if (apiKey && BACKEND_URL) {
-      saveFavoritesToBackend(apiKey, favorites);
-    }
-  }
-  
-  function addToFavorites(video) {
-    if (favorites.some(f => f.id === video.id)) return;
-    favorites.unshift(video);
-    if (favorites.length > 50) favorites.pop();
-    saveFavoritesToStorage();
-  }
-  
-  function removeFromFavorites(id) {
-    favorites = favorites.filter(f => f.id !== id);
-    saveFavoritesToStorage();
-  }
-  
-  function isFavorite(id) {
-    return favorites.some(f => f.id === id);
-  }
-  
-  function clearAllFavorites() {
-    if (confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) {
-      favorites = [];
-      saveFavoritesToStorage();
-      
-      const apiKey = document.getElementById('apiKey').value.trim();
-      if (apiKey && BACKEND_URL) {
-        fetch(`${BACKEND_URL}/api/favorites/all`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey })
-        }).catch(err => console.error('Erro ao limpar backend:', err));
-      }
-    }
-  }
-  
-  function getCountInQueue(videoId) {
-    return queue.filter(item => item.id === videoId).length;
   }
   
   function renderFavoritesGrid() {
@@ -1010,8 +1227,13 @@
     
     grid.innerHTML = favorites.map(v => {
       const countInQueue = getCountInQueue(v.id);
+      const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
+      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
       return `
         <div class="video-card" data-id="${v.id}">
+          <div class="service-badge ${serviceClass}">
+            ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
+          </div>
           <div class="fav-star active" onclick="event.stopPropagation(); toggleFavoriteFromCard('${v.id}')">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
@@ -1019,7 +1241,7 @@
           </div>
           ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
           <div class="thumb-wrap">
-            <img src="${v.thumb}" alt="" loading="lazy"/>
+            <img src="${v.thumb || 'https://placehold.co/300x200/111118/6b6b80?text=No+Image'}" alt="" loading="lazy"/>
             <div class="play-overlay">
               <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
                 <circle cx="20" cy="20" r="20" fill="rgba(255,60,95,0.85)"/>
@@ -1052,7 +1274,7 @@
       if (video) addToFavorites(video);
     }
     renderFavoritesGrid();
-    const searchCard = document.getElementById(`card-${id}`);
+    const searchCard = document.querySelector(`.video-card[data-id="${id}"]`);
     if (searchCard) {
       const star = searchCard.querySelector('.fav-star');
       if (star) {
@@ -1073,6 +1295,10 @@
     }
   }
   
+  function getCountInQueue(videoId) {
+    return queue.filter(item => item.id === videoId).length;
+  }
+  
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -1082,40 +1308,121 @@
       return m;
     });
   }
-
-  // ── TWITCH IRC via WebSocket ───────────────────────────────────────────────
+  
+  // ── QUEUE MANAGEMENT ───────────────────────────────────────────────────────
+  function addToQueue(v) {
+    const queueItem = {
+      ...v,
+      uniqueId: `${v.id}-${Date.now()}-${nextUniqueId++}`
+    };
+    queue.push(queueItem);
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+  }
+  
+  function removeFromQueue(uniqueId) {
+    if (isSending) return;
+    queue = queue.filter(item => item.uniqueId !== uniqueId);
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+  }
+  
+  function clearQueue() {
+    if (isSending) return;
+    queue = [];
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+    document.getElementById('sendProgress').style.display = 'none';
+  }
+  
+  function renderQueue() {
+    const section = document.getElementById('queueSection');
+    const list = document.getElementById('queueList');
+    const divider = document.getElementById('divider');
+    
+    if (!queue.length) {
+      section.style.display = 'none';
+      divider.style.display = 'none';
+      return;
+    }
+    
+    section.style.display = 'block';
+    divider.style.display = 'block';
+    
+    list.innerHTML = queue.map((v, i) => {
+      const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
+      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
+      return `
+        <div class="queue-item" data-qid="${v.uniqueId}">
+          <span class="queue-num">${String(i + 1).padStart(2, '0')}</span>
+          <img class="queue-thumb" src="${v.thumb || 'https://placehold.co/56x32/111118/6b6b80?text=No+Img'}" alt=""/>
+          <div class="queue-info">
+            <div class="queue-item-title">${escapeHtml(v.title)}</div>
+            <div class="queue-id">
+              !sr ${v.id}
+              <span class="queue-service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</span>
+            </div>
+          </div>
+          <span class="queue-status"></span>
+          <button class="btn-remove" data-remove="${v.uniqueId}" title="Remover">✕</button>
+        </div>`;
+    }).join('');
+    
+    list.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', () => removeFromQueue(btn.dataset.remove));
+    });
+  }
+  
+  function updateCounter() {
+    document.getElementById('queueCount').textContent = queue.length;
+  }
+  
+  // ── TWITCH IRC ─────────────────────────────────────────────────────────────
   function setStatus(state, text) {
     const el = document.getElementById('twitchStatus');
     el.className = 'twitch-status ' + state;
     document.getElementById('statusText').textContent = text;
   }
-
+  
   function twitchConnect() {
-    const rawToken  = document.getElementById('twitchToken').value.trim();
-    const channel   = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
-    if (!rawToken || !channel) { alert('Preencha o token OAuth e o nome do canal.'); return; }
-
+    const rawToken = document.getElementById('twitchToken').value.trim();
+    const channel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
+    if (!rawToken || !channel) {
+      alert('Preencha o token OAuth e o nome do canal.');
+      return;
+    }
+    
     const token = rawToken.startsWith('oauth:') ? rawToken : 'oauth:' + rawToken;
-
-    if (twitchWs) { twitchWs.onclose = null; twitchWs.close(); twitchWs = null; }
+    
+    if (twitchWs) {
+      twitchWs.onclose = null;
+      twitchWs.close();
+      twitchWs = null;
+    }
     twitchConnected = false;
     currentLoggedUser = null;
     setStatus('connecting', 'Conectando ao Twitch IRC...');
     document.getElementById('connectBtn').disabled = true;
-
+    
     twitchWs = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
-
+    
     twitchWs.onopen = () => {
       twitchWs.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
       twitchWs.send(`PASS ${token}`);
       twitchWs.send(`NICK ${channel}`);
       twitchWs.send(`JOIN #${channel}`);
     };
-
+    
     twitchWs.onmessage = (e) => {
       const raw = e.data;
-      if (raw.startsWith('PING')) { twitchWs.send('PONG :tmi.twitch.tv'); return; }
-
+      if (raw.startsWith('PING')) {
+        twitchWs.send('PONG :tmi.twitch.tv');
+        return;
+      }
+      
       if (raw.includes('NOTICE') && raw.includes('#') && raw.includes('!sr')) {
         const waitMatch = raw.match(/wait (\d+) seconds?/i);
         if (waitMatch || raw.includes('you have to wait') || raw.includes('slow mode')) {
@@ -1125,13 +1432,13 @@
           }
         }
       }
-
+      
       const welcomeMatch = raw.match(/^:\S+ 001 (\w+)/i);
       if (welcomeMatch && !currentLoggedUser) currentLoggedUser = welcomeMatch[1];
-
+      
       if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && currentLoggedUser) {
         twitchConnected = true;
-        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
+        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
         setStatus('connected', `✅ Conectado como @${currentLoggedUser} → #${targetChannel}`);
         document.getElementById('connectBtn').textContent = 'RECONECTAR';
         document.getElementById('connectBtn').disabled = false;
@@ -1139,7 +1446,7 @@
       
       if ((raw.includes('366') || raw.includes('End of /NAMES')) && !twitchConnected && !currentLoggedUser) {
         twitchConnected = true;
-        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#','');
+        const targetChannel = document.getElementById('twitchChannel').value.trim().toLowerCase().replace('#', '');
         setStatus('connected', `✅ Conectado → #${targetChannel}`);
         document.getElementById('connectBtn').textContent = 'RECONECTAR';
         document.getElementById('connectBtn').disabled = false;
@@ -1151,13 +1458,13 @@
         document.getElementById('connectBtn').disabled = false;
       }
     };
-
+    
     twitchWs.onerror = () => {
       twitchConnected = false;
       setStatus('disconnected', '✗ Erro de conexão.');
       document.getElementById('connectBtn').disabled = false;
     };
-
+    
     twitchWs.onclose = () => {
       if (twitchConnected) {
         twitchConnected = false;
@@ -1166,35 +1473,41 @@
       }
     };
   }
-
+  
   function sendIRC(channel, message) {
     if (!twitchWs || twitchWs.readyState !== WebSocket.OPEN || !twitchConnected) return false;
-    twitchWs.send(`PRIVMSG #${channel.toLowerCase().replace('#','')} :${message}`);
+    twitchWs.send(`PRIVMSG #${channel.toLowerCase().replace('#', '')} :${message}`);
     return true;
   }
-
+  
   // ── SEND QUEUE ─────────────────────────────────────────────────────────────
   async function startSending() {
-    if (!queue.length) { alert('A fila está vazia.'); return; }
-    if (!twitchConnected) { alert('Conecte-se à Twitch primeiro.'); return; }
+    if (!queue.length) {
+      alert('A fila está vazia.');
+      return;
+    }
+    if (!twitchConnected) {
+      alert('Conecte-se à Twitch primeiro.');
+      return;
+    }
     if (isSending) return;
-
+    
     const channel = document.getElementById('twitchChannel').value.trim();
-    const total   = queue.length;
+    const total = queue.length;
     const delaySec = parseInt(document.getElementById('delaySeconds').value) || 6;
-    isSending     = true;
-
-    const sendBtn  = document.getElementById('sendBtn');
+    isSending = true;
+    
+    const sendBtn = document.getElementById('sendBtn');
     sendBtn.disabled = true;
     document.getElementById('sendLoader').style.display = 'inline-block';
-    document.getElementById('sendBtnText').textContent  = 'ENVIANDO...';
+    document.getElementById('sendBtnText').textContent = 'ENVIANDO...';
     document.getElementById('clearBtn').disabled = true;
-
+    
     const progress = document.getElementById('sendProgress');
     progress.style.display = 'block';
-    const logEl    = document.getElementById('progressLog');
+    const logEl = document.getElementById('progressLog');
     logEl.innerHTML = '';
-
+    
     function addLog(text, type) {
       const line = document.createElement('div');
       line.className = `log-line ${type}`;
@@ -1202,13 +1515,13 @@
       logEl.appendChild(line);
       logEl.scrollTop = logEl.scrollHeight;
     }
-
+    
     function setProgress(done, total) {
       const pct = Math.round((done / total) * 100);
       document.getElementById('progressFill').style.width = pct + '%';
       document.getElementById('progressFraction').textContent = `${done} / ${total}`;
     }
-
+    
     async function sendWithAck(video) {
       return new Promise((resolve) => {
         const msgId = `${Date.now()}-${Math.random()}`;
@@ -1235,34 +1548,34 @@
         }
       });
     }
-
+    
     async function waitWithCountdown(seconds, index, total) {
       for (let s = seconds; s > 0; s--) {
-        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${index+1}/${total}...`;
+        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${index + 1}/${total}...`;
         await sleep(1000);
       }
     }
-
+    
     for (let i = 0; i < queue.length; i++) {
       const v = queue[i];
       setQueueItemState(v.uniqueId, 'sending');
       setProgress(i, total);
       
       if (i > 0) {
-        addLog(`⏱  Aguardando ${delaySec} segundos antes do ${i+1}º envio...`, 'wait');
+        addLog(`⏱  Aguardando ${delaySec} segundos antes do ${i + 1}º envio...`, 'wait');
         await waitWithCountdown(delaySec, i, total);
       }
       
-      document.getElementById('progressLabel').textContent = `Enviando ${i+1}/${total}...`;
-      addLog(`📤 Enviando: !sr ${v.id} - "${v.title.substring(0,40)}..."`, 'wait');
+      document.getElementById('progressLabel').textContent = `Enviando ${i + 1}/${total}...`;
+      addLog(`📤 Enviando: !sr ${v.id} - "${v.title.substring(0, 40)}..." [${v.service === 'youtube' ? 'YouTube' : 'Spotify'}]`, 'wait');
       
       const result = await sendWithAck(v);
       
       if (result.success !== false) {
-        addLog(`✓ [${i+1}/${total}]  !sr ${v.id} aceito`, 'ok');
+        addLog(`✓ [${i + 1}/${total}]  !sr ${v.id} aceito`, 'ok');
         setQueueItemState(v.uniqueId, 'sent');
       } else {
-        addLog(`✗ [${i+1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
+        addLog(`✗ [${i + 1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
         setQueueItemState(v.uniqueId, '');
         if (result.error?.includes('Rate limit')) {
           addLog(`⚠️  Envio interrompido.`, 'err');
@@ -1271,229 +1584,38 @@
       }
       setProgress(i + 1, total);
     }
-
+    
     addLog(`🎉  Envio finalizado!`, 'done');
     document.getElementById('progressLabel').textContent = `Concluído`;
-
+    
     isSending = false;
     sendBtn.disabled = false;
     document.getElementById('sendLoader').style.display = 'none';
     document.getElementById('sendBtnText').textContent = '📡 ENVIAR TODOS PELO CHAT DA TWITCH';
     document.getElementById('clearBtn').disabled = false;
   }
-
+  
   function setQueueItemState(uniqueId, state) {
     const item = document.querySelector(`.queue-item[data-qid="${uniqueId}"]`);
     if (!item) return;
     item.className = 'queue-item' + (state ? ' ' + state : '');
     const badge = item.querySelector('.queue-status');
     if (!badge) return;
-    if (state === 'sending') { 
-      badge.textContent = '⏳ enviando'; 
-      badge.className = 'queue-status sending-badge'; 
-    }
-    else if (state === 'sent') { 
-      badge.textContent = '✓ enviado'; 
-      badge.className = 'queue-status sent-badge'; 
-    }
-    else { 
-      badge.textContent = ''; 
-      badge.className = 'queue-status'; 
+    if (state === 'sending') {
+      badge.textContent = '⏳ enviando';
+      badge.className = 'queue-status sending-badge';
+    } else if (state === 'sent') {
+      badge.textContent = '✓ enviado';
+      badge.className = 'queue-status sent-badge';
+    } else {
+      badge.textContent = '';
+      badge.className = 'queue-status';
     }
   }
-
+  
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-  // ── YOUTUBE SEARCH ─────────────────────────────────────────────────────────
-  async function searchYouTube() {
-    const query  = document.getElementById('searchInput').value.trim();
-    const apiKey = document.getElementById('apiKey').value.trim();
-    if (!apiKey) { alert('Cole sua YouTube Data API v3 key.'); return; }
-    if (!query)  return;
-
-    const btn    = document.getElementById('searchBtn');
-    btn.disabled = true;
-    document.getElementById('searchLoader').style.display = 'inline-block';
-    document.getElementById('searchBtnText').textContent  = '';
-
-    try {
-      const res  = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${apiKey}`);
-      const data = await res.json();
-      if (data.error) { alert('Erro YouTube API: ' + data.error.message); return; }
-      renderResults(data.items || []);
-    } catch { alert('Erro ao buscar.'); }
-    finally {
-      btn.disabled = false;
-      document.getElementById('searchLoader').style.display = 'none';
-      document.getElementById('searchBtnText').textContent  = 'BUSCAR';
-    }
-  }
-
-  function renderResults(items) {
-    const section = document.getElementById('resultsSection');
-    const grid    = document.getElementById('resultsGrid');
-
-    if (!items.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado.</p></div>`;
-      section.style.display = 'block';
-      return;
-    }
-
-    items.forEach(item => {
-      const id = item.id.videoId;
-      if (!videoMap[id]) {
-        videoMap[id] = {
-          id,
-          title:   item.snippet.title,
-          channel: item.snippet.channelTitle,
-          thumb:   item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url
-        };
-      }
-    });
-
-    grid.innerHTML = items.map(item => {
-      const id = item.id.videoId;
-      const v  = videoMap[id];
-      const isFav = isFavorite(id);
-      const countInQueue = getCountInQueue(id);
-      return `
-        <div class="video-card" data-id="${id}">
-          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard('${id}')">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
-          </div>
-          ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
-          <div class="thumb-wrap">
-            <img src="${v.thumb}" alt="" loading="lazy"/>
-            <div class="play-overlay">
-              <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="20" r="20" fill="rgba(255,60,95,0.85)"/>
-                <path d="M16 13l14 7-14 7V13z" fill="white"/>
-              </svg>
-            </div>
-          </div>
-          <div class="card-info">
-            <div class="card-title">${escapeHtml(v.title)}</div>
-            <div class="card-channel">${escapeHtml(v.channel)}</div>
-          </div>
-        </div>`;
-    }).join('');
-
-    grid.querySelectorAll('.video-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.fav-star')) return;
-        const id = card.dataset.id;
-        if (id && videoMap[id]) addToQueue(videoMap[id]);
-      });
-    });
-
-    section.style.display = 'block';
-    document.getElementById('divider').style.display = queue.length ? 'block' : 'none';
-  }
-
-  // ── QUEUE MANAGEMENT ───────────────────────────────────────────────────────
-  function addToQueue(v) {
-    const queueItem = {
-      ...v,
-      uniqueId: `${v.id}-${Date.now()}-${nextUniqueId++}`
-    };
-    queue.push(queueItem);
-    
-    const searchCard = document.getElementById(`card-${v.id}`);
-    if (searchCard) {
-      let qtyBadge = searchCard.querySelector('.qty-badge');
-      const newCount = getCountInQueue(v.id);
-      if (newCount > 0) {
-        if (qtyBadge) qtyBadge.textContent = newCount;
-        else {
-          const badge = document.createElement('div');
-          badge.className = 'qty-badge';
-          badge.textContent = newCount;
-          searchCard.appendChild(badge);
-        }
-      } else if (qtyBadge) qtyBadge.remove();
-    }
-    
-    renderQueue();
-    updateCounter();
-    renderFavoritesGrid();
-  }
-
-  function removeFromQueue(uniqueId) {
-    if (isSending) return;
-    const removedItem = queue.find(item => item.uniqueId === uniqueId);
-    if (removedItem) {
-      queue = queue.filter(item => item.uniqueId !== uniqueId);
-      
-      const searchCard = document.getElementById(`card-${removedItem.id}`);
-      if (searchCard) {
-        const newCount = getCountInQueue(removedItem.id);
-        let qtyBadge = searchCard.querySelector('.qty-badge');
-        if (newCount > 0) {
-          if (qtyBadge) qtyBadge.textContent = newCount;
-          else {
-            const badge = document.createElement('div');
-            badge.className = 'qty-badge';
-            badge.textContent = newCount;
-            searchCard.appendChild(badge);
-          }
-        } else if (qtyBadge) qtyBadge.remove();
-      }
-      
-      renderQueue();
-      updateCounter();
-      renderFavoritesGrid();
-    }
-  }
-
-  function clearQueue() {
-    if (isSending) return;
-    queue = [];
-    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
-    renderQueue();
-    updateCounter();
-    renderFavoritesGrid();
-    document.getElementById('sendProgress').style.display = 'none';
-  }
-
-  function renderQueue() {
-    const section = document.getElementById('queueSection');
-    const list    = document.getElementById('queueList');
-    const divider = document.getElementById('divider');
-
-    if (!queue.length) {
-      section.style.display = 'none';
-      divider.style.display = 'none';
-      return;
-    }
-
-    section.style.display = 'block';
-    divider.style.display = 'block';
-
-    list.innerHTML = queue.map((v, i) => `
-      <div class="queue-item" data-qid="${v.uniqueId}">
-        <span class="queue-num">${String(i+1).padStart(2,'0')}</span>
-        <img class="queue-thumb" src="${v.thumb}" alt=""/>
-        <div class="queue-info">
-          <div class="queue-item-title">${escapeHtml(v.title)}</div>
-          <div class="queue-id">!sr ${v.id}</div>
-        </div>
-        <span class="queue-status"></span>
-        <button class="btn-remove" data-remove="${v.uniqueId}" title="Remover">✕</button>
-      </div>`
-    ).join('');
-
-    list.querySelectorAll('.btn-remove').forEach(btn => {
-      btn.addEventListener('click', () => removeFromQueue(btn.dataset.remove));
-    });
-  }
-
-  function updateCounter() {
-    document.getElementById('queueCount').textContent = queue.length;
-  }
-
-  // ── TAB SYSTEM ─────────────────────────────────────────────────────────────
+  
+  // ── TABS ───────────────────────────────────────────────────────────────────
   function initTabs() {
     const tabs = document.querySelectorAll('.tab-btn');
     const panes = document.querySelectorAll('.tab-pane');
@@ -1508,16 +1630,23 @@
       });
     });
   }
-
+  
   // ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
-  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchYouTube(); });
-  document.getElementById('twitchToken').addEventListener('keydown', e => { if (e.key === 'Enter') twitchConnect(); });
-  document.getElementById('twitchChannel').addEventListener('keydown', e => { if (e.key === 'Enter') twitchConnect(); });
-  document.getElementById('apiKey').addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
-
-  // INIT
-  loadSavedApiKey();
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') performSearch();
+  });
+  document.getElementById('twitchToken').addEventListener('keydown', e => {
+    if (e.key === 'Enter') twitchConnect();
+  });
+  document.getElementById('twitchChannel').addEventListener('keydown', e => {
+    if (e.key === 'Enter') twitchConnect();
+  });
+  
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  loadSavedCredentials();
+  loadFavorites();
   initTabs();
+  setActiveService('youtube');
 </script>
 </body>
 </html>
