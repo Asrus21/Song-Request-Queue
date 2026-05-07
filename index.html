@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="16x16" href="assets/sr-logo.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/sr-logo.png">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/sr-logo.png">
@@ -63,7 +62,6 @@
       padding: 48px 24px 100px;
     }
 
-    /* HEADER */
     header {
       margin-bottom: 40px;
       display: flex;
@@ -113,43 +111,6 @@
       transform: scale(1.05);
     }
 
-    /* USER INFO */
-    .user-info {
-      background: linear-gradient(135deg, var(--surface2), var(--surface));
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 6px 16px 6px 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--twitch);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
-    .user-name {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .logout-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 0 4px;
-      transition: color 0.2s;
-    }
-    .logout-btn:hover { color: var(--accent); }
-
-    /* SERVICE BUTTONS */
     .service-buttons {
       display: flex;
       gap: 12px;
@@ -171,32 +132,13 @@
       color: var(--text);
       border: 1px solid var(--border);
     }
-    .service-btn.active {
-      border-width: 2px;
-    }
-    .service-btn.youtube.active {
-      background: var(--youtube);
-      color: white;
-      border-color: var(--youtube);
-      box-shadow: 0 0 15px rgba(255,0,0,0.3);
-    }
-    .service-btn.spotify.active {
-      background: var(--spotify);
-      color: white;
-      border-color: var(--spotify);
-      box-shadow: 0 0 15px rgba(29,185,84,0.3);
-    }
-    .service-btn.youtube:hover:not(.active) {
-      border-color: var(--youtube);
-      background: rgba(255,0,0,0.1);
-    }
-    .service-btn.spotify:hover:not(.active) {
-      border-color: var(--spotify);
-      background: rgba(29,185,84,0.1);
-    }
+    .service-btn.active { border-width: 2px; }
+    .service-btn.youtube.active { background: var(--youtube); color: white; border-color: var(--youtube); box-shadow: 0 0 15px rgba(255,0,0,0.3); }
+    .service-btn.spotify.active { background: var(--spotify); color: white; border-color: var(--spotify); box-shadow: 0 0 15px rgba(29,185,84,0.3); }
+    .service-btn.youtube:hover:not(.active) { border-color: var(--youtube); background: rgba(255,0,0,0.1); }
+    .service-btn.spotify:hover:not(.active) { border-color: var(--spotify); background: rgba(29,185,84,0.1); }
     .service-icon { font-size: 18px; }
 
-    /* TABS */
     .tabs {
       display: flex;
       gap: 8px;
@@ -225,7 +167,6 @@
     .tab-pane { display: none; }
     .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
 
-    /* FAVORITE STAR */
     .fav-star {
       position: absolute;
       top: 8px;
@@ -248,7 +189,6 @@
     .fav-star.active svg { fill: var(--yellow); stroke: var(--yellow); }
     .fav-star:not(.active) svg { fill: none; stroke: white; stroke-width: 1.5; }
 
-    /* SERVICE BADGE ON CARDS */
     .service-badge {
       position: absolute;
       top: 8px;
@@ -267,7 +207,6 @@
     .service-badge.youtube { background: var(--youtube); }
     .service-badge.spotify { background: var(--spotify); }
 
-    /* QUANTITY BADGE */
     .qty-badge {
       position: absolute;
       bottom: 6px;
@@ -282,7 +221,6 @@
       font-family: 'Space Mono', monospace;
     }
 
-    /* CARDS */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -304,11 +242,6 @@
     }
     .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-    /* LOGIN SECTION */
-    .login-section {
-      text-align: center;
-      padding: 20px;
-    }
     .twitch-login-btn {
       background: var(--twitch);
       color: white;
@@ -322,11 +255,45 @@
       align-items: center;
       gap: 12px;
       transition: all 0.2s;
+      width: 100%;
+      justify-content: center;
     }
     .twitch-login-btn:hover {
       transform: scale(1.02);
       box-shadow: 0 0 20px rgba(145,71,255,0.5);
     }
+
+    .user-info {
+      background: linear-gradient(135deg, var(--surface2), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 16px 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--twitch);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .user-name { font-size: 12px; font-weight: 700; color: var(--text); }
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: var(--accent); }
+
     .channel-config {
       margin-top: 16px;
       padding: 16px;
@@ -357,8 +324,7 @@
       cursor: pointer;
     }
 
-    /* INPUTS */
-    input[type="text"], input[type="password"] {
+    input[type="text"] {
       flex: 1;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -368,13 +334,10 @@
       padding: 11px 15px;
       border-radius: 10px;
       outline: none;
-      transition: border-color 0.2s;
       width: 100%;
     }
     input:focus { border-color: var(--accent2); }
-    input::placeholder { color: #3a3a50; }
 
-    /* BUTTONS */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -389,13 +352,8 @@
       border: none;
       transition: all 0.18s;
       white-space: nowrap;
-      letter-spacing: 0.5px;
     }
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-    .btn-red { background: var(--accent); color: #fff; }
-    .btn-red:not(:disabled):hover { background: #ff5575; transform: translateY(-1px); }
-    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-search {
       background: var(--surface2);
       color: var(--text);
@@ -411,11 +369,11 @@
       padding: 15px;
       font-size: 13px;
       border-radius: 12px;
-      letter-spacing: 1px;
     }
-    .btn-send:not(:disabled):hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(145,71,255,0.35); }
+    .btn-send:not(:disabled):hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
 
-    /* LOADER */
     .spin {
       display: inline-block;
       width: 14px; height: 14px;
@@ -426,7 +384,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* SEND PROGRESS */
     .send-progress {
       display: none;
       background: var(--surface2);
@@ -453,7 +410,6 @@
     .log-line.err  { background: rgba(255,60,95,0.08); color: var(--accent); }
     .log-line.done { background: rgba(145,71,255,0.08); color: var(--twitch); }
 
-    /* RESULTS GRID */
     .results-section { margin-bottom: 20px; }
     .section-label {
       font-size: 10px;
@@ -467,16 +423,6 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    .clear-favs-btn {
-      font-size: 9px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      padding: 4px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
     .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 
     .video-card {
@@ -507,7 +453,6 @@
 
     .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:24px 0; }
 
-    /* QUEUE */
     .queue-wrap { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:16px; }
     .queue-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:var(--surface2); }
     .queue-header-left { display:flex; align-items:center; gap:10px; }
@@ -543,11 +488,10 @@
     .btn-remove {
       background:none; border:1px solid transparent; color:var(--muted);
       cursor:pointer; font-size:14px; padding:4px 7px; border-radius:6px;
-      transition:all 0.15s; flex-shrink:0; font-family:'Space Mono',monospace;
+      transition:all 0.15s;
     }
     .btn-remove:hover { border-color:var(--accent); color:var(--accent); background:rgba(255,60,95,0.08); }
 
-    /* HELP */
     .help-box {
       background:rgba(145,71,255,0.06);
       border:1px solid rgba(145,71,255,0.2);
@@ -560,7 +504,6 @@
     }
     .help-box a { color:var(--twitch); text-decoration:none; }
     .help-box a:hover { text-decoration:underline; }
-    .help-box strong { color:var(--text); }
 
     .delay-control {
       background: var(--surface2);
@@ -583,6 +526,16 @@
       font-family: 'Space Mono', monospace;
       text-align: center;
     }
+    .clear-favs-btn {
+      font-size: 9px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     @media(max-width:600px){
       .row{flex-direction:column;}
@@ -592,7 +545,6 @@
       .tabs{flex-wrap:wrap;}
       .service-buttons{flex-wrap:wrap;}
       .delay-control{flex-direction:column;align-items:flex-start;}
-      .user-info{width:100%;justify-content:space-between;}
     }
   </style>
 </head>
@@ -616,7 +568,7 @@
     </a>
   </header>
 
-  <!-- USER INFO & LOGIN -->
+  <!-- AUTH SECTION -->
   <div id="authSection" class="card" style="text-align: center;">
     <div id="loginContainer">
       <button class="twitch-login-btn" onclick="loginWithTwitch()">
@@ -630,10 +582,12 @@
       </div>
     </div>
     <div id="userInfoContainer" style="display: none;">
-      <div class="user-info" style="margin-bottom: 16px;">
-        <div class="user-avatar" id="userAvatar">🎮</div>
-        <span class="user-name" id="userDisplayName"></span>
-        <button class="logout-btn" onclick="logout()" title="Sair">🚪</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">🎮</div>
+          <span class="user-name" id="userDisplayName"></span>
+          <button class="logout-btn" onclick="logout()" title="Sair">🚪</button>
+        </div>
       </div>
       <div class="channel-config" id="channelConfig">
         <input type="text" id="channelNameInput" placeholder="Nome do canal onde enviar os !sr (ex: meucanal)">
@@ -664,8 +618,8 @@
     <div class="card">
       <div class="card-label">// pesquisar música</div>
       <div class="row">
-        <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..."/>
-        <button class="btn btn-search youtube" id="searchBtn" onclick="performSearch()">
+        <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..." disabled>
+        <button class="btn btn-search youtube" id="searchBtn" onclick="performSearch()" disabled>
           <span id="searchLoader" class="spin" style="display:none"></span>
           <span id="searchBtnText">🔍 BUSCAR</span>
         </button>
@@ -675,9 +629,8 @@
       </div>
     </div>
 
-    <!-- RESULTS -->
     <div class="results-section" id="resultsSection" style="display:none">
-      <div class="section-label">// resultados — clique para adicionar à fila (múltiplas vezes)</div>
+      <div class="section-label">// resultados — clique para adicionar à fila</div>
       <div class="results-grid" id="resultsGrid"></div>
     </div>
   </div>
@@ -711,7 +664,6 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- Delay Control -->
     <div class="delay-control">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span style="font-size: 11px; color: var(--muted);">⏱️ Intervalo entre comandos:</span>
@@ -725,7 +677,7 @@
       </div>
     </div>
 
-    <button class="btn btn-send" id="sendBtn" onclick="startSending()">
+    <button class="btn btn-send" id="sendBtn" onclick="startSending()" disabled>
       <span id="sendLoader" class="spin" style="display:none"></span>
       <span id="sendBtnText">📡 ENVIAR TODOS PELO CHAT DA TWITCH</span>
     </button>
@@ -745,7 +697,7 @@
 </div>
 
 <script>
-  // ── CONFIGURAÇÃO DO BACKEND ─────────────────────────────────────────────────
+  // ── CONFIGURAÇÃO ───────────────────────────────────────────────────────────
   const BACKEND_URL = 'https://song-request-backend-production.up.railway.app';
   
   // ── STATE ──────────────────────────────────────────────────────────────────
@@ -758,8 +710,6 @@
   let sessionUUID = null;
   let isAuthenticated = false;
   let userChannelName = null;
-  
-  // ── FAVORITES ──────────────────────────────────────────────────────────────
   let favorites = [];
   
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
@@ -792,7 +742,6 @@
       .then(data => {
         const popup = window.open(data.url, 'Twitch Login', 'width=600,height=700,left=100,top=100');
         
-        // Verificar quando o popup fechar
         const interval = setInterval(() => {
           if (popup.closed) {
             clearInterval(interval);
@@ -816,6 +765,9 @@
       localStorage.setItem('songrequest_session_uuid', uuid);
       window.history.replaceState({}, document.title, window.location.pathname);
       verifySession();
+    } else if (loginSuccess === 'error') {
+      alert('Erro na autenticação com Twitch. Tente novamente.');
+      window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       const savedUUID = localStorage.getItem('songrequest_session_uuid');
       if (savedUUID) {
@@ -849,7 +801,6 @@
           document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${data.user.channelName}`;
         }
         
-        // Carregar favoritos
         if (data.favorites && data.favorites.length > 0) {
           favorites = data.favorites.map(f => ({
             id: f.video_id,
@@ -861,7 +812,6 @@
           renderFavoritesGrid();
         }
         
-        // Habilitar funcionalidades
         enableFeatures();
       } else {
         localStorage.removeItem('songrequest_session_uuid');
@@ -932,7 +882,7 @@
     document.getElementById('clearBtn').disabled = true;
   }
   
-  // ── SAVE FAVORITES TO BACKEND ─────────────────────────────────────────────
+  // ── SAVE FAVORITES ─────────────────────────────────────────────────────────
   async function saveFavoritesToBackend() {
     if (!sessionUUID) return false;
     
@@ -1126,7 +1076,6 @@
     renderFavoritesGrid();
     await saveFavoritesToBackend();
     
-    // Update star in search results
     const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${videoId}"]`);
     if (searchCard) {
       const star = searchCard.querySelector('.fav-star');
@@ -1214,19 +1163,53 @@
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
+    
+    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${v.id}"]`);
+    if (searchCard) {
+      let qtyBadge = searchCard.querySelector('.qty-badge');
+      const newCount = queue.filter(item => item.id === v.id).length;
+      if (newCount > 0) {
+        if (qtyBadge) qtyBadge.textContent = newCount;
+        else {
+          const badge = document.createElement('div');
+          badge.className = 'qty-badge';
+          badge.textContent = newCount;
+          searchCard.appendChild(badge);
+        }
+      } else if (qtyBadge) qtyBadge.remove();
+    }
   }
   
   function removeFromQueue(uniqueId) {
     if (isSending) return;
-    queue = queue.filter(item => item.uniqueId !== uniqueId);
-    renderQueue();
-    updateCounter();
-    renderFavoritesGrid();
+    const removedItem = queue.find(item => item.uniqueId === uniqueId);
+    if (removedItem) {
+      queue = queue.filter(item => item.uniqueId !== uniqueId);
+      renderQueue();
+      updateCounter();
+      renderFavoritesGrid();
+      
+      const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${removedItem.id}"]`);
+      if (searchCard) {
+        const newCount = queue.filter(item => item.id === removedItem.id).length;
+        let qtyBadge = searchCard.querySelector('.qty-badge');
+        if (newCount > 0) {
+          if (qtyBadge) qtyBadge.textContent = newCount;
+          else {
+            const badge = document.createElement('div');
+            badge.className = 'qty-badge';
+            badge.textContent = newCount;
+            searchCard.appendChild(badge);
+          }
+        } else if (qtyBadge) qtyBadge.remove();
+      }
+    }
   }
   
   function clearQueue() {
     if (isSending) return;
     queue = [];
+    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
@@ -1275,7 +1258,7 @@
     document.getElementById('queueCount').textContent = queue.length;
   }
   
-  // ── SEND QUEUE TO TWITCH ───────────────────────────────────────────────────
+  // ── SEND QUEUE ─────────────────────────────────────────────────────────────
   async function startSending() {
     if (!queue.length) {
       alert('A fila está vazia.');
@@ -1413,7 +1396,6 @@
   
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   
-  // ── TABS ───────────────────────────────────────────────────────────────────
   function initTabs() {
     const tabs = document.querySelectorAll('.tab-btn');
     const panes = document.querySelectorAll('.tab-pane');
@@ -1429,12 +1411,10 @@
     });
   }
   
-  // ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') performSearch();
   });
   
-  // ── INIT ───────────────────────────────────────────────────────────────────
   initTabs();
   setActiveService('youtube');
   disableFeatures();
