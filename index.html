@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
+
   <link rel="icon" type="image/png" sizes="16x16" href="assets/sr-logo.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/sr-logo.png">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/sr-logo.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/sr-logo.png">
   <link rel="shortcut icon" href="assets/sr-logo.png">
-  
+
   <title>Song Request Queue</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@300;600;900&display=swap" rel="stylesheet">
@@ -106,10 +106,7 @@
       display: inline-flex;
       align-items: center;
     }
-    .github-link:hover {
-      opacity: 1;
-      transform: scale(1.05);
-    }
+    .github-link:hover { opacity: 1; transform: scale(1.05); }
 
     .service-buttons {
       display: flex;
@@ -160,26 +157,18 @@
       transition: all 0.2s;
     }
     .tab-btn:hover { color: var(--text); background: var(--surface2); }
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--twitch), var(--accent));
-      color: white;
-    }
+    .tab-btn.active { background: linear-gradient(135deg, var(--twitch), var(--accent)); color: white; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
 
     .fav-star {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 8px; right: 8px;
       background: rgba(0,0,0,0.6);
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 10;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 10;
       transition: all 0.2s;
       backdrop-filter: blur(4px);
       border: 1px solid rgba(255,255,255,0.2);
@@ -191,16 +180,13 @@
 
     .service-badge {
       position: absolute;
-      top: 8px;
-      left: 8px;
+      top: 8px; left: 8px;
       background: rgba(0,0,0,0.7);
       border-radius: 20px;
       padding: 2px 8px;
       font-size: 9px;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      display: flex; align-items: center; gap: 4px;
       z-index: 10;
       backdrop-filter: blur(4px);
     }
@@ -209,12 +195,10 @@
 
     .qty-badge {
       position: absolute;
-      bottom: 6px;
-      right: 6px;
+      bottom: 6px; right: 6px;
       background: var(--accent);
       color: white;
-      font-size: 9px;
-      font-weight: bold;
+      font-size: 9px; font-weight: bold;
       padding: 2px 6px;
       border-radius: 20px;
       z-index: 10;
@@ -258,10 +242,8 @@
       width: 100%;
       justify-content: center;
     }
-    .twitch-login-btn:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 20px rgba(145,71,255,0.5);
-    }
+    .twitch-login-btn:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(145,71,255,0.5); }
+    .twitch-login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     .user-info {
       background: linear-gradient(135deg, var(--surface2), var(--surface));
@@ -272,26 +254,9 @@
       align-items: center;
       gap: 12px;
     }
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--twitch);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--twitch); display: flex; align-items: center; justify-content: center; font-size: 14px; }
     .user-name { font-size: 12px; font-weight: 700; color: var(--text); }
-    .logout-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 0 4px;
-      transition: color 0.2s;
-    }
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; transition: color 0.2s; }
     .logout-btn:hover { color: var(--accent); }
 
     .channel-config {
@@ -322,6 +287,7 @@
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
+      font-family: 'Space Mono', monospace;
     }
 
     input[type="text"] {
@@ -354,52 +320,20 @@
       white-space: nowrap;
     }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-search {
-      background: var(--surface2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn-search { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-search:hover { transform: translateY(-1px); }
     .btn-search.youtube:hover { border-color: var(--youtube); color: var(--youtube); }
     .btn-search.spotify:hover { border-color: var(--spotify); color: var(--spotify); }
-    .btn-send {
-      background: linear-gradient(135deg, var(--twitch), var(--accent));
-      color: #fff;
-      width: 100%;
-      padding: 15px;
-      font-size: 13px;
-      border-radius: 12px;
-    }
+    .btn-send { background: linear-gradient(135deg, var(--twitch), var(--accent)); color: #fff; width: 100%; padding: 15px; font-size: 13px; border-radius: 12px; }
     .btn-send:not(:disabled):hover { opacity: 0.9; transform: translateY(-2px); }
     .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:not(:disabled):hover { border-color: var(--accent2); color: var(--accent2); }
 
-    .spin {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .send-progress {
-      display: none;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      margin-top: 16px;
-    }
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 11px;
-      color: var(--muted);
-    }
+    .send-progress { display: none; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-top: 16px; }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 11px; color: var(--muted); }
     .progress-bar-wrap { background: var(--bg); border-radius: 100px; height: 6px; overflow: hidden; margin-bottom: 14px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--twitch), var(--accent)); border-radius: 100px; width: 0%; transition: width 0.4s ease; }
     .progress-log { max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
@@ -411,37 +345,14 @@
     .log-line.done { background: rgba(145,71,255,0.08); color: var(--twitch); }
 
     .results-section { margin-bottom: 20px; }
-    .section-label {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 
-    .video-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
+    .video-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
     .video-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,60,95,0.12); }
     .thumb-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #111; overflow: hidden; }
     .thumb-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .play-overlay {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.2s;
-    }
+    .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.2s; }
     .video-card:hover .play-overlay { opacity: 1; }
     .card-info { padding: 10px 12px; }
     .card-title { font-size: 11px; line-height: 1.4; color: var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:4px; }
@@ -459,12 +370,7 @@
     .queue-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); animation:pulse 2s ease infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .queue-title { font-family:'Unbounded',sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; }
-    .queue-item {
-      display:flex; align-items:center; gap:12px;
-      padding:11px 20px; border-bottom:1px solid var(--border);
-      animation:slideIn 0.25s ease;
-      transition: background 0.3s, opacity 0.3s;
-    }
+    .queue-item { display:flex; align-items:center; gap:12px; padding:11px 20px; border-bottom:1px solid var(--border); animation:slideIn 0.25s ease; transition: background 0.3s, opacity 0.3s; }
     .queue-item:last-child { border-bottom:none; }
     @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
     .queue-item.sending { background:rgba(145,71,255,0.07); }
@@ -474,68 +380,38 @@
     .queue-info { flex:1; min-width:0; }
     .queue-item-title { font-size:11px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .queue-id { font-size:10px; color:var(--muted); margin-top:2px; }
-    .queue-service-badge {
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 12px;
-      margin-left: 8px;
-    }
+    .queue-service-badge { font-size: 9px; padding: 2px 6px; border-radius: 12px; margin-left: 8px; }
     .queue-service-badge.youtube { background: var(--youtube); color: white; }
     .queue-service-badge.spotify { background: var(--spotify); color: white; }
     .queue-status { font-size:10px; flex-shrink:0; padding:3px 8px; border-radius:4px; min-width:70px; text-align:center; }
     .queue-status.sending-badge { background:rgba(145,71,255,0.15); color:var(--twitch); }
     .queue-status.sent-badge { background:rgba(0,229,160,0.12); color:var(--green); }
-    .btn-remove {
-      background:none; border:1px solid transparent; color:var(--muted);
-      cursor:pointer; font-size:14px; padding:4px 7px; border-radius:6px;
-      transition:all 0.15s;
-    }
+    .btn-remove { background:none; border:1px solid transparent; color:var(--muted); cursor:pointer; font-size:14px; padding:4px 7px; border-radius:6px; transition:all 0.15s; }
     .btn-remove:hover { border-color:var(--accent); color:var(--accent); background:rgba(255,60,95,0.08); }
 
-    .help-box {
-      background:rgba(145,71,255,0.06);
-      border:1px solid rgba(145,71,255,0.2);
-      border-radius:10px;
-      padding:12px 16px;
-      font-size:11px;
-      color:var(--muted);
-      line-height:1.9;
-      margin-top:12px;
-    }
+    .help-box { background:rgba(145,71,255,0.06); border:1px solid rgba(145,71,255,0.2); border-radius:10px; padding:12px 16px; font-size:11px; color:var(--muted); line-height:1.9; margin-top:12px; }
     .help-box a { color:var(--twitch); text-decoration:none; }
     .help-box a:hover { text-decoration:underline; }
+    .help-box strong { color: var(--text); }
 
-    .delay-control {
-      background: var(--surface2);
-      border-radius: 12px;
-      padding: 12px 20px;
-      margin-bottom: 12px;
+    .delay-control { background: var(--surface2); border-radius: 12px; padding: 12px 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .delay-control input[type="number"] { width: 70px; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-family: 'Space Mono', monospace; text-align: center; }
+    .clear-favs-btn { font-size: 9px; background: var(--surface2); border: 1px solid var(--border); padding: 4px 12px; border-radius: 12px; cursor: pointer; color: var(--muted); }
+    .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Login status box */
+    .login-status-box {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
       gap: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 11px;
+      margin-top: 12px;
+      border: 1px solid rgba(255,209,102,0.3);
+      background: rgba(255,209,102,0.06);
+      color: var(--yellow);
     }
-    .delay-control input[type="number"] {
-      width: 70px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-family: 'Space Mono', monospace;
-      text-align: center;
-    }
-    .clear-favs-btn {
-      font-size: 9px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      padding: 4px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     @media(max-width:600px){
       .row{flex-direction:column;}
@@ -571,13 +447,18 @@
   <!-- AUTH SECTION -->
   <div id="authSection" class="card" style="text-align: center;">
     <div id="loginContainer">
-      <button class="twitch-login-btn" onclick="loginWithTwitch()">
+      <button class="twitch-login-btn" id="loginBtn" onclick="loginWithTwitch()">
         <span>🎮</span> Login com Twitch
       </button>
+      <div id="loginStatusBox" style="display:none;" class="login-status-box">
+        <div class="spin" style="border-top-color: var(--yellow);"></div>
+        <span id="loginStatusText">Aguardando autorização...</span>
+      </div>
       <div class="help-box" style="margin-top: 16px; text-align: left;">
         <strong>🔐 Login com Twitch</strong><br>
         Clique no botão acima para autenticar com sua conta Twitch.<br>
         Uma janela popup abrirá para autorizar o aplicativo.<br>
+        <strong>⚠️ Permita popups</strong> para este site se o navegador bloquear.<br>
         Após autorizar, você poderá configurar o canal e usar a fila de pedidos.
       </div>
     </div>
@@ -641,7 +522,7 @@
       <div class="section-label" style="margin-bottom:16px;">
         ⭐ MÚSICAS FAVORITAS
         <div style="display: flex; gap: 8px;">
-          <button class="clear-favs-btn" onclick="addAllFavoritesToQueue()" style="background: linear-gradient(135deg, var(--green), var(--twitch)); color: white;">➕ ADICIONAR TUDO</button>
+          <button class="clear-favs-btn" onclick="addAllFavoritesToQueue()" style="background: linear-gradient(135deg, var(--green), var(--twitch)); color: white; border:none;">➕ ADICIONAR TUDO</button>
           <span class="clear-favs-btn" onclick="clearAllFavorites()">LIMPAR TUDO</span>
         </div>
       </div>
@@ -699,130 +580,195 @@
 <script>
   // ── CONFIGURAÇÃO ───────────────────────────────────────────────────────────
   const BACKEND_URL = 'https://song-request-backend-production.up.railway.app';
-  
+
   // ── STATE ──────────────────────────────────────────────────────────────────
   let queue = [];
   let videoMap = {};
   let isSending = false;
-  let pendingMessages = new Map();
   let nextUniqueId = 1;
   let activeService = 'youtube';
   let sessionUUID = null;
   let isAuthenticated = false;
   let userChannelName = null;
   let favorites = [];
-  
+
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
   function setActiveService(service) {
     activeService = service;
     const youtubeBtn = document.getElementById('serviceYouTubeBtn');
     const spotifyBtn = document.getElementById('serviceSpotifyBtn');
-    const searchBtn = document.getElementById('searchBtn');
+    const searchBtn  = document.getElementById('searchBtn');
     const activeLabel = document.getElementById('activeServiceLabel');
-    
+
     if (service === 'youtube') {
-      youtubeBtn.classList.add('active');
-      spotifyBtn.classList.remove('active');
-      searchBtn.classList.remove('spotify');
-      searchBtn.classList.add('youtube');
+      youtubeBtn.classList.add('active'); spotifyBtn.classList.remove('active');
+      searchBtn.classList.remove('spotify'); searchBtn.classList.add('youtube');
       activeLabel.innerHTML = '<span style="color: var(--youtube);">YouTube</span>';
     } else {
-      youtubeBtn.classList.remove('active');
-      spotifyBtn.classList.add('active');
-      searchBtn.classList.remove('youtube');
-      searchBtn.classList.add('spotify');
+      youtubeBtn.classList.remove('active'); spotifyBtn.classList.add('active');
+      searchBtn.classList.remove('youtube'); searchBtn.classList.add('spotify');
       activeLabel.innerHTML = '<span style="color: var(--spotify);">Spotify</span>';
     }
   }
-  
-  // ── AUTH FUNCTIONS ─────────────────────────────────────────────────────────
+
+  // ── AUTH ───────────────────────────────────────────────────────────────────
   function loginWithTwitch() {
+    const loginBtn = document.getElementById('loginBtn');
+    const statusBox = document.getElementById('loginStatusBox');
+    const statusText = document.getElementById('loginStatusText');
+
+    loginBtn.disabled = true;
+    statusBox.style.display = 'flex';
+    statusText.textContent = 'Conectando ao servidor...';
+
     fetch(`${BACKEND_URL}/api/auth/twitch`)
       .then(res => res.json())
       .then(data => {
-        // Abrir popup
-        const popup = window.open(data.url, 'Twitch Login', 'width=600,height=700,left=200,top=100');
-        
-        // Escutar mensagens do popup
-        window.addEventListener('message', function receiveMessage(event) {
-          // Verificar se a mensagem veio do nosso backend ou popup
-          if (event.data && event.data.type === 'twitch-login-success') {
-            window.removeEventListener('message', receiveMessage);
-            if (popup) popup.close();
-            sessionUUID = event.data.uuid;
-            localStorage.setItem('songrequest_session_uuid', sessionUUID);
-            verifySession();
+        statusText.textContent = 'Aguardando autorização no popup...';
+
+        // Abrir popup centralizado
+        const w = 600, h = 700;
+        const left = Math.round(window.screenX + (window.outerWidth  - w) / 2);
+        const top  = Math.round(window.screenY + (window.outerHeight - h) / 2);
+        const popup = window.open(
+          data.url,
+          'TwitchLogin',
+          `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,resizable=yes,scrollbars=yes`
+        );
+
+        if (!popup || popup.closed) {
+          loginBtn.disabled = false;
+          statusBox.style.display = 'none';
+          alert('❌ O popup foi bloqueado pelo navegador.\n\nClique no ícone de bloqueio na barra de endereço, permita popups para este site e tente novamente.');
+          return;
+        }
+
+        let handled = false;
+
+        function finish(uuid) {
+          if (handled) return;
+          handled = true;
+          cleanup();
+          if (popup && !popup.closed) popup.close();
+          loginBtn.disabled = false;
+          statusBox.style.display = 'none';
+          sessionUUID = uuid;
+          localStorage.setItem('songrequest_session_uuid', uuid);
+          verifySession();
+        }
+
+        function handleError(msg) {
+          if (handled) return;
+          handled = true;
+          cleanup();
+          if (popup && !popup.closed) popup.close();
+          loginBtn.disabled = false;
+          statusBox.style.display = 'none';
+          alert('❌ ' + (msg || 'Erro na autenticação com Twitch. Tente novamente.'));
+        }
+
+        // ── 1. postMessage vindo do callback.html ────────────────────────
+        function onMessage(event) {
+          if (!event.data) return;
+          if (event.data.type === 'twitch-login-success' && event.data.uuid) {
+            finish(event.data.uuid);
+          } else if (event.data.type === 'twitch-login-error') {
+            handleError('Erro na autenticação com Twitch. Tente novamente.');
           }
-        });
-        
-        // Fallback: verificar URL após o popup fechar
-        const interval = setInterval(() => {
-          if (popup && popup.closed) {
-            clearInterval(interval);
-            // Tentar recuperar da URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const uuid = urlParams.get('uuid');
-            if (uuid) {
-              sessionUUID = uuid;
-              localStorage.setItem('songrequest_session_uuid', uuid);
-              window.history.replaceState({}, document.title, window.location.pathname);
-              verifySession();
+        }
+        window.addEventListener('message', onMessage);
+
+        // ── 2. Fallback: checar localStorage quando popup fechar ─────────
+        //    callback.html salva o UUID no localStorage antes de fechar
+        const pollInterval = setInterval(() => {
+          try {
+            if (popup.closed) {
+              clearInterval(pollInterval);
+              if (handled) return;
+              // Popup fechou sem postMessage — tentar localStorage
+              const saved = localStorage.getItem('songrequest_session_uuid');
+              if (saved) {
+                finish(saved);
+              } else {
+                handleError('Login cancelado ou não concluído.');
+              }
             }
+          } catch (e) {
+            // cross-origin exception enquanto popup ainda está carregando — ignorar
           }
-        }, 500);
+        }, 600);
+
+        // ── 3. Timeout de segurança (3 minutos) ──────────────────────────
+        const timeout = setTimeout(() => {
+          handleError('Tempo limite de login esgotado. Tente novamente.');
+        }, 3 * 60 * 1000);
+
+        function cleanup() {
+          window.removeEventListener('message', onMessage);
+          clearInterval(pollInterval);
+          clearTimeout(timeout);
+        }
       })
       .catch(err => {
+        loginBtn.disabled = false;
+        document.getElementById('loginStatusBox').style.display = 'none';
         console.error('Erro ao iniciar login:', err);
-        alert('Erro ao conectar com Twitch. Tente novamente.');
+        alert('Erro ao conectar com o servidor. Verifique sua conexão e tente novamente.');
       });
   }
-  
+
   function checkAuthFromUrl() {
+    // Caso o backend redirecione direto para index.html (sem callback.html)
     const urlParams = new URLSearchParams(window.location.search);
-    const uuid = urlParams.get('uuid');
-    const loginSuccess = urlParams.get('login');
-    
-    if (loginSuccess === 'success' && uuid) {
+    const login = urlParams.get('login');
+    const uuid  = urlParams.get('uuid');
+
+    if (login === 'success' && uuid) {
+      window.history.replaceState({}, document.title, window.location.pathname);
       sessionUUID = uuid;
       localStorage.setItem('songrequest_session_uuid', uuid);
-      window.history.replaceState({}, document.title, window.location.pathname);
       verifySession();
-    } else if (loginSuccess === 'error') {
-      alert('Erro na autenticação com Twitch. Tente novamente.');
+      return;
+    }
+
+    if (login === 'error') {
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else {
-      const savedUUID = localStorage.getItem('songrequest_session_uuid');
-      if (savedUUID) {
-        sessionUUID = savedUUID;
-        verifySession();
-      }
+      alert('Erro na autenticação com Twitch. Tente novamente.');
+      return;
+    }
+
+    // Tentar sessão salva
+    const savedUUID = localStorage.getItem('songrequest_session_uuid');
+    if (savedUUID) {
+      sessionUUID = savedUUID;
+      verifySession();
     }
   }
-  
+
   async function verifySession() {
     if (!sessionUUID) return;
-    
+
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uuid: sessionUUID })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.authenticated) {
         isAuthenticated = true;
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('userInfoContainer').style.display = 'block';
         document.getElementById('userDisplayName').textContent = data.user.displayName;
-        
+
         if (data.user.channelName) {
           userChannelName = data.user.channelName;
           document.getElementById('channelNameInput').value = data.user.channelName;
           document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${data.user.channelName}`;
         }
-        
+
         if (data.favorites && data.favorites.length > 0) {
           favorites = data.favorites.map(f => ({
             id: f.video_id,
@@ -833,7 +779,7 @@
           }));
           renderFavoritesGrid();
         }
-        
+
         enableFeatures();
       } else {
         localStorage.removeItem('songrequest_session_uuid');
@@ -843,24 +789,18 @@
       console.error('Erro ao verificar sessão:', err);
     }
   }
-  
+
   async function saveChannelName() {
     const channelName = document.getElementById('channelNameInput').value.trim().toLowerCase().replace('#', '');
-    
-    if (!channelName) {
-      alert('Digite o nome do canal');
-      return;
-    }
-    
+    if (!channelName) { alert('Digite o nome do canal'); return; }
+
     try {
       const response = await fetch(`${BACKEND_URL}/api/user/channel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uuid: sessionUUID, channelName })
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         userChannelName = channelName;
         document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${channelName}`;
@@ -873,7 +813,7 @@
       alert('Erro ao conectar com servidor');
     }
   }
-  
+
   function logout() {
     localStorage.removeItem('songrequest_session_uuid');
     sessionUUID = null;
@@ -887,27 +827,28 @@
     document.getElementById('userInfoContainer').style.display = 'none';
     document.getElementById('channelStatus').innerHTML = '';
     document.getElementById('channelNameInput').value = '';
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginStatusBox').style.display = 'none';
     disableFeatures();
   }
-  
+
   function enableFeatures() {
     document.getElementById('searchInput').disabled = false;
     document.getElementById('searchBtn').disabled = false;
     document.getElementById('sendBtn').disabled = false;
     document.getElementById('clearBtn').disabled = false;
   }
-  
+
   function disableFeatures() {
     document.getElementById('searchInput').disabled = true;
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('sendBtn').disabled = true;
     document.getElementById('clearBtn').disabled = true;
   }
-  
-  // ── SAVE FAVORITES ─────────────────────────────────────────────────────────
+
+  // ── FAVORITES ─────────────────────────────────────────────────────────────
   async function saveFavoritesToBackend() {
     if (!sessionUUID) return false;
-    
     try {
       const response = await fetch(`${BACKEND_URL}/api/favorites`, {
         method: 'POST',
@@ -916,49 +857,31 @@
       });
       const data = await response.json();
       return data.success;
-    } catch (err) {
-      console.error('Erro ao salvar favoritos:', err);
-      return false;
-    }
+    } catch (err) { console.error('Erro ao salvar favoritos:', err); return false; }
   }
-  
-  // ── SEARCH FUNCTIONS ───────────────────────────────────────────────────────
+
+  // ── SEARCH ────────────────────────────────────────────────────────────────
   async function performSearch() {
-    if (!isAuthenticated) {
-      alert('Faça login com Twitch primeiro!');
-      return;
-    }
-    
-    if (activeService === 'youtube') {
-      await searchYouTube();
-    } else {
-      await searchSpotify();
-    }
+    if (!isAuthenticated) { alert('Faça login com Twitch primeiro!'); return; }
+    if (activeService === 'youtube') await searchYouTube();
+    else await searchSpotify();
   }
-  
+
   async function searchYouTube() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
-    
     const btn = document.getElementById('searchBtn');
     btn.disabled = true;
     document.getElementById('searchLoader').style.display = 'inline-block';
     document.getElementById('searchBtnText').textContent = '';
-    
     try {
       const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
-      
       const data = await response.json();
-      
-      if (data.error) {
-        alert('Erro YouTube: ' + data.error);
-        return;
-      }
-      
+      if (data.error) { alert('Erro YouTube: ' + data.error); return; }
       renderResults(data.items || [], 'youtube');
     } catch (error) {
       alert('Erro ao buscar no YouTube: ' + error.message);
@@ -968,32 +891,23 @@
       document.getElementById('searchBtnText').textContent = '🔍 BUSCAR';
     }
   }
-  
+
   async function searchSpotify() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
-    
     const btn = document.getElementById('searchBtn');
     btn.disabled = true;
     document.getElementById('searchLoader').style.display = 'inline-block';
     document.getElementById('searchBtnText').textContent = '';
-    
     try {
       const response = await fetch(`${BACKEND_URL}/api/spotify/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
-      
       const data = await response.json();
-      
-      if (data.error) {
-        alert('Erro Spotify: ' + data.error);
-        return;
-      }
-      
-      const items = data.tracks?.items || [];
-      renderResults(items, 'spotify');
+      if (data.error) { alert('Erro Spotify: ' + data.error); return; }
+      renderResults(data.tracks?.items || [], 'spotify');
     } catch (error) {
       alert('Erro ao buscar no Spotify: ' + error.message);
     } finally {
@@ -1002,55 +916,39 @@
       document.getElementById('searchBtnText').textContent = '🔍 BUSCAR';
     }
   }
-  
+
   function renderResults(items, service) {
     const section = document.getElementById('resultsSection');
-    const grid = document.getElementById('resultsGrid');
-    
+    const grid    = document.getElementById('resultsGrid');
     if (!items.length) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhum resultado encontrado.</p></div>`;
-      section.style.display = 'block';
-      return;
+      section.style.display = 'block'; return;
     }
-    
     const results = items.map(item => {
-      let id, title, channel, thumb, serviceType;
-      
+      let id, title, channel, thumb;
       if (service === 'youtube') {
-        id = item.id.videoId;
-        title = item.snippet.title;
+        id = item.id.videoId; title = item.snippet.title;
         channel = item.snippet.channelTitle;
         thumb = item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url;
-        serviceType = 'youtube';
       } else {
-        id = item.id;
-        title = item.name;
+        id = item.id; title = item.name;
         channel = item.artists?.map(a => a.name).join(', ') || 'Artista desconhecido';
         thumb = item.album?.images?.[0]?.url || '';
-        serviceType = 'spotify';
       }
-      
-      if (!videoMap[id]) {
-        videoMap[id] = { id, title, channel, thumb, service: serviceType };
-      }
-      
-      return { id, title, channel, thumb, service: serviceType };
+      if (!videoMap[id]) videoMap[id] = { id, title, channel, thumb, service };
+      return { id, title, channel, thumb, service };
     });
-    
+
     grid.innerHTML = results.map(v => {
       const isFav = favorites.some(f => f.id === v.id);
       const countInQueue = queue.filter(item => item.id === v.id).length;
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
-      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
+      const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
         <div class="video-card" data-id="${v.id}">
-          <div class="service-badge ${serviceClass}">
-            ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
-          </div>
-          <div class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${v.id}')">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
+          <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
+          <div class="fav-star ${isFav ? 'active' : ''}" data-favid="${v.id}">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
           </div>
           ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
           <div class="thumb-wrap">
@@ -1068,66 +966,50 @@
           </div>
         </div>`;
     }).join('');
-    
+
     grid.querySelectorAll('.video-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.fav-star')) return;
+      card.querySelector('.fav-star').addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFavorite(card.dataset.id);
+      });
+      card.addEventListener('click', () => {
         const id = card.dataset.id;
-        if (id && videoMap[id]) addToQueue(videoMap[id]);
+        if (videoMap[id]) addToQueue(videoMap[id]);
       });
     });
-    
+
     section.style.display = 'block';
     document.getElementById('divider').style.display = queue.length ? 'block' : 'none';
   }
-  
+
   // ── FAVORITES MANAGEMENT ───────────────────────────────────────────────────
   async function toggleFavorite(videoId) {
-    const video = videoMap[videoId];
+    const video  = videoMap[videoId];
     if (!video) return;
-    
     const exists = favorites.some(f => f.id === videoId);
-    
-    if (exists) {
-      favorites = favorites.filter(f => f.id !== videoId);
-    } else {
-      favorites.unshift(video);
-      if (favorites.length > 50) favorites.pop();
-    }
-    
+    if (exists) favorites = favorites.filter(f => f.id !== videoId);
+    else { favorites.unshift(video); if (favorites.length > 50) favorites.pop(); }
     renderFavoritesGrid();
     await saveFavoritesToBackend();
-    
-    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${videoId}"]`);
-    if (searchCard) {
-      const star = searchCard.querySelector('.fav-star');
-      if (star) {
-        if (!exists) star.classList.add('active');
-        else star.classList.remove('active');
-      }
-    }
+    const star = document.querySelector(`#resultsGrid .video-card[data-id="${videoId}"] .fav-star`);
+    if (star) { exists ? star.classList.remove('active') : star.classList.add('active'); }
   }
-  
+
   function renderFavoritesGrid() {
     const grid = document.getElementById('favoritesGrid');
     if (!favorites.length) {
       grid.innerHTML = `<div class="empty-state"><div class="icon">⭐</div><p>Nenhuma música favorita ainda.<br>Clique na estrela ⭐ nos resultados para adicionar.</p></div>`;
       return;
     }
-    
     grid.innerHTML = favorites.map(v => {
       const countInQueue = queue.filter(item => item.id === v.id).length;
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
-      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
+      const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
         <div class="video-card" data-id="${v.id}">
-          <div class="service-badge ${serviceClass}">
-            ${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}
-          </div>
-          <div class="fav-star active" onclick="event.stopPropagation(); toggleFavorite('${v.id}')">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
+          <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
+          <div class="fav-star active" data-favid="${v.id}">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
           </div>
           ${countInQueue > 0 ? `<div class="qty-badge">${countInQueue}</div>` : ''}
           <div class="thumb-wrap">
@@ -1145,172 +1027,121 @@
           </div>
         </div>`;
     }).join('');
-    
     grid.querySelectorAll('.video-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.fav-star')) return;
-        const id = card.dataset.id;
-        const video = favorites.find(f => f.id === id);
+      card.querySelector('.fav-star').addEventListener('click', e => { e.stopPropagation(); toggleFavorite(card.dataset.id); });
+      card.addEventListener('click', () => {
+        const video = favorites.find(f => f.id === card.dataset.id);
         if (video) addToQueue(video);
       });
     });
   }
-  
+
   async function clearAllFavorites() {
     if (!confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) return;
     favorites = [];
     renderFavoritesGrid();
     await saveFavoritesToBackend();
   }
-  
+
   function addAllFavoritesToQueue() {
-    if (favorites.length === 0) {
-      alert('Nenhum favorito para adicionar.');
-      return;
-    }
-    
-    for (const fav of favorites) {
-      addToQueue(fav);
-    }
+    if (!favorites.length) { alert('Nenhum favorito para adicionar.'); return; }
+    favorites.forEach(fav => addToQueue(fav));
     alert(`${favorites.length} música(s) adicionada(s) à fila!`);
   }
-  
-  // ── QUEUE MANAGEMENT ───────────────────────────────────────────────────────
+
+  // ── QUEUE ─────────────────────────────────────────────────────────────────
   function addToQueue(v) {
-    const queueItem = {
-      ...v,
-      uniqueId: `${v.id}-${Date.now()}-${nextUniqueId++}`
-    };
+    const queueItem = { ...v, uniqueId: `${v.id}-${Date.now()}-${nextUniqueId++}` };
     queue.push(queueItem);
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
-    
     const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${v.id}"]`);
     if (searchCard) {
-      let qtyBadge = searchCard.querySelector('.qty-badge');
       const newCount = queue.filter(item => item.id === v.id).length;
+      let badge = searchCard.querySelector('.qty-badge');
       if (newCount > 0) {
-        if (qtyBadge) qtyBadge.textContent = newCount;
-        else {
-          const badge = document.createElement('div');
-          badge.className = 'qty-badge';
-          badge.textContent = newCount;
-          searchCard.appendChild(badge);
-        }
-      } else if (qtyBadge) qtyBadge.remove();
+        if (badge) badge.textContent = newCount;
+        else { badge = document.createElement('div'); badge.className = 'qty-badge'; badge.textContent = newCount; searchCard.appendChild(badge); }
+      } else if (badge) badge.remove();
     }
   }
-  
+
   function removeFromQueue(uniqueId) {
     if (isSending) return;
-    const removedItem = queue.find(item => item.uniqueId === uniqueId);
-    if (removedItem) {
-      queue = queue.filter(item => item.uniqueId !== uniqueId);
-      renderQueue();
-      updateCounter();
-      renderFavoritesGrid();
-      
-      const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${removedItem.id}"]`);
-      if (searchCard) {
-        const newCount = queue.filter(item => item.id === removedItem.id).length;
-        let qtyBadge = searchCard.querySelector('.qty-badge');
-        if (newCount > 0) {
-          if (qtyBadge) qtyBadge.textContent = newCount;
-          else {
-            const badge = document.createElement('div');
-            badge.className = 'qty-badge';
-            badge.textContent = newCount;
-            searchCard.appendChild(badge);
-          }
-        } else if (qtyBadge) qtyBadge.remove();
-      }
+    const removed = queue.find(item => item.uniqueId === uniqueId);
+    if (!removed) return;
+    queue = queue.filter(item => item.uniqueId !== uniqueId);
+    renderQueue(); updateCounter(); renderFavoritesGrid();
+    const searchCard = document.querySelector(`#resultsGrid .video-card[data-id="${removed.id}"]`);
+    if (searchCard) {
+      const newCount = queue.filter(item => item.id === removed.id).length;
+      let badge = searchCard.querySelector('.qty-badge');
+      if (newCount > 0) { if (badge) badge.textContent = newCount; else { badge = document.createElement('div'); badge.className = 'qty-badge'; badge.textContent = newCount; searchCard.appendChild(badge); } }
+      else if (badge) badge.remove();
     }
   }
-  
+
   function clearQueue() {
     if (isSending) return;
     queue = [];
-    document.querySelectorAll('.qty-badge').forEach(badge => badge.remove());
-    renderQueue();
-    updateCounter();
-    renderFavoritesGrid();
+    document.querySelectorAll('.qty-badge').forEach(b => b.remove());
+    renderQueue(); updateCounter(); renderFavoritesGrid();
     document.getElementById('sendProgress').style.display = 'none';
   }
-  
+
   function renderQueue() {
     const section = document.getElementById('queueSection');
-    const list = document.getElementById('queueList');
+    const list    = document.getElementById('queueList');
     const divider = document.getElementById('divider');
-    
-    if (!queue.length) {
-      section.style.display = 'none';
-      divider.style.display = 'none';
-      return;
-    }
-    
-    section.style.display = 'block';
-    divider.style.display = 'block';
-    
+    if (!queue.length) { section.style.display = 'none'; divider.style.display = 'none'; return; }
+    section.style.display = 'block'; divider.style.display = 'block';
     list.innerHTML = queue.map((v, i) => {
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
-      const serviceIcon = v.service === 'youtube' ? '▶️' : '🎵';
+      const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
         <div class="queue-item" data-qid="${v.uniqueId}">
-          <span class="queue-num">${String(i + 1).padStart(2, '0')}</span>
+          <span class="queue-num">${String(i+1).padStart(2,'0')}</span>
           <img class="queue-thumb" src="${v.thumb || 'https://placehold.co/56x32/111118/6b6b80?text=No+Img'}" alt=""/>
           <div class="queue-info">
             <div class="queue-item-title">${escapeHtml(v.title)}</div>
-            <div class="queue-id">
-              !sr ${v.id}
-              <span class="queue-service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</span>
-            </div>
+            <div class="queue-id">!sr ${v.id}<span class="queue-service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</span></div>
           </div>
           <span class="queue-status"></span>
           <button class="btn-remove" data-remove="${v.uniqueId}" title="Remover">✕</button>
         </div>`;
     }).join('');
-    
     list.querySelectorAll('.btn-remove').forEach(btn => {
       btn.addEventListener('click', () => removeFromQueue(btn.dataset.remove));
     });
   }
-  
+
   function updateCounter() {
     document.getElementById('queueCount').textContent = queue.length;
   }
-  
-  // ── SEND QUEUE ─────────────────────────────────────────────────────────────
+
+  // ── SEND ──────────────────────────────────────────────────────────────────
   async function startSending() {
-    if (!queue.length) {
-      alert('A fila está vazia.');
-      return;
-    }
-    if (!isAuthenticated) {
-      alert('Faça login com Twitch primeiro.');
-      return;
-    }
-    if (!userChannelName) {
-      alert('Configure o canal primeiro.');
-      return;
-    }
+    if (!queue.length) { alert('A fila está vazia.'); return; }
+    if (!isAuthenticated) { alert('Faça login com Twitch primeiro.'); return; }
+    if (!userChannelName) { alert('Configure o canal primeiro.'); return; }
     if (isSending) return;
-    
-    const total = queue.length;
+
+    const total    = queue.length;
     const delaySec = parseInt(document.getElementById('delaySeconds').value) || 6;
     isSending = true;
-    
+
     const sendBtn = document.getElementById('sendBtn');
     sendBtn.disabled = true;
     document.getElementById('sendLoader').style.display = 'inline-block';
     document.getElementById('sendBtnText').textContent = 'ENVIANDO...';
     document.getElementById('clearBtn').disabled = true;
-    
+
     const progress = document.getElementById('sendProgress');
     progress.style.display = 'block';
     const logEl = document.getElementById('progressLog');
     logEl.innerHTML = '';
-    
+
     function addLog(text, type) {
       const line = document.createElement('div');
       line.className = `log-line ${type}`;
@@ -1318,125 +1149,97 @@
       logEl.appendChild(line);
       logEl.scrollTop = logEl.scrollHeight;
     }
-    
+
     function setProgress(done, total) {
       const pct = Math.round((done / total) * 100);
       document.getElementById('progressFill').style.width = pct + '%';
       document.getElementById('progressFraction').textContent = `${done} / ${total}`;
     }
-    
-    async function sendToBackend(video, index) {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uuid: sessionUUID,
-            videoId: video.id,
-            title: video.title,
-            service: video.service
-          })
-        });
-        
-        const data = await response.json();
-        return { success: data.success, error: data.error };
-      } catch (err) {
-        return { success: false, error: err.message };
-      }
-    }
-    
-    async function waitWithCountdown(seconds, index, total) {
+
+    async function waitWithCountdown(seconds, nextIdx, total) {
       for (let s = seconds; s > 0; s--) {
-        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${index + 1}/${total}...`;
+        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${nextIdx}/${total}...`;
         await sleep(1000);
       }
     }
-    
+
     for (let i = 0; i < queue.length; i++) {
       const v = queue[i];
       setQueueItemState(v.uniqueId, 'sending');
       setProgress(i, total);
-      
+
       if (i > 0) {
-        addLog(`⏱  Aguardando ${delaySec} segundos antes do ${i + 1}º envio...`, 'wait');
-        await waitWithCountdown(delaySec, i, total);
+        addLog(`⏱  Aguardando ${delaySec}s antes do ${i+1}º envio...`, 'wait');
+        await waitWithCountdown(delaySec, i+1, total);
       }
-      
-      document.getElementById('progressLabel').textContent = `Enviando ${i + 1}/${total}...`;
-      addLog(`📤 Enviando: !sr ${v.id} - "${v.title.substring(0, 40)}..." [${v.service === 'youtube' ? 'YouTube' : 'Spotify'}]`, 'wait');
-      
-      const result = await sendToBackend(v, i);
-      
+
+      document.getElementById('progressLabel').textContent = `Enviando ${i+1}/${total}...`;
+      addLog(`📤 Enviando: !sr ${v.id} — "${v.title.substring(0,40)}..." [${v.service}]`, 'wait');
+
+      let result;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uuid: sessionUUID, videoId: v.id, title: v.title, service: v.service })
+        });
+        result = await res.json();
+      } catch (err) {
+        result = { success: false, error: err.message };
+      }
+
       if (result.success) {
-        addLog(`✓ [${i + 1}/${total}]  !sr ${v.id} aceito`, 'ok');
+        addLog(`✓ [${i+1}/${total}]  !sr ${v.id} aceito`, 'ok');
         setQueueItemState(v.uniqueId, 'sent');
       } else {
-        addLog(`✗ [${i + 1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
+        addLog(`✗ [${i+1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
         setQueueItemState(v.uniqueId, '');
       }
-      setProgress(i + 1, total);
+      setProgress(i+1, total);
     }
-    
+
     addLog(`🎉  Envio finalizado!`, 'done');
-    document.getElementById('progressLabel').textContent = `Concluído`;
-    
+    document.getElementById('progressLabel').textContent = 'Concluído';
+
     isSending = false;
     sendBtn.disabled = false;
     document.getElementById('sendLoader').style.display = 'none';
     document.getElementById('sendBtnText').textContent = '📡 ENVIAR TODOS PELO CHAT DA TWITCH';
     document.getElementById('clearBtn').disabled = false;
   }
-  
+
   function setQueueItemState(uniqueId, state) {
     const item = document.querySelector(`.queue-item[data-qid="${uniqueId}"]`);
     if (!item) return;
     item.className = 'queue-item' + (state ? ' ' + state : '');
     const badge = item.querySelector('.queue-status');
     if (!badge) return;
-    if (state === 'sending') {
-      badge.textContent = '⏳ enviando';
-      badge.className = 'queue-status sending-badge';
-    } else if (state === 'sent') {
-      badge.textContent = '✓ enviado';
-      badge.className = 'queue-status sent-badge';
-    } else {
-      badge.textContent = '';
-      badge.className = 'queue-status';
-    }
+    if (state === 'sending') { badge.textContent = '⏳ enviando'; badge.className = 'queue-status sending-badge'; }
+    else if (state === 'sent') { badge.textContent = '✓ enviado'; badge.className = 'queue-status sent-badge'; }
+    else { badge.textContent = ''; badge.className = 'queue-status'; }
   }
-  
-  // ── UTILITIES ──────────────────────────────────────────────────────────────
+
+  // ── UTILITIES ─────────────────────────────────────────────────────────────
   function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>]/g, m => {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
+    return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
   }
-  
+
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  
+
   function initTabs() {
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panes = document.querySelectorAll('.tab-pane');
-    
-    tabs.forEach(btn => {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const tabId = btn.dataset.tab;
-        tabs.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        panes.forEach(pane => pane.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`).classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
       });
     });
   }
-  
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') performSearch();
-  });
-  
+
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') performSearch(); });
+
   initTabs();
   setActiveService('youtube');
   disableFeatures();
