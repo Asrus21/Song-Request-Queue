@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Autenticando...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a0f;
+      color: #e8e8f0;
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px;
+      text-align: center;
+    }
+    .spin {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(145,71,255,0.3);
+      border-top-color: #9147ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .title { font-size: 16px; color: #9147ff; font-weight: 700; }
+    .sub { font-size: 11px; color: #6b6b80; }
+    .ok { color: #00e5a0; font-size: 20px; }
+    .err { color: #ff3c5f; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <div class="spin"></div>
+    <div class="title">Autenticando com Twitch...</div>
+    <div class="sub">Esta janela fechará em breve.</div>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const login  = params.get('login');
+      const uuid   = params.get('uuid');
+
+      if (login === 'success' && uuid) {
+        // Tenta enviar ao opener (caso seja popup)
+        if (window.opener && !window.opener.closed) {
+          try {
+            window.opener.postMessage(
+              { type: 'twitch-login-success', uuid },
+              '*'          // aceita qualquer origem (GitHub Pages muda de domínio)
+            );
+          } catch (e) {
+            console.warn('postMessage falhou:', e);
+          }
+        }
+
+        // Também grava no localStorage para o fallback
+        try { localStorage.setItem('songrequest_session_uuid', uuid); } catch (_) {}
+
+        document.getElementById('content').innerHTML = `
+          <div class="ok">✓</div>
+          <div class="title">Login realizado!</div>
+          <div class="sub">Fechando janela...</div>
+        `;
+
+        // Fecha o popup após breve delay (garante que postMessage foi entregue)
+        setTimeout(() => {
+          window.close();
+          // Se não conseguiu fechar (não era popup), redireciona
+          setTimeout(() => {
+            window.location.href = window.location.origin + window.location.pathname.replace('callback.html', 'index.html') + '?login=success&uuid=' + uuid;
+          }, 800);
+        }, 800);
+
+      } else if (login === 'error') {
+        if (window.opener && !window.opener.closed) {
+          try {
+            window.opener.postMessage({ type: 'twitch-login-error' }, '*');
+          } catch (_) {}
+        }
+        document.getElementById('content').innerHTML = `
+          <div class="err">✗ Erro na autenticação com Twitch.<br>Feche esta janela e tente novamente.</div>
+        `;
+        setTimeout(() => window.close(), 3000);
+
+      } else {
+        document.getElementById('content').innerHTML = `
+          <div class="err">Parâmetros inválidos. Feche esta janela.</div>
+        `;
+        setTimeout(() => window.close(), 3000);
+      }
+    })();
+  </script>
+</body>
+</html>
