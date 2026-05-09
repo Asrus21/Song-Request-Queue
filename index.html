@@ -580,6 +580,35 @@
 </div>
 
 <script>
+  // ── STORAGE HELPERS ────────────────────────────────────────────────────────
+  // Usa sessionStorage: não persiste entre sessões, não acessível por outras abas,
+  // não é sincronizado entre dispositivos como localStorage.
+  // Tradeoff: usuário precisa logar novamente ao fechar o navegador — comportamento
+  // intencional para uma ferramenta de streaming (sessão = sessão de live).
+  const SESSION_KEY = '_sr_session';
+
+  function saveSession(uuid) {
+    try { sessionStorage.setItem(SESSION_KEY, uuid); } catch (_) {}
+  }
+
+  function loadSession() {
+    try { return sessionStorage.getItem(SESSION_KEY); } catch (_) { return null; }
+  }
+
+  function clearSession() {
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem('_sr_pending_uuid'); // limpa ponte do callback
+    } catch (_) {}
+  }
+
+  function isValidUUID(str) {
+    return typeof str === 'string' && /^[a-f0-9]{32}$/.test(str);
+  }
+
+  // Origem do callback.html (mesma do index.html)
+  const EXPECTED_ORIGIN = 'https://asrus21.github.io';
+
   // ── CONFIGURAÇÃO ───────────────────────────────────────────────────────────
   const BACKEND_URL = 'https://song-request-backend-production.up.railway.app';
 
@@ -654,7 +683,7 @@
           loginBtn.disabled = false;
           statusBox.style.display = 'none';
           sessionUUID = uuid;
-          localStorage.setItem('songrequest_session_uuid', uuid);
+          saveSession(uuid);
           verifySession();
         }
 
@@ -668,10 +697,13 @@
           alert('❌ ' + (msg || 'Erro na autenticação com Twitch. Tente novamente.'));
         }
 
-        // ── 1. postMessage vindo do callback.html ────────────────────────
+        // ── 1. postMessage vindo do callback.html — valida origem ────────────
         function onMessage(event) {
+          // Rejeita mensagens de origens desconhecidas
+          if (event.origin !== EXPECTED_ORIGIN) return;
           if (!event.data) return;
-          if (event.data.type === 'twitch-login-success' && event.data.uuid) {
+
+          if (event.data.type === 'twitch-login-success' && isValidUUID(event.data.uuid)) {
             finish(event.data.uuid);
           } else if (event.data.type === 'twitch-login-error') {
             handleError('Erro na autenticação com Twitch. Tente novamente.');
@@ -679,24 +711,22 @@
         }
         window.addEventListener('message', onMessage);
 
-        // ── 2. Fallback: checar localStorage quando popup fechar ─────────
-        //    callback.html salva o UUID no localStorage antes de fechar
+        // ── 2. Fallback: checar sessionStorage quando popup fechar ───────────
+        //    callback.html grava '_sr_pending_uuid' no sessionStorage como ponte
         const pollInterval = setInterval(() => {
           try {
             if (popup.closed) {
               clearInterval(pollInterval);
               if (handled) return;
-              // Popup fechou sem postMessage — tentar localStorage
-              const saved = localStorage.getItem('songrequest_session_uuid');
-              if (saved) {
-                finish(saved);
+              const pending = sessionStorage.getItem('_sr_pending_uuid');
+              if (pending && isValidUUID(pending)) {
+                sessionStorage.removeItem('_sr_pending_uuid');
+                finish(pending);
               } else {
                 handleError('Login cancelado ou não concluído.');
               }
             }
-          } catch (e) {
-            // cross-origin exception enquanto popup ainda está carregando — ignorar
-          }
+          } catch (e) { /* cross-origin enquanto popup carrega */ }
         }, 600);
 
         // ── 3. Timeout de segurança (3 minutos) ──────────────────────────
@@ -719,29 +749,21 @@
   }
 
   function checkAuthFromUrl() {
-    // Caso o backend redirecione direto para index.html (sem callback.html)
-    const urlParams = new URLSearchParams(window.location.search);
-    const login = urlParams.get('login');
-    const uuid  = urlParams.get('uuid');
-
-    if (login === 'success' && uuid) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      sessionUUID = uuid;
-      localStorage.setItem('songrequest_session_uuid', uuid);
+    // Verifica se callback.html redirecionou com UUID pendente no sessionStorage
+    // (fallback para quando não há opener — ex: mobile)
+    const pending = sessionStorage.getItem('_sr_pending_uuid');
+    if (pending && isValidUUID(pending)) {
+      sessionStorage.removeItem('_sr_pending_uuid');
+      sessionUUID = pending;
+      saveSession(pending);
       verifySession();
       return;
     }
 
-    if (login === 'error') {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      alert('Erro na autenticação com Twitch. Tente novamente.');
-      return;
-    }
-
-    // Tentar sessão salva
-    const savedUUID = localStorage.getItem('songrequest_session_uuid');
-    if (savedUUID) {
-      sessionUUID = savedUUID;
+    // Tenta sessão já salva no sessionStorage desta aba
+    const saved = loadSession();
+    if (saved && isValidUUID(saved)) {
+      sessionUUID = saved;
       verifySession();
     }
   }
@@ -760,6 +782,7 @@
 
       if (data.authenticated) {
         isAuthenticated = true;
+        saveSession(sessionUUID); // renova no sessionStorage
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('userInfoContainer').style.display = 'block';
         document.getElementById('userDisplayName').textContent = data.user.displayName;
@@ -779,7 +802,7 @@
         renderFavoritesGrid();
         enableFeatures();
       } else {
-        localStorage.removeItem('songrequest_session_uuid');
+        clearSession();
         sessionUUID = null;
       }
     } catch (err) {
@@ -788,7 +811,7 @@
   }
 
   function logout() {
-    localStorage.removeItem('songrequest_session_uuid');
+    clearSession();
     sessionUUID = null;
     isAuthenticated = false;
     favorites = [];
