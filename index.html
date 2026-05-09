@@ -470,11 +470,6 @@
           <button class="logout-btn" onclick="logout()" title="Sair">🚪</button>
         </div>
       </div>
-      <div class="channel-config" id="channelConfig">
-        <input type="text" id="channelNameInput" placeholder="Nome do canal onde enviar os !sr (ex: meucanal)">
-        <button onclick="saveChannelName()" id="saveChannelBtn">💾 SALVAR CANAL</button>
-      </div>
-      <div id="channelStatus" style="font-size: 11px; color: var(--green); margin-top: 8px;"></div>
     </div>
   </div>
 
@@ -546,6 +541,13 @@
     </div>
 
     <div class="delay-control">
+      <div style="display: flex; align-items: center; gap: 12px; flex:1; flex-wrap:wrap;">
+        <span style="font-size: 11px; color: var(--muted); white-space:nowrap;">📺 Canal Twitch:</span>
+        <input type="text" id="channelNameInput" placeholder="nome do canal (ex: meucanal)" style="max-width:220px; padding:8px 12px; font-size:12px;">
+      </div>
+    </div>
+
+    <div class="delay-control">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span style="font-size: 11px; color: var(--muted);">⏱️ Intervalo entre comandos:</span>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -589,7 +591,6 @@
   let activeService = 'youtube';
   let sessionUUID = null;
   let isAuthenticated = false;
-  let userChannelName = null;
   let favorites = [];
 
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
@@ -763,12 +764,6 @@
         document.getElementById('userInfoContainer').style.display = 'block';
         document.getElementById('userDisplayName').textContent = data.user.displayName;
 
-        if (data.user.channelName) {
-          userChannelName = data.user.channelName;
-          document.getElementById('channelNameInput').value = data.user.channelName;
-          document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${data.user.channelName}`;
-        }
-
         if (data.favorites && data.favorites.length > 0) {
           favorites = data.favorites.map(f => ({
             id: f.video_id,
@@ -790,30 +785,6 @@
     }
   }
 
-  async function saveChannelName() {
-    const channelName = document.getElementById('channelNameInput').value.trim().toLowerCase().replace('#', '');
-    if (!channelName) { alert('Digite o nome do canal'); return; }
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/user/channel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uuid: sessionUUID, channelName })
-      });
-      const data = await response.json();
-      if (data.success) {
-        userChannelName = channelName;
-        document.getElementById('channelStatus').innerHTML = `✅ Canal configurado: #${channelName}`;
-        alert(`Canal #${channelName} configurado com sucesso!`);
-      } else {
-        alert('Erro ao salvar canal');
-      }
-    } catch (err) {
-      console.error('Erro ao salvar canal:', err);
-      alert('Erro ao conectar com servidor');
-    }
-  }
-
   function logout() {
     localStorage.removeItem('songrequest_session_uuid');
     sessionUUID = null;
@@ -825,8 +796,6 @@
     updateCounter();
     document.getElementById('loginContainer').style.display = 'block';
     document.getElementById('userInfoContainer').style.display = 'none';
-    document.getElementById('channelStatus').innerHTML = '';
-    document.getElementById('channelNameInput').value = '';
     document.getElementById('loginBtn').disabled = false;
     document.getElementById('loginStatusBox').style.display = 'none';
     disableFeatures();
@@ -1124,7 +1093,10 @@
   async function startSending() {
     if (!queue.length) { alert('A fila está vazia.'); return; }
     if (!isAuthenticated) { alert('Faça login com Twitch primeiro.'); return; }
-    if (!userChannelName) { alert('Configure o canal primeiro.'); return; }
+
+    const channelName = document.getElementById('channelNameInput').value.trim().toLowerCase().replace('#', '');
+    if (!channelName) { alert('Digite o nome do canal Twitch antes de enviar.'); return; }
+
     if (isSending) return;
 
     const total    = queue.length;
@@ -1181,7 +1153,7 @@
         const res = await fetch(`${BACKEND_URL}/api/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uuid: sessionUUID, videoId: v.id, title: v.title, service: v.service })
+          body: JSON.stringify({ uuid: sessionUUID, videoId: v.id, title: v.title, service: v.service, channelName })
         });
         result = await res.json();
       } catch (err) {
