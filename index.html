@@ -764,17 +764,19 @@
         document.getElementById('userInfoContainer').style.display = 'block';
         document.getElementById('userDisplayName').textContent = data.user.displayName;
 
-        if (data.favorites && data.favorites.length > 0) {
-          favorites = data.favorites.map(f => ({
-            id: f.video_id,
-            title: f.title,
-            channel: f.channel,
-            thumb: f.thumbnail,
-            service: f.service || 'youtube'
-          }));
-          renderFavoritesGrid();
-        }
+        // Sempre carrega favoritos do banco (mesmo array vazio)
+        favorites = (data.favorites || []).map(f => ({
+          id:      f.video_id,
+          title:   f.title,
+          channel: f.channel,
+          thumb:   f.thumbnail,
+          service: f.service || 'youtube'
+        }));
 
+        // Popula videoMap com os favoritos para que toggleFavorite funcione
+        favorites.forEach(f => { if (!videoMap[f.id]) videoMap[f.id] = f; });
+
+        renderFavoritesGrid();
         enableFeatures();
       } else {
         localStorage.removeItem('songrequest_session_uuid');
