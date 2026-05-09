@@ -815,18 +815,38 @@
     document.getElementById('clearBtn').disabled = true;
   }
 
-  // ── FAVORITES ─────────────────────────────────────────────────────────────
-  async function saveFavoritesToBackend() {
-    if (!sessionUUID) return false;
+  // ── FAVORITES BACKEND ─────────────────────────────────────────────────────
+  async function addFavoriteToBackend(video) {
+    if (!sessionUUID) return;
     try {
-      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
+      await fetch(`${BACKEND_URL}/api/favorites/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uuid: sessionUUID, favorites })
+        body: JSON.stringify({ uuid: sessionUUID, video })
       });
-      const data = await response.json();
-      return data.success;
-    } catch (err) { console.error('Erro ao salvar favoritos:', err); return false; }
+    } catch (err) { console.error('Erro ao adicionar favorito:', err); }
+  }
+
+  async function removeFavoriteFromBackend(videoId, service) {
+    if (!sessionUUID) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/favorites/one`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, videoId, service })
+      });
+    } catch (err) { console.error('Erro ao remover favorito:', err); }
+  }
+
+  async function clearAllFavoritesBackend() {
+    if (!sessionUUID) return;
+    try {
+      await fetch(`${BACKEND_URL}/api/favorites/all`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID })
+      });
+    } catch (err) { console.error('Erro ao limpar favoritos:', err); }
   }
 
   // ── SEARCH ────────────────────────────────────────────────────────────────
@@ -956,10 +976,17 @@
     const video  = videoMap[videoId];
     if (!video) return;
     const exists = favorites.some(f => f.id === videoId);
-    if (exists) favorites = favorites.filter(f => f.id !== videoId);
-    else { favorites.unshift(video); if (favorites.length > 50) favorites.pop(); }
+
+    if (exists) {
+      favorites = favorites.filter(f => f.id !== videoId);
+      removeFavoriteFromBackend(videoId, video.service); // individual remove
+    } else {
+      favorites.unshift(video);
+      if (favorites.length > 50) favorites.pop();
+      addFavoriteToBackend(video); // individual add
+    }
+
     renderFavoritesGrid();
-    await saveFavoritesToBackend();
     const star = document.querySelector(`#resultsGrid .video-card[data-id="${videoId}"] .fav-star`);
     if (star) { exists ? star.classList.remove('active') : star.classList.add('active'); }
   }
@@ -1009,7 +1036,7 @@
     if (!confirm('Tem certeza que deseja remover TODAS as músicas favoritas?')) return;
     favorites = [];
     renderFavoritesGrid();
-    await saveFavoritesToBackend();
+    clearAllFavoritesBackend();
   }
 
   function addAllFavoritesToQueue() {
