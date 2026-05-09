@@ -3,34 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>Autenticando...</title>
+  <!-- CSP: bloqueia scripts inline de outras origens, sem eval -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0f;
-      color: #e8e8f0;
+      background: #0a0a0f; color: #e8e8f0;
       font-family: 'Space Mono', monospace;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 20px;
-      padding: 24px;
-      text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 20px; padding: 24px; text-align: center;
     }
-    .spin {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(145,71,255,0.3);
-      border-top-color: #9147ff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .spin { width: 40px; height: 40px; border: 3px solid rgba(145,71,255,0.3); border-top-color: #9147ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .title { font-size: 16px; color: #9147ff; font-weight: 700; }
-    .sub { font-size: 11px; color: #6b6b80; }
-    .ok { color: #00e5a0; font-size: 20px; }
-    .err { color: #ff3c5f; font-size: 14px; }
+    .sub   { font-size: 11px; color: #6b6b80; }
+    .ok    { color: #00e5a0; font-size: 20px; }
+    .err   { color: #ff3c5f; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -41,60 +32,73 @@
   </div>
 
   <script>
-    (function () {
-      const params = new URLSearchParams(window.location.search);
-      const login  = params.get('login');
-      const uuid   = params.get('uuid');
+  (function () {
+    'use strict';
 
-      if (login === 'success' && uuid) {
-        // Tenta enviar ao opener (caso seja popup)
-        if (window.opener && !window.opener.closed) {
-          try {
-            window.opener.postMessage(
-              { type: 'twitch-login-success', uuid },
-              '*'          // aceita qualquer origem (GitHub Pages muda de domínio)
-            );
-          } catch (e) {
-            console.warn('postMessage falhou:', e);
-          }
+    // Origem permitida — onde está o index.html
+    const ALLOWED_ORIGIN = 'https://asrus21.github.io';
+
+    const params = new URLSearchParams(window.location.search);
+    const login  = params.get('login');
+    const uuid   = params.get('uuid');
+
+    // Limpa a URL imediatamente para o UUID não ficar no histórico
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    function show(html) {
+      document.getElementById('content').innerHTML = html;
+    }
+
+    function closeAfter(ms) {
+      setTimeout(() => window.close(), ms);
+    }
+
+    // Valida formato básico do UUID (32 hex chars)
+    function isValidUUID(str) {
+      return typeof str === 'string' && /^[a-f0-9]{32}$/.test(str);
+    }
+
+    if (login === 'success' && isValidUUID(uuid)) {
+      show(`<div class="ok">✓</div><div class="title">Login realizado!</div><div class="sub">Fechando...</div>`);
+
+      if (window.opener && !window.opener.closed) {
+        // Popup normal — envia via postMessage com origem específica
+        try {
+          window.opener.postMessage(
+            { type: 'twitch-login-success', uuid },
+            ALLOWED_ORIGIN   // ← valida a origem do receptor
+          );
+        } catch (e) {
+          // Se falhar (ex: opener em domínio diferente), usa sessionStorage como ponte
+          // sessionStorage não persiste entre sessões e não é lido por outras abas
+          try { sessionStorage.setItem('_sr_pending_uuid', uuid); } catch (_) {}
         }
-
-        // Também grava no localStorage para o fallback
-        try { localStorage.setItem('songrequest_session_uuid', uuid); } catch (_) {}
-
-        document.getElementById('content').innerHTML = `
-          <div class="ok">✓</div>
-          <div class="title">Login realizado!</div>
-          <div class="sub">Fechando janela...</div>
-        `;
-
-        // Fecha o popup após breve delay (garante que postMessage foi entregue)
-        setTimeout(() => {
-          window.close();
-          // Se não conseguiu fechar (não era popup), redireciona
-          setTimeout(() => {
-            window.location.href = window.location.origin + window.location.pathname.replace('callback.html', 'index.html') + '?login=success&uuid=' + uuid;
-          }, 800);
-        }, 800);
-
-      } else if (login === 'error') {
-        if (window.opener && !window.opener.closed) {
-          try {
-            window.opener.postMessage({ type: 'twitch-login-error' }, '*');
-          } catch (_) {}
-        }
-        document.getElementById('content').innerHTML = `
-          <div class="err">✗ Erro na autenticação com Twitch.<br>Feche esta janela e tente novamente.</div>
-        `;
-        setTimeout(() => window.close(), 3000);
-
+        closeAfter(800);
       } else {
-        document.getElementById('content').innerHTML = `
-          <div class="err">Parâmetros inválidos. Feche esta janela.</div>
-        `;
-        setTimeout(() => window.close(), 3000);
+        // Sem opener — foi aberto diretamente (ex: redirect de mobile)
+        // Usa sessionStorage como ponte temporária (morre quando a aba fecha)
+        try { sessionStorage.setItem('_sr_pending_uuid', uuid); } catch (_) {}
+        // Redireciona para o index SEM o UUID na URL
+        setTimeout(() => {
+          window.location.replace(ALLOWED_ORIGIN + '/Song-Request-Queue/');
+        }, 600);
       }
-    })();
+
+    } else if (login === 'error') {
+      show(`<div class="err">✗ Erro na autenticação com Twitch.<br>Feche esta janela e tente novamente.</div>`);
+      if (window.opener && !window.opener.closed) {
+        try { window.opener.postMessage({ type: 'twitch-login-error' }, ALLOWED_ORIGIN); } catch (_) {}
+      }
+      closeAfter(3000);
+
+    } else {
+      // Parâmetros inválidos ou ausentes — não expõe nada
+      show(`<div class="err">Acesso inválido.<br>Feche esta janela.</div>`);
+      closeAfter(3000);
+    }
+  })();
   </script>
 </body>
 </html>
