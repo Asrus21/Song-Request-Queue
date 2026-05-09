@@ -793,13 +793,30 @@
     isAuthenticated = false;
     favorites = [];
     queue = [];
+    videoMap = {};
+
+    // Limpa resultados de pesquisa
+    document.getElementById('searchInput').value = '';
+    document.getElementById('resultsGrid').innerHTML = '';
+    document.getElementById('resultsSection').style.display = 'none';
+
+    // Limpa fila e progresso
     renderQueue();
-    renderFavoritesGrid();
     updateCounter();
+    renderFavoritesGrid();
+    document.getElementById('sendProgress').style.display = 'none';
+    document.getElementById('divider').style.display = 'none';
+
+    // Limpa campo de canal
+    const channelInput = document.getElementById('channelNameInput');
+    if (channelInput) channelInput.value = '';
+
+    // Volta para tela de login
     document.getElementById('loginContainer').style.display = 'block';
     document.getElementById('userInfoContainer').style.display = 'none';
     document.getElementById('loginBtn').disabled = false;
     document.getElementById('loginStatusBox').style.display = 'none';
+
     disableFeatures();
   }
 
