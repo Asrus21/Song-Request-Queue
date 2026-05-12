@@ -503,6 +503,12 @@
       <div style="font-size: 10px; color: var(--muted); margin-top: 8px; text-align: center;">
         🔍 Pesquisando no: <span id="activeServiceLabel" style="color: var(--youtube); font-weight: bold;">YouTube</span>
       </div>
+      <div id="spotifyWarning" style="display:none; margin-top: 10px; background: rgba(29,185,84,0.08); border: 1px solid rgba(29,185,84,0.25); border-radius: 10px; padding: 10px 14px; font-size: 10px; color: var(--muted); line-height: 1.8;">
+        <span style="color: var(--spotify); font-weight: 700;">⚠️ Atenção — Spotify envia por link completo</span><br>
+        Os pedidos do Spotify são enviados como <span style="color: var(--text);">!sr https://open.spotify.com/track/...</span><br>
+        Alguns bots de SR exigem que o usuário seja <span style="color: var(--text);">VIP ou moderador</span> para enviar links no chat.<br>
+        Se você não tiver essa permissão, use apenas o <span style="color: var(--youtube);">YouTube</span> para evitar que os pedidos sejam bloqueados.
+      </div>
     </div>
 
     <div class="results-section" id="resultsSection" style="display:none">
@@ -625,19 +631,22 @@
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
   function setActiveService(service) {
     activeService = service;
-    const youtubeBtn = document.getElementById('serviceYouTubeBtn');
-    const spotifyBtn = document.getElementById('serviceSpotifyBtn');
-    const searchBtn  = document.getElementById('searchBtn');
+    const youtubeBtn  = document.getElementById('serviceYouTubeBtn');
+    const spotifyBtn  = document.getElementById('serviceSpotifyBtn');
+    const searchBtn   = document.getElementById('searchBtn');
     const activeLabel = document.getElementById('activeServiceLabel');
+    const warning     = document.getElementById('spotifyWarning');
 
     if (service === 'youtube') {
       youtubeBtn.classList.add('active'); spotifyBtn.classList.remove('active');
       searchBtn.classList.remove('spotify'); searchBtn.classList.add('youtube');
       activeLabel.innerHTML = '<span style="color: var(--youtube);">YouTube</span>';
+      warning.style.display = 'none';
     } else {
       youtubeBtn.classList.remove('active'); spotifyBtn.classList.add('active');
       searchBtn.classList.remove('youtube'); searchBtn.classList.add('spotify');
       activeLabel.innerHTML = '<span style="color: var(--spotify);">Spotify</span>';
+      warning.style.display = 'block';
     }
   }
 
