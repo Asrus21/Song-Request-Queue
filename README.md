@@ -47,8 +47,7 @@
 
 ---
 
-<details>
-<summary>📋 Clique para ver todas as funcionalidades</summary>
+<div style="border: 2px solid #646cff; border-radius: 12px; padding: 16px;">
 
 | Funcionalidade | Descrição |
 |----------------|-----------|
@@ -64,7 +63,7 @@
 | 💾 **Sessão persistente** | Permanece logado enquanto a aba estiver aberta (expira em 7 dias) |
 | 🎨 **Design moderno** | Interface dark mode com efeitos neon |
 
-</details>
+</div>
 
 ---
 
