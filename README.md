@@ -65,6 +65,7 @@
 | 🎨 **Design moderno** | Interface dark mode com efeitos neon |
 
 </details>
+
 ---
 
 ## ⚠️ Aviso sobre Spotify
