@@ -28,6 +28,7 @@
       --yellow: #ffd166;
       --youtube: #ff0000;
       --spotify: #1db954;
+      --playlist: #ff6b35;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -348,8 +349,18 @@
     .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 
-    .video-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
     .video-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,60,95,0.12); }
+    .video-card.context-menu-open { border-color: var(--playlist); box-shadow: 0 0 0 2px var(--playlist); }
+    
     .thumb-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #111; overflow: hidden; }
     .thumb-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.2s; }
@@ -399,7 +410,6 @@
     .clear-favs-btn { font-size: 9px; background: var(--surface2); border: 1px solid var(--border); padding: 4px 12px; border-radius: 12px; cursor: pointer; color: var(--muted); }
     .clear-favs-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* Login status box */
     .login-status-box {
       display: flex;
       align-items: center;
@@ -411,6 +421,142 @@
       border: 1px solid rgba(255,209,102,0.3);
       background: rgba(255,209,102,0.06);
       color: var(--yellow);
+    }
+
+    /* PLAYLISTS STYLES */
+    .playlists-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .create-playlist-btn {
+      background: linear-gradient(135deg, var(--playlist), var(--twitch));
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .create-playlist-btn:hover { transform: scale(1.02); box-shadow: 0 0 12px rgba(255,107,53,0.4); }
+    
+    .playlist-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .playlist-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .playlist-title-bar:hover { background: rgba(255,107,53,0.1); }
+    .playlist-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--playlist);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .playlist-count { font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 12px; }
+    .playlist-actions { display: flex; gap: 8px; }
+    .playlist-add-all-btn, .playlist-delete-btn {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Mono', monospace;
+    }
+    .playlist-add-all-btn { color: var(--green); }
+    .playlist-add-all-btn:hover { border-color: var(--green); background: rgba(0,229,160,0.1); }
+    .playlist-delete-btn { color: var(--accent); }
+    .playlist-delete-btn:hover { border-color: var(--accent); background: rgba(255,60,95,0.1); }
+    
+    .playlist-items {
+      display: none;
+      flex-direction: column;
+    }
+    .playlist-items.open { display: flex; }
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .playlist-item:hover { background: rgba(255,255,255,0.03); }
+    .playlist-item-thumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+    .playlist-item-info { flex: 1; min-width: 0; }
+    .playlist-item-title { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .playlist-item-channel { font-size: 9px; color: var(--muted); }
+    .playlist-item-remove {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .playlist-item-remove:hover { color: var(--accent); background: rgba(255,60,95,0.1); }
+
+    /* Context Menu */
+    .context-menu {
+      position: fixed;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 0;
+      min-width: 200px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      animation: fadeInScale 0.15s ease;
+    }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .context-menu-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .context-menu-item:hover { background: rgba(145,71,255,0.2); }
+    .context-menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 0;
+    }
+    .context-menu-header {
+      padding: 8px 16px;
+      font-size: 10px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 6px;
     }
 
     @media(max-width:600px){
@@ -487,6 +633,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="search">🔍 PESQUISAR</button>
     <button class="tab-btn" data-tab="favorites">⭐ FAVORITOS</button>
+    <button class="tab-btn" data-tab="playlists">📋 PLAYLISTS</button>
   </div>
 
   <!-- TAB: SEARCH -->
@@ -509,10 +656,13 @@
         Alguns bots de SR exigem que o usuário seja <span style="color: var(--text);">VIP ou moderador</span> para enviar links no chat.<br>
         Se você não tiver essa permissão, use apenas o <span style="color: var(--youtube);">YouTube</span> para evitar que os pedidos sejam bloqueados.
       </div>
+      <div class="help-box" style="margin-top: 12px; text-align: left;">
+        💡 <strong>Dica:</strong> Clique com o botão direito em qualquer música para adicionar a uma playlist!
+      </div>
     </div>
 
     <div class="results-section" id="resultsSection" style="display:none">
-      <div class="section-label">// resultados — clique para adicionar à fila</div>
+      <div class="section-label">// resultados — clique para adicionar à fila (botão direito para playlist)</div>
       <div class="results-grid" id="resultsGrid"></div>
     </div>
   </div>
@@ -528,6 +678,17 @@
         </div>
       </div>
       <div class="results-grid" id="favoritesGrid"></div>
+    </div>
+  </div>
+
+  <!-- TAB: PLAYLISTS -->
+  <div class="tab-pane" id="tab-playlists">
+    <div class="card">
+      <div class="playlists-header">
+        <div class="section-label" style="margin-bottom: 0;">📋 MINHAS PLAYLISTS</div>
+        <button class="create-playlist-btn" onclick="showCreatePlaylistModal()">➕ CRIAR NOVA PLAYLIST</button>
+      </div>
+      <div id="playlistsContainer"></div>
     </div>
   </div>
 
@@ -585,12 +746,20 @@
 
 </div>
 
+<!-- Modal para criar playlist -->
+<div id="playlistModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; align-items:center; justify-content:center;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 90%; max-width: 400px;">
+    <h3 style="margin-bottom: 20px; font-family: 'Unbounded', sans-serif; font-size: 18px;">🎵 Criar nova playlist</h3>
+    <input type="text" id="newPlaylistName" placeholder="Nome da playlist" style="width:100%; margin-bottom: 20px;">
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button onclick="closePlaylistModal()" style="background: var(--surface2); border: 1px solid var(--border); padding: 8px 20px; border-radius: 10px; color: var(--text); cursor: pointer;">Cancelar</button>
+      <button onclick="createPlaylist()" style="background: linear-gradient(135deg, var(--playlist), var(--twitch)); border: none; padding: 8px 20px; border-radius: 10px; color: white; cursor: pointer;">Criar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ── STORAGE HELPERS ────────────────────────────────────────────────────────
-  // Usa sessionStorage: não persiste entre sessões, não acessível por outras abas,
-  // não é sincronizado entre dispositivos como localStorage.
-  // Tradeoff: usuário precisa logar novamente ao fechar o navegador — comportamento
-  // intencional para uma ferramenta de streaming (sessão = sessão de live).
   const SESSION_KEY = '_sr_session';
 
   function saveSession(uuid) {
@@ -604,7 +773,7 @@
   function clearSession() {
     try {
       sessionStorage.removeItem(SESSION_KEY);
-      sessionStorage.removeItem('_sr_pending_uuid'); // limpa ponte do callback
+      sessionStorage.removeItem('_sr_pending_uuid');
     } catch (_) {}
   }
 
@@ -612,7 +781,6 @@
     return typeof str === 'string' && /^[a-f0-9]{32}$/.test(str);
   }
 
-  // Origem do callback.html (mesma do index.html)
   const EXPECTED_ORIGIN = 'https://asrus21.github.io';
 
   // ── CONFIGURAÇÃO ───────────────────────────────────────────────────────────
@@ -627,6 +795,7 @@
   let sessionUUID = null;
   let isAuthenticated = false;
   let favorites = [];
+  let playlists = []; // { id, name, items: [], itemCount }
 
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
   function setActiveService(service) {
@@ -665,7 +834,6 @@
       .then(data => {
         statusText.textContent = 'Aguardando autorização no popup...';
 
-        // Abrir popup centralizado
         const w = 600, h = 700;
         const left = Math.round(window.screenX + (window.outerWidth  - w) / 2);
         const top  = Math.round(window.screenY + (window.outerHeight - h) / 2);
@@ -706,9 +874,7 @@
           alert('❌ ' + (msg || 'Erro na autenticação com Twitch. Tente novamente.'));
         }
 
-        // ── 1. postMessage vindo do callback.html — valida origem ────────────
         function onMessage(event) {
-          // Rejeita mensagens de origens desconhecidas
           if (event.origin !== EXPECTED_ORIGIN) return;
           if (!event.data) return;
 
@@ -720,8 +886,6 @@
         }
         window.addEventListener('message', onMessage);
 
-        // ── 2. Fallback: checar sessionStorage quando popup fechar ───────────
-        //    callback.html grava '_sr_pending_uuid' no sessionStorage como ponte
         const pollInterval = setInterval(() => {
           try {
             if (popup.closed) {
@@ -735,10 +899,9 @@
                 handleError('Login cancelado ou não concluído.');
               }
             }
-          } catch (e) { /* cross-origin enquanto popup carrega */ }
+          } catch (e) { }
         }, 600);
 
-        // ── 3. Timeout de segurança (3 minutos) ──────────────────────────
         const timeout = setTimeout(() => {
           handleError('Tempo limite de login esgotado. Tente novamente.');
         }, 3 * 60 * 1000);
@@ -758,8 +921,6 @@
   }
 
   function checkAuthFromUrl() {
-    // Verifica se callback.html redirecionou com UUID pendente no sessionStorage
-    // (fallback para quando não há opener — ex: mobile)
     const pending = sessionStorage.getItem('_sr_pending_uuid');
     if (pending && isValidUUID(pending)) {
       sessionStorage.removeItem('_sr_pending_uuid');
@@ -769,7 +930,6 @@
       return;
     }
 
-    // Tenta sessão já salva no sessionStorage desta aba
     const saved = loadSession();
     if (saved && isValidUUID(saved)) {
       sessionUUID = saved;
@@ -791,12 +951,11 @@
 
       if (data.authenticated) {
         isAuthenticated = true;
-        saveSession(sessionUUID); // renova no sessionStorage
+        saveSession(sessionUUID);
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('userInfoContainer').style.display = 'block';
         document.getElementById('userDisplayName').textContent = data.user.displayName;
 
-        // Sempre carrega favoritos do banco (mesmo array vazio)
         favorites = (data.favorites || []).map(f => ({
           id:      f.video_id,
           title:   f.title,
@@ -805,10 +964,10 @@
           service: f.service || 'youtube'
         }));
 
-        // Popula videoMap com os favoritos para que toggleFavorite funcione
         favorites.forEach(f => { if (!videoMap[f.id]) videoMap[f.id] = f; });
 
         renderFavoritesGrid();
+        await loadPlaylists();
         enableFeatures();
       } else {
         clearSession();
@@ -826,24 +985,21 @@
     favorites = [];
     queue = [];
     videoMap = {};
+    playlists = [];
 
-    // Limpa resultados de pesquisa
     document.getElementById('searchInput').value = '';
     document.getElementById('resultsGrid').innerHTML = '';
     document.getElementById('resultsSection').style.display = 'none';
-
-    // Limpa fila e progresso
     renderQueue();
     updateCounter();
     renderFavoritesGrid();
+    renderPlaylists();
     document.getElementById('sendProgress').style.display = 'none';
     document.getElementById('divider').style.display = 'none';
 
-    // Limpa campo de canal
     const channelInput = document.getElementById('channelNameInput');
     if (channelInput) channelInput.value = '';
 
-    // Volta para tela de login
     document.getElementById('loginContainer').style.display = 'block';
     document.getElementById('userInfoContainer').style.display = 'none';
     document.getElementById('loginBtn').disabled = false;
@@ -864,6 +1020,119 @@
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('sendBtn').disabled = true;
     document.getElementById('clearBtn').disabled = true;
+  }
+
+  // ── PLAYLISTS API ─────────────────────────────────────────────────────────
+  async function loadPlaylists() {
+    if (!sessionUUID) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists?uuid=${sessionUUID}`);
+      const data = await response.json();
+      playlists = data.playlists || [];
+      renderPlaylists();
+    } catch (err) {
+      console.error('Erro ao carregar playlists:', err);
+    }
+  }
+
+  async function createPlaylist(name) {
+    if (!sessionUUID || !name.trim()) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, name: name.trim() })
+      });
+      const data = await response.json();
+      if (data.success) {
+        await loadPlaylists();
+        closePlaylistModal();
+      }
+    } catch (err) {
+      console.error('Erro ao criar playlist:', err);
+      alert('Erro ao criar playlist');
+    }
+  }
+
+  async function addToPlaylist(playlistId, video) {
+    if (!sessionUUID) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, playlistId, video })
+      });
+      const data = await response.json();
+      if (data.success) {
+        await loadPlaylists();
+      } else {
+        alert(data.error || 'Erro ao adicionar à playlist');
+      }
+    } catch (err) {
+      console.error('Erro ao adicionar à playlist:', err);
+      alert('Erro ao adicionar à playlist');
+    }
+  }
+
+  async function removeFromPlaylist(playlistId, videoId, service) {
+    if (!sessionUUID) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/remove`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, playlistId, videoId, service })
+      });
+      const data = await response.json();
+      if (data.success) {
+        await loadPlaylists();
+      }
+    } catch (err) {
+      console.error('Erro ao remover da playlist:', err);
+    }
+  }
+
+  async function deletePlaylist(playlistId) {
+    if (!confirm('Tem certeza que deseja excluir esta playlist?')) return;
+    if (!sessionUUID) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, playlistId })
+      });
+      const data = await response.json();
+      if (data.success) {
+        await loadPlaylists();
+      }
+    } catch (err) {
+      console.error('Erro ao excluir playlist:', err);
+    }
+  }
+
+  async function addAllPlaylistToQueue(playlistId) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/items?uuid=${sessionUUID}&playlistId=${playlistId}`);
+      const data = await response.json();
+      if (data.items && data.items.length) {
+        data.items.forEach(item => {
+          const video = {
+            id: item.video_id,
+            title: item.title,
+            channel: item.channel,
+            thumb: item.thumbnail,
+            service: item.service
+          };
+          if (!videoMap[video.id]) videoMap[video.id] = video;
+          addToQueue(video);
+        });
+        alert(`${data.items.length} música(s) adicionada(s) à fila!`);
+      } else {
+        alert('Playlist vazia!');
+      }
+    } catch (err) {
+      console.error('Erro ao adicionar playlist à fila:', err);
+      alert('Erro ao adicionar playlist à fila');
+    }
   }
 
   // ── FAVORITES BACKEND ─────────────────────────────────────────────────────
@@ -957,6 +1226,75 @@
     }
   }
 
+  // ── RENDER RESULTS (com contexto de botão direito) ─────────────────────────
+  let currentContextVideo = null;
+  let contextMenu = null;
+
+  function showContextMenu(e, video) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (contextMenu) contextMenu.remove();
+    currentContextVideo = video;
+
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+
+    let menuHTML = `
+      <div class="context-menu-header">🎵 Adicionar à playlist</div>
+    `;
+
+    if (playlists.length === 0) {
+      menuHTML += `<div class="context-menu-item" style="color: var(--muted);">Nenhuma playlist criada</div>`;
+    } else {
+      playlists.forEach(playlist => {
+        menuHTML += `
+          <div class="context-menu-item" data-playlist-id="${playlist.id}">
+            📋 ${escapeHtml(playlist.name)} <span style="font-size: 9px; color: var(--muted);">(${playlist.item_count || 0})</span>
+          </div>
+        `;
+      });
+    }
+
+    menuHTML += `<div class="context-menu-divider"></div>`;
+    menuHTML += `<div class="context-menu-item" id="createNewPlaylistFromMenu">✨ Criar nova playlist...</div>`;
+
+    menu.innerHTML = menuHTML;
+    document.body.appendChild(menu);
+    contextMenu = menu;
+
+    // Adicionar eventos
+    menu.querySelectorAll('[data-playlist-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        addToPlaylist(parseInt(el.dataset.playlistId), video);
+        menu.remove();
+        contextMenu = null;
+      });
+    });
+
+    document.getElementById('createNewPlaylistFromMenu').addEventListener('click', () => {
+      menu.remove();
+      contextMenu = null;
+      showCreatePlaylistModal(() => {
+        // Callback após criar playlist - reabre menu ou apenas recarrega
+        loadPlaylists();
+      });
+    });
+
+    // Fecha menu ao clicar fora
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu(e) {
+        if (contextMenu && !contextMenu.contains(e.target)) {
+          contextMenu.remove();
+          contextMenu = null;
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    }, 10);
+  }
+
   function renderResults(items, service) {
     const section = document.getElementById('resultsSection');
     const grid    = document.getElementById('resultsGrid');
@@ -985,7 +1323,7 @@
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
-        <div class="video-card" data-id="${v.id}">
+        <div class="video-card" data-id="${v.id}" data-video='${JSON.stringify(v)}'>
           <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
           <div class="fav-star ${isFav ? 'active' : ''}" data-favid="${v.id}">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -1008,13 +1346,24 @@
     }).join('');
 
     grid.querySelectorAll('.video-card').forEach(card => {
+      const videoData = JSON.parse(card.dataset.video);
+      
+      // Estrela de favorito
       card.querySelector('.fav-star').addEventListener('click', e => {
         e.stopPropagation();
         toggleFavorite(card.dataset.id);
       });
-      card.addEventListener('click', () => {
-        const id = card.dataset.id;
-        if (videoMap[id]) addToQueue(videoMap[id]);
+      
+      // Clique normal: adiciona à fila
+      card.addEventListener('click', (e) => {
+        if (e.button === 0) {
+          if (videoMap[card.dataset.id]) addToQueue(videoMap[card.dataset.id]);
+        }
+      });
+      
+      // Botão direito: mostra menu de playlists
+      card.addEventListener('contextmenu', (e) => {
+        showContextMenu(e, videoData);
       });
     });
 
@@ -1030,11 +1379,11 @@
 
     if (exists) {
       favorites = favorites.filter(f => f.id !== videoId);
-      removeFavoriteFromBackend(videoId, video.service); // individual remove
+      removeFavoriteFromBackend(videoId, video.service);
     } else {
       favorites.unshift(video);
       if (favorites.length > 50) favorites.pop();
-      addFavoriteToBackend(video); // individual add
+      addFavoriteToBackend(video);
     }
 
     renderFavoritesGrid();
@@ -1053,7 +1402,7 @@
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
-        <div class="video-card" data-id="${v.id}">
+        <div class="video-card" data-id="${v.id}" data-video='${JSON.stringify(v)}'>
           <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
           <div class="fav-star active" data-favid="${v.id}">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -1075,10 +1424,14 @@
         </div>`;
     }).join('');
     grid.querySelectorAll('.video-card').forEach(card => {
+      const videoData = JSON.parse(card.dataset.video);
       card.querySelector('.fav-star').addEventListener('click', e => { e.stopPropagation(); toggleFavorite(card.dataset.id); });
       card.addEventListener('click', () => {
         const video = favorites.find(f => f.id === card.dataset.id);
         if (video) addToQueue(video);
+      });
+      card.addEventListener('contextmenu', (e) => {
+        showContextMenu(e, videoData);
       });
     });
   }
@@ -1095,6 +1448,107 @@
     favorites.forEach(fav => addToQueue(fav));
     alert(`${favorites.length} música(s) adicionada(s) à fila!`);
   }
+
+  // ── PLAYLISTS RENDER ──────────────────────────────────────────────────────
+  function renderPlaylists() {
+    const container = document.getElementById('playlistsContainer');
+    if (!playlists.length) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>Nenhuma playlist criada ainda.<br>Clique em "Criar nova playlist" para começar!</p></div>`;
+      return;
+    }
+
+    container.innerHTML = playlists.map(playlist => `
+      <div class="playlist-card" data-playlist-id="${playlist.id}">
+        <div class="playlist-title-bar" onclick="togglePlaylist(${playlist.id})">
+          <div class="playlist-name">
+            <span>📋</span> ${escapeHtml(playlist.name)}
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="playlist-count">${playlist.item_count || 0} músicas</span>
+            <div class="playlist-actions">
+              <button class="playlist-add-all-btn" onclick="event.stopPropagation(); addAllPlaylistToQueue(${playlist.id})">➕ Adicionar Tudo</button>
+              <button class="playlist-delete-btn" onclick="event.stopPropagation(); deletePlaylist(${playlist.id})">🗑️ Excluir</button>
+            </div>
+          </div>
+        </div>
+        <div class="playlist-items" id="playlist-items-${playlist.id}">
+          <div style="padding: 20px; text-align: center; color: var(--muted);">Carregando...</div>
+        </div>
+      </div>
+    `).join('');
+
+    // Carregar itens de cada playlist
+    playlists.forEach(playlist => {
+      loadPlaylistItems(playlist.id);
+    });
+  }
+
+  async function loadPlaylistItems(playlistId) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/items?uuid=${sessionUUID}&playlistId=${playlistId}`);
+      const data = await response.json();
+      const itemsContainer = document.getElementById(`playlist-items-${playlistId}`);
+      if (!itemsContainer) return;
+
+      if (!data.items || data.items.length === 0) {
+        itemsContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--muted);">🎵 Nenhuma música nesta playlist</div>`;
+        return;
+      }
+
+      itemsContainer.innerHTML = data.items.map(item => `
+        <div class="playlist-item" data-video-id="${item.video_id}" data-service="${item.service}">
+          <img class="playlist-item-thumb" src="${item.thumbnail || 'https://placehold.co/40x40/111118/6b6b80?text=No+Img'}" alt="">
+          <div class="playlist-item-info">
+            <div class="playlist-item-title">${escapeHtml(item.title)}</div>
+            <div class="playlist-item-channel">${escapeHtml(item.channel)}</div>
+          </div>
+          <button class="playlist-item-remove" onclick="removeFromPlaylist(${playlistId}, '${item.video_id}', '${item.service}')" title="Remover da playlist">✕</button>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error('Erro ao carregar itens da playlist:', err);
+    }
+  }
+
+  function togglePlaylist(playlistId) {
+    const items = document.getElementById(`playlist-items-${playlistId}`);
+    if (items) {
+      items.classList.toggle('open');
+    }
+  }
+
+  // ── PLAYLIST MODAL ────────────────────────────────────────────────────────
+  function showCreatePlaylistModal(callback) {
+    const modal = document.getElementById('playlistModal');
+    modal.style.display = 'flex';
+    document.getElementById('newPlaylistName').value = '';
+    document.getElementById('newPlaylistName').focus();
+    window.playlistCallback = callback;
+  }
+
+  function closePlaylistModal() {
+    document.getElementById('playlistModal').style.display = 'none';
+  }
+
+  async function createPlaylist() {
+    const name = document.getElementById('newPlaylistName').value.trim();
+    if (!name) {
+      alert('Digite um nome para a playlist');
+      return;
+    }
+    await window.createPlaylist(name);
+    if (window.playlistCallback) window.playlistCallback();
+    closePlaylistModal();
+  }
+
+  // Expor funções globais
+  window.createPlaylist = createPlaylist;
+  window.togglePlaylist = togglePlaylist;
+  window.addAllPlaylistToQueue = addAllPlaylistToQueue;
+  window.deletePlaylist = deletePlaylist;
+  window.removeFromPlaylist = removeFromPlaylist;
+  window.showCreatePlaylistModal = showCreatePlaylistModal;
+  window.closePlaylistModal = closePlaylistModal;
 
   // ── QUEUE ─────────────────────────────────────────────────────────────────
   function addToQueue(v) {
