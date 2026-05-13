@@ -260,38 +260,7 @@
     .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; transition: color 0.2s; }
     .logout-btn:hover { color: var(--accent); }
 
-    .channel-config {
-      margin-top: 16px;
-      padding: 16px;
-      background: var(--surface2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .channel-config input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-family: 'Space Mono', monospace;
-      font-size: 13px;
-    }
-    .channel-config button {
-      background: var(--green);
-      color: #000;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: 'Space Mono', monospace;
-    }
-
-    input[type="text"] {
+    input[type="text"], input[type="number"] {
       flex: 1;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -359,7 +328,6 @@
       position: relative;
     }
     .video-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,60,95,0.12); }
-    .video-card.context-menu-open { border-color: var(--playlist); box-shadow: 0 0 0 2px var(--playlist); }
     
     .thumb-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #111; overflow: hidden; }
     .thumb-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -559,6 +527,57 @@
       margin-bottom: 6px;
     }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-content h3 {
+      margin-bottom: 20px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 18px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      padding: 8px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .modal-cancel {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .modal-confirm {
+      background: linear-gradient(135deg, var(--playlist), var(--twitch));
+      border: none;
+      color: white;
+    }
+
     @media(max-width:600px){
       .row{flex-direction:column;}
       header{flex-direction:column;align-items:flex-start;}
@@ -567,6 +586,9 @@
       .tabs{flex-wrap:wrap;}
       .service-buttons{flex-wrap:wrap;}
       .delay-control{flex-direction:column;align-items:flex-start;}
+      .playlists-header{flex-direction:column;align-items:stretch;}
+      .playlist-title-bar{flex-direction:column;align-items:flex-start;gap:8px;}
+      .playlist-actions{align-self:flex-end;}
     }
   </style>
 </head>
@@ -593,7 +615,7 @@
   <!-- AUTH SECTION -->
   <div id="authSection" class="card" style="text-align: center;">
     <div id="loginContainer">
-      <button class="twitch-login-btn" id="loginBtn" onclick="loginWithTwitch()">
+      <button class="twitch-login-btn" id="loginBtn">
         <span>🎮</span> Login com Twitch
       </button>
       <div id="loginStatusBox" style="display:none;" class="login-status-box">
@@ -621,10 +643,10 @@
 
   <!-- SERVICE SELECTOR -->
   <div class="service-buttons">
-    <button class="service-btn youtube active" id="serviceYouTubeBtn" onclick="setActiveService('youtube')">
+    <button class="service-btn youtube active" id="serviceYouTubeBtn">
       <span class="service-icon">▶️</span> YouTube
     </button>
-    <button class="service-btn spotify" id="serviceSpotifyBtn" onclick="setActiveService('spotify')">
+    <button class="service-btn spotify" id="serviceSpotifyBtn">
       <span class="service-icon">🎵</span> Spotify
     </button>
   </div>
@@ -642,7 +664,7 @@
       <div class="card-label">// pesquisar música</div>
       <div class="row">
         <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..." disabled>
-        <button class="btn btn-search youtube" id="searchBtn" onclick="performSearch()" disabled>
+        <button class="btn btn-search youtube" id="searchBtn" disabled>
           <span id="searchLoader" class="spin" style="display:none"></span>
           <span id="searchBtnText">🔍 BUSCAR</span>
         </button>
@@ -727,7 +749,7 @@
       </div>
     </div>
 
-    <button class="btn btn-send" id="sendBtn" onclick="startSending()" disabled>
+    <button class="btn btn-send" id="sendBtn" disabled>
       <span id="sendLoader" class="spin" style="display:none"></span>
       <span id="sendBtnText">📡 ENVIAR TODOS PELO CHAT DA TWITCH</span>
     </button>
@@ -747,13 +769,13 @@
 </div>
 
 <!-- Modal para criar playlist -->
-<div id="playlistModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1001; align-items:center; justify-content:center;">
-  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 90%; max-width: 400px;">
-    <h3 style="margin-bottom: 20px; font-family: 'Unbounded', sans-serif; font-size: 18px;">🎵 Criar nova playlist</h3>
-    <input type="text" id="newPlaylistName" placeholder="Nome da playlist" style="width:100%; margin-bottom: 20px;">
-    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-      <button onclick="closePlaylistModal()" style="background: var(--surface2); border: 1px solid var(--border); padding: 8px 20px; border-radius: 10px; color: var(--text); cursor: pointer;">Cancelar</button>
-      <button onclick="createPlaylist()" style="background: linear-gradient(135deg, var(--playlist), var(--twitch)); border: none; padding: 8px 20px; border-radius: 10px; color: white; cursor: pointer;">Criar</button>
+<div id="playlistModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>🎵 Criar nova playlist</h3>
+    <input type="text" id="newPlaylistName" placeholder="Nome da playlist" style="width:100%;">
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closePlaylistModal()">Cancelar</button>
+      <button class="modal-confirm" onclick="handleCreatePlaylist()">Criar</button>
     </div>
   </div>
 </div>
@@ -795,7 +817,7 @@
   let sessionUUID = null;
   let isAuthenticated = false;
   let favorites = [];
-  let playlists = []; // { id, name, items: [], itemCount }
+  let playlists = [];
 
   // ── SERVICE SELECTION ──────────────────────────────────────────────────────
   function setActiveService(service) {
@@ -835,7 +857,7 @@
         statusText.textContent = 'Aguardando autorização no popup...';
 
         const w = 600, h = 700;
-        const left = Math.round(window.screenX + (window.outerWidth  - w) / 2);
+        const left = Math.round(window.screenX + (window.outerWidth - w) / 2);
         const top  = Math.round(window.screenY + (window.outerHeight - h) / 2);
         const popup = window.open(
           data.url,
@@ -1035,8 +1057,11 @@
     }
   }
 
-  async function createPlaylist(name) {
-    if (!sessionUUID || !name.trim()) return;
+  async function createPlaylistFunction(name) {
+    if (!sessionUUID || !name.trim()) {
+      alert('Digite um nome para a playlist');
+      return false;
+    }
     try {
       const response = await fetch(`${BACKEND_URL}/api/playlists/create`, {
         method: 'POST',
@@ -1046,11 +1071,15 @@
       const data = await response.json();
       if (data.success) {
         await loadPlaylists();
-        closePlaylistModal();
+        return true;
+      } else {
+        alert(data.error || 'Erro ao criar playlist');
+        return false;
       }
     } catch (err) {
       console.error('Erro ao criar playlist:', err);
       alert('Erro ao criar playlist');
+      return false;
     }
   }
 
@@ -1133,6 +1162,103 @@
       console.error('Erro ao adicionar playlist à fila:', err);
       alert('Erro ao adicionar playlist à fila');
     }
+  }
+
+  // ── PLAYLIST MODAL ────────────────────────────────────────────────────────
+  function showCreatePlaylistModal() {
+    const modal = document.getElementById('playlistModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      const input = document.getElementById('newPlaylistName');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  }
+
+  function closePlaylistModal() {
+    const modal = document.getElementById('playlistModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function handleCreatePlaylist() {
+    const input = document.getElementById('newPlaylistName');
+    const name = input ? input.value.trim() : '';
+    
+    if (!name) {
+      alert('Digite um nome para a playlist');
+      return;
+    }
+    
+    const success = await createPlaylistFunction(name);
+    if (success) {
+      closePlaylistModal();
+    }
+  }
+
+  // ── CONTEXT MENU ─────────────────────────────────────────────────────────
+  let currentContextVideo = null;
+  let contextMenu = null;
+
+  function showContextMenu(e, video) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (contextMenu) contextMenu.remove();
+    currentContextVideo = video;
+
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+
+    let menuHTML = `
+      <div class="context-menu-header">🎵 Adicionar à playlist</div>
+    `;
+
+    if (playlists.length === 0) {
+      menuHTML += `<div class="context-menu-item" style="color: var(--muted);">Nenhuma playlist criada</div>`;
+    } else {
+      playlists.forEach(playlist => {
+        menuHTML += `
+          <div class="context-menu-item" data-playlist-id="${playlist.id}">
+            📋 ${escapeHtml(playlist.name)} <span style="font-size: 9px; color: var(--muted);">(${playlist.item_count || 0})</span>
+          </div>
+        `;
+      });
+    }
+
+    menuHTML += `<div class="context-menu-divider"></div>`;
+    menuHTML += `<div class="context-menu-item" id="createNewPlaylistFromMenu">✨ Criar nova playlist...</div>`;
+
+    menu.innerHTML = menuHTML;
+    document.body.appendChild(menu);
+    contextMenu = menu;
+
+    menu.querySelectorAll('[data-playlist-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        addToPlaylist(parseInt(el.dataset.playlistId), video);
+        if (contextMenu) contextMenu.remove();
+        contextMenu = null;
+      });
+    });
+
+    document.getElementById('createNewPlaylistFromMenu').addEventListener('click', () => {
+      if (contextMenu) contextMenu.remove();
+      contextMenu = null;
+      showCreatePlaylistModal();
+    });
+
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu(e) {
+        if (contextMenu && !contextMenu.contains(e.target)) {
+          contextMenu.remove();
+          contextMenu = null;
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    }, 10);
   }
 
   // ── FAVORITES BACKEND ─────────────────────────────────────────────────────
@@ -1226,75 +1352,6 @@
     }
   }
 
-  // ── RENDER RESULTS (com contexto de botão direito) ─────────────────────────
-  let currentContextVideo = null;
-  let contextMenu = null;
-
-  function showContextMenu(e, video) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (contextMenu) contextMenu.remove();
-    currentContextVideo = video;
-
-    const menu = document.createElement('div');
-    menu.className = 'context-menu';
-    menu.style.left = e.clientX + 'px';
-    menu.style.top = e.clientY + 'px';
-
-    let menuHTML = `
-      <div class="context-menu-header">🎵 Adicionar à playlist</div>
-    `;
-
-    if (playlists.length === 0) {
-      menuHTML += `<div class="context-menu-item" style="color: var(--muted);">Nenhuma playlist criada</div>`;
-    } else {
-      playlists.forEach(playlist => {
-        menuHTML += `
-          <div class="context-menu-item" data-playlist-id="${playlist.id}">
-            📋 ${escapeHtml(playlist.name)} <span style="font-size: 9px; color: var(--muted);">(${playlist.item_count || 0})</span>
-          </div>
-        `;
-      });
-    }
-
-    menuHTML += `<div class="context-menu-divider"></div>`;
-    menuHTML += `<div class="context-menu-item" id="createNewPlaylistFromMenu">✨ Criar nova playlist...</div>`;
-
-    menu.innerHTML = menuHTML;
-    document.body.appendChild(menu);
-    contextMenu = menu;
-
-    // Adicionar eventos
-    menu.querySelectorAll('[data-playlist-id]').forEach(el => {
-      el.addEventListener('click', () => {
-        addToPlaylist(parseInt(el.dataset.playlistId), video);
-        menu.remove();
-        contextMenu = null;
-      });
-    });
-
-    document.getElementById('createNewPlaylistFromMenu').addEventListener('click', () => {
-      menu.remove();
-      contextMenu = null;
-      showCreatePlaylistModal(() => {
-        // Callback após criar playlist - reabre menu ou apenas recarrega
-        loadPlaylists();
-      });
-    });
-
-    // Fecha menu ao clicar fora
-    setTimeout(() => {
-      document.addEventListener('click', function closeMenu(e) {
-        if (contextMenu && !contextMenu.contains(e.target)) {
-          contextMenu.remove();
-          contextMenu = null;
-          document.removeEventListener('click', closeMenu);
-        }
-      });
-    }, 10);
-  }
-
   function renderResults(items, service) {
     const section = document.getElementById('resultsSection');
     const grid    = document.getElementById('resultsGrid');
@@ -1348,20 +1405,17 @@
     grid.querySelectorAll('.video-card').forEach(card => {
       const videoData = JSON.parse(card.dataset.video);
       
-      // Estrela de favorito
       card.querySelector('.fav-star').addEventListener('click', e => {
         e.stopPropagation();
         toggleFavorite(card.dataset.id);
       });
       
-      // Clique normal: adiciona à fila
       card.addEventListener('click', (e) => {
         if (e.button === 0) {
           if (videoMap[card.dataset.id]) addToQueue(videoMap[card.dataset.id]);
         }
       });
       
-      // Botão direito: mostra menu de playlists
       card.addEventListener('contextmenu', (e) => {
         showContextMenu(e, videoData);
       });
@@ -1477,7 +1531,6 @@
       </div>
     `).join('');
 
-    // Carregar itens de cada playlist
     playlists.forEach(playlist => {
       loadPlaylistItems(playlist.id);
     });
@@ -1517,38 +1570,22 @@
     }
   }
 
-  // ── PLAYLIST MODAL ────────────────────────────────────────────────────────
-  function showCreatePlaylistModal(callback) {
-    const modal = document.getElementById('playlistModal');
-    modal.style.display = 'flex';
-    document.getElementById('newPlaylistName').value = '';
-    document.getElementById('newPlaylistName').focus();
-    window.playlistCallback = callback;
-  }
-
-  function closePlaylistModal() {
-    document.getElementById('playlistModal').style.display = 'none';
-  }
-
-  async function createPlaylist() {
-    const name = document.getElementById('newPlaylistName').value.trim();
-    if (!name) {
-      alert('Digite um nome para a playlist');
-      return;
-    }
-    await window.createPlaylist(name);
-    if (window.playlistCallback) window.playlistCallback();
-    closePlaylistModal();
-  }
-
-  // Expor funções globais
-  window.createPlaylist = createPlaylist;
+  // Expor funções globais para onclick
   window.togglePlaylist = togglePlaylist;
   window.addAllPlaylistToQueue = addAllPlaylistToQueue;
   window.deletePlaylist = deletePlaylist;
   window.removeFromPlaylist = removeFromPlaylist;
   window.showCreatePlaylistModal = showCreatePlaylistModal;
   window.closePlaylistModal = closePlaylistModal;
+  window.handleCreatePlaylist = handleCreatePlaylist;
+  window.loginWithTwitch = loginWithTwitch;
+  window.setActiveService = setActiveService;
+  window.performSearch = performSearch;
+  window.clearQueue = clearQueue;
+  window.startSending = startSending;
+  window.addAllFavoritesToQueue = addAllFavoritesToQueue;
+  window.clearAllFavorites = clearAllFavorites;
+  window.logout = logout;
 
   // ── QUEUE ─────────────────────────────────────────────────────────────────
   function addToQueue(v) {
@@ -1743,6 +1780,11 @@
   }
 
   document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') performSearch(); });
+  document.getElementById('loginBtn').onclick = loginWithTwitch;
+  document.getElementById('serviceYouTubeBtn').onclick = () => setActiveService('youtube');
+  document.getElementById('serviceSpotifyBtn').onclick = () => setActiveService('spotify');
+  document.getElementById('searchBtn').onclick = performSearch;
+  document.getElementById('sendBtn').onclick = startSending;
 
   initTabs();
   setActiveService('youtube');
