@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Autenticando...</title>
-  <!-- CSP: bloqueia scripts inline de outras origens, sem eval -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -35,14 +34,12 @@
   (function () {
     'use strict';
 
-    // Origem permitida — onde está o index.html
     const ALLOWED_ORIGIN = 'https://asrus21.github.io';
 
     const params = new URLSearchParams(window.location.search);
     const login  = params.get('login');
     const uuid   = params.get('uuid');
 
-    // Limpa a URL imediatamente para o UUID não ficar no histórico
     if (window.history && window.history.replaceState) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -55,7 +52,6 @@
       setTimeout(() => window.close(), ms);
     }
 
-    // Valida formato básico do UUID (32 hex chars)
     function isValidUUID(str) {
       return typeof str === 'string' && /^[a-f0-9]{32}$/.test(str);
     }
@@ -64,23 +60,17 @@
       show(`<div class="ok">✓</div><div class="title">Login realizado!</div><div class="sub">Fechando...</div>`);
 
       if (window.opener && !window.opener.closed) {
-        // Popup normal — envia via postMessage com origem específica
         try {
           window.opener.postMessage(
             { type: 'twitch-login-success', uuid },
-            ALLOWED_ORIGIN   // ← valida a origem do receptor
+            ALLOWED_ORIGIN
           );
         } catch (e) {
-          // Se falhar (ex: opener em domínio diferente), usa sessionStorage como ponte
-          // sessionStorage não persiste entre sessões e não é lido por outras abas
           try { sessionStorage.setItem('_sr_pending_uuid', uuid); } catch (_) {}
         }
         closeAfter(800);
       } else {
-        // Sem opener — foi aberto diretamente (ex: redirect de mobile)
-        // Usa sessionStorage como ponte temporária (morre quando a aba fecha)
         try { sessionStorage.setItem('_sr_pending_uuid', uuid); } catch (_) {}
-        // Redireciona para o index SEM o UUID na URL
         setTimeout(() => {
           window.location.replace(ALLOWED_ORIGIN + '/Song-Request-Queue/');
         }, 600);
@@ -94,7 +84,6 @@
       closeAfter(3000);
 
     } else {
-      // Parâmetros inválidos ou ausentes — não expõe nada
       show(`<div class="err">Acesso inválido.<br>Feche esta janela.</div>`);
       closeAfter(3000);
     }
