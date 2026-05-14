@@ -774,8 +774,8 @@
     <h3>🎵 Criar nova playlist</h3>
     <input type="text" id="newPlaylistName" placeholder="Nome da playlist" style="width:100%;">
     <div class="modal-buttons">
-      <button class="modal-cancel" onclick="closePlaylistModal()">Cancelar</button>
-      <button class="modal-confirm" onclick="handleCreatePlaylist()">Criar</button>
+      <button class="modal-cancel" onclick="window.closePlaylistModalHandler()">Cancelar</button>
+      <button class="modal-confirm" onclick="window.createPlaylistHandler()">Criar</button>
     </div>
   </div>
 </div>
@@ -1044,7 +1044,7 @@
     document.getElementById('clearBtn').disabled = true;
   }
 
-  // ── PLAYLISTS API ─────────────────────────────────────────────────────────
+    // ── PLAYLISTS API ─────────────────────────────────────────────────────────
   async function loadPlaylists() {
     if (!sessionUUID) return;
     try {
@@ -1174,6 +1174,16 @@
         input.value = '';
         input.focus();
       }
+      
+      // Adiciona evento de tecla Enter no input
+      const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleCreatePlaylist();
+          input.removeEventListener('keypress', handleKeyPress);
+        }
+      };
+      input.addEventListener('keypress', handleKeyPress);
     }
   }
 
@@ -1182,7 +1192,8 @@
     if (modal) modal.style.display = 'none';
   }
 
-  async function handleCreatePlaylist() {
+  // Função global para criar playlist - será chamada pelo onclick
+  window.createPlaylistHandler = async function() {
     const input = document.getElementById('newPlaylistName');
     const name = input ? input.value.trim() : '';
     
@@ -1191,11 +1202,29 @@
       return;
     }
     
+    // Desabilita o botão temporariamente para evitar duplo clique
+    const confirmBtn = document.querySelector('#playlistModal .modal-confirm');
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Criando...';
+    }
+    
     const success = await createPlaylistFunction(name);
+    
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Criar';
+    }
+    
     if (success) {
       closePlaylistModal();
     }
-  }
+  };
+
+  // Também expõe a função close para o modal
+  window.closePlaylistModalHandler = function() {
+    closePlaylistModal();
+  };
 
   // ── CONTEXT MENU ─────────────────────────────────────────────────────────
   let currentContextVideo = null;
@@ -1570,14 +1599,14 @@
     }
   }
 
-  // Expor funções globais para onclick
+   // Expor funções globais para onclick
   window.togglePlaylist = togglePlaylist;
   window.addAllPlaylistToQueue = addAllPlaylistToQueue;
   window.deletePlaylist = deletePlaylist;
   window.removeFromPlaylist = removeFromPlaylist;
   window.showCreatePlaylistModal = showCreatePlaylistModal;
-  window.closePlaylistModal = closePlaylistModal;
-  window.handleCreatePlaylist = handleCreatePlaylist;
+  window.createPlaylistHandler = window.createPlaylistHandler;
+  window.closePlaylistModalHandler = window.closePlaylistModalHandler;
   window.loginWithTwitch = loginWithTwitch;
   window.setActiveService = setActiveService;
   window.performSearch = performSearch;
