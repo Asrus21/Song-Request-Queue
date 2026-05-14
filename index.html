@@ -590,6 +590,54 @@
       .playlist-title-bar{flex-direction:column;align-items:flex-start;gap:8px;}
       .playlist-actions{align-self:flex-end;}
     }
+
+    /* Editar playlist */
+.playlist-edit-btn {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Space Mono', monospace;
+  color: var(--yellow);
+}
+.playlist-edit-btn:hover {
+  border-color: var(--yellow);
+  background: rgba(255,209,102,0.1);
+}
+.playlist-name-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.playlist-name-edit input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  width: auto;
+}
+.playlist-name-edit button {
+  background: var(--green);
+  border: none;
+  color: #000;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+}
+.playlist-name-edit button.cancel {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+    
   </style>
 </head>
 <body>
@@ -1226,6 +1274,95 @@
     closePlaylistModal();
   };
 
+    // ── EDITAR NOME DA PLAYLIST ────────────────────────────────────────────────
+  async function editPlaylistName(playlistId, newName) {
+    if (!sessionUUID) return false;
+    if (!newName || !newName.trim()) {
+      alert('Digite um nome válido para a playlist');
+      return false;
+    }
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/edit`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: sessionUUID, playlistId, newName: newName.trim() })
+      });
+      const data = await response.json();
+      if (data.success) {
+        await loadPlaylists();
+        return true;
+      } else {
+        alert(data.error || 'Erro ao editar nome da playlist');
+        return false;
+      }
+    } catch (err) {
+      console.error('Erro ao editar playlist:', err);
+      alert('Erro ao editar nome da playlist');
+      return false;
+    }
+  }
+
+  function startEditPlaylistName(playlistId, currentName) {
+    // Fecha qualquer edição aberta
+    document.querySelectorAll('.playlist-name-edit').forEach(el => el.remove());
+    
+    const titleBar = document.querySelector(`.playlist-card[data-playlist-id="${playlistId}"] .playlist-title-bar .playlist-name`);
+    if (!titleBar) return;
+    
+    const originalHtml = titleBar.innerHTML;
+    const container = titleBar.parentElement;
+    
+    const editHtml = `
+      <div class="playlist-name-edit">
+        <input type="text" id="edit-name-${playlistId}" value="${escapeHtml(currentName)}" maxlength="100">
+        <button onclick="confirmEditPlaylistName(${playlistId}, '${escapeHtml(currentName)}')">✓ Salvar</button>
+        <button class="cancel" onclick="cancelEditPlaylistName(${playlistId}, \`${originalHtml}\`)">✕ Cancelar</button>
+      </div>
+    `;
+    
+    titleBar.innerHTML = editHtml;
+    const input = document.getElementById(`edit-name-${playlistId}`);
+    if (input) {
+      input.focus();
+      input.select();
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          confirmEditPlaylistName(playlistId, currentName);
+        }
+      });
+    }
+  }
+
+  window.confirmEditPlaylistName = async function(playlistId, oldName) {
+    const input = document.getElementById(`edit-name-${playlistId}`);
+    if (!input) return;
+    const newName = input.value.trim();
+    
+    if (!newName) {
+      alert('Digite um nome válido');
+      return;
+    }
+    
+    if (newName === oldName) {
+      // Mesmo nome, só cancela a edição
+      cancelEditPlaylistName(playlistId, `<span>📋</span> ${escapeHtml(oldName)}`);
+      return;
+    }
+    
+    const success = await editPlaylistName(playlistId, newName);
+    if (!success) {
+      // Se falhou, recarrega as playlists para restaurar o nome original
+      await loadPlaylists();
+    }
+  };
+
+  window.cancelEditPlaylistName = function(playlistId, originalHtml) {
+    const titleBar = document.querySelector(`.playlist-card[data-playlist-id="${playlistId}"] .playlist-title-bar .playlist-name`);
+    if (titleBar) {
+      titleBar.innerHTML = originalHtml;
+    }
+  };
+
   // ── CONTEXT MENU ─────────────────────────────────────────────────────────
   let currentContextVideo = null;
   let contextMenu = null;
@@ -1533,7 +1670,7 @@
   }
 
   // ── PLAYLISTS RENDER ──────────────────────────────────────────────────────
-  function renderPlaylists() {
+    function renderPlaylists() {
     const container = document.getElementById('playlistsContainer');
     if (!playlists.length) {
       container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>Nenhuma playlist criada ainda.<br>Clique em "Criar nova playlist" para começar!</p></div>`;
@@ -1549,6 +1686,7 @@
           <div style="display: flex; align-items: center; gap: 12px;">
             <span class="playlist-count">${playlist.item_count || 0} músicas</span>
             <div class="playlist-actions">
+              <button class="playlist-edit-btn" onclick="event.stopPropagation(); startEditPlaylistName(${playlist.id}, '${escapeHtml(playlist.name)}')">✏️ Editar</button>
               <button class="playlist-add-all-btn" onclick="event.stopPropagation(); addAllPlaylistToQueue(${playlist.id})">➕ Adicionar Tudo</button>
               <button class="playlist-delete-btn" onclick="event.stopPropagation(); deletePlaylist(${playlist.id})">🗑️ Excluir</button>
             </div>
