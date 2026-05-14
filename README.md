@@ -62,6 +62,7 @@
 | 📊 **Log em tempo real** | Acompanhe o status de cada envio (✓ aceito / ✗ falha) |
 | 💾 **Sessão persistente** | Permanece logado enquanto a aba estiver aberta (expira em 7 dias) |
 | 🎨 **Design moderno** | Interface dark mode com efeitos neon |
+| 📋 **Playlists** |	Crie e gerencie playlists personalizadas salvas na sua conta Twitch. |
 
 </div>
 
