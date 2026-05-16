@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/song-request-queue/(.*)", "destination": "/$1" },
+    { "source": "/song-request-queue", "destination": "/index.html" }
+  ]
+}
