@@ -1546,7 +1546,7 @@
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
-        <div class="video-card" data-id="${v.id}" data-video='${JSON.stringify(v)}'>
+        <div class="video-card" data-id="${v.id}">
           <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
           <div class="fav-star ${isFav ? 'active' : ''}" data-favid="${v.id}">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -1569,21 +1569,21 @@
     }).join('');
 
     grid.querySelectorAll('.video-card').forEach(card => {
-      const videoData = JSON.parse(card.dataset.video);
-      
+      const videoData = videoMap[card.dataset.id];
+
       card.querySelector('.fav-star').addEventListener('click', e => {
         e.stopPropagation();
         toggleFavorite(card.dataset.id);
       });
-      
+
       card.addEventListener('click', (e) => {
         if (e.button === 0) {
           if (videoMap[card.dataset.id]) addToQueue(videoMap[card.dataset.id]);
         }
       });
-      
+
       card.addEventListener('contextmenu', (e) => {
-        showContextMenu(e, videoData);
+        if (videoData) showContextMenu(e, videoData);
       });
     });
 
@@ -1618,11 +1618,13 @@
       return;
     }
     grid.innerHTML = favorites.map(v => {
+      // Garante que o favorito está no videoMap para context menu funcionar
+      if (!videoMap[v.id]) videoMap[v.id] = v;
       const countInQueue = queue.filter(item => item.id === v.id).length;
       const serviceClass = v.service === 'youtube' ? 'youtube' : 'spotify';
       const serviceIcon  = v.service === 'youtube' ? '▶️' : '🎵';
       return `
-        <div class="video-card" data-id="${v.id}" data-video='${JSON.stringify(v)}'>
+        <div class="video-card" data-id="${v.id}">
           <div class="service-badge ${serviceClass}">${serviceIcon} ${v.service === 'youtube' ? 'YouTube' : 'Spotify'}</div>
           <div class="fav-star active" data-favid="${v.id}">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
@@ -1644,14 +1646,14 @@
         </div>`;
     }).join('');
     grid.querySelectorAll('.video-card').forEach(card => {
-      const videoData = JSON.parse(card.dataset.video);
+      const videoData = videoMap[card.dataset.id];
       card.querySelector('.fav-star').addEventListener('click', e => { e.stopPropagation(); toggleFavorite(card.dataset.id); });
       card.addEventListener('click', () => {
         const video = favorites.find(f => f.id === card.dataset.id);
         if (video) addToQueue(video);
       });
       card.addEventListener('contextmenu', (e) => {
-        showContextMenu(e, videoData);
+        if (videoData) showContextMenu(e, videoData);
       });
     });
   }
