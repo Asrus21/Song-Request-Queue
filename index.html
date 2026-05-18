@@ -1161,11 +1161,25 @@
       });
       const data = await response.json();
       if (data.success) {
-        await loadPlaylists();
+        // Recarrega apenas os itens desta playlist — mantém ela aberta
+        await loadPlaylistItems(playlistId);
+        // Atualiza o contador de músicas no título da playlist
+        updatePlaylistCount(playlistId);
       }
     } catch (err) {
       console.error('Erro ao remover da playlist:', err);
     }
+  }
+
+  // Atualiza o contador "X músicas" no cabeçalho da playlist sem recriar tudo
+  async function updatePlaylistCount(playlistId) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/playlists/items?uuid=${sessionUUID}&playlistId=${playlistId}`);
+      const data = await response.json();
+      const count = (data.items || []).length;
+      const countEl = document.querySelector(`#playlist-count-${playlistId}`);
+      if (countEl) countEl.textContent = `${count} música${count !== 1 ? 's' : ''}`;
+    } catch (_) {}
   }
 
   async function deletePlaylist(playlistId) {
@@ -1686,7 +1700,7 @@
             <span>📋</span> ${escapeHtml(playlist.name)}
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="playlist-count">${playlist.item_count || 0} músicas</span>
+            <span class="playlist-count" id="playlist-count-${playlist.id}">${playlist.item_count || 0} músicas</span>
             <div class="playlist-actions">
               <button class="playlist-edit-btn" onclick="event.stopPropagation(); startEditPlaylistName(${playlist.id}, '${escapeHtml(playlist.name)}')">✏️ Editar</button>
               <button class="playlist-add-all-btn" onclick="event.stopPropagation(); addAllPlaylistToQueue(${playlist.id})">➕ Adicionar Tudo</button>
@@ -1724,9 +1738,40 @@
             <div class="playlist-item-title">${escapeHtml(item.title)}</div>
             <div class="playlist-item-channel">${escapeHtml(item.channel)}</div>
           </div>
-          <button class="playlist-item-remove" onclick="removeFromPlaylist(${playlistId}, '${item.video_id}', '${item.service}')" title="Remover da playlist">✕</button>
+          <button class="playlist-item-remove" data-remove-pl="${playlistId}" data-remove-vid="${item.video_id}" data-remove-svc="${item.service}" title="Remover da playlist">✕</button>
         </div>
       `).join('');
+
+      // Clique no item → adiciona à fila
+      itemsContainer.querySelectorAll('.playlist-item').forEach(el => {
+        const vid = el.dataset.videoId;
+        const itemData = data.items.find(i => i.video_id === vid);
+        if (!itemData) return;
+
+        el.addEventListener('click', (e) => {
+          // Ignora se clicou no botão de remover
+          if (e.target.closest('.playlist-item-remove')) return;
+          addToQueue({
+            id:      itemData.video_id,
+            title:   itemData.title,
+            channel: itemData.channel,
+            thumb:   itemData.thumbnail,
+            service: itemData.service
+          });
+        });
+      });
+
+      // Botão de remover → remove só o item, sem fechar a playlist
+      itemsContainer.querySelectorAll('.playlist-item-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFromPlaylist(
+            parseInt(btn.dataset.removePl),
+            btn.dataset.removeVid,
+            btn.dataset.removeSvc
+          );
+        });
+      });
     } catch (err) {
       console.error('Erro ao carregar itens da playlist:', err);
     }
