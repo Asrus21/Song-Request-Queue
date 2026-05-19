@@ -1906,54 +1906,96 @@
     }
 
     function setProgress(done, total) {
-      const pct = Math.round((done / total) * 100);
+      const pct = total ? Math.round((done / total) * 100) : 0;
       document.getElementById('progressFill').style.width = pct + '%';
       document.getElementById('progressFraction').textContent = `${done} / ${total}`;
     }
 
-    async function waitWithCountdown(seconds, nextIdx, total) {
+    async function countdown(seconds, label) {
       for (let s = seconds; s > 0; s--) {
-        document.getElementById('progressLabel').textContent = `Aguardando ${s}s antes do envio ${nextIdx}/${total}...`;
+        document.getElementById('progressLabel').textContent = `${label} ${s}s...`;
         await sleep(1000);
       }
     }
 
-    for (let i = 0; i < queue.length; i++) {
-      const v = queue[i];
-      setQueueItemState(v.uniqueId, 'sending');
-      setProgress(i, total);
-
-      if (i > 0) {
-        addLog(`⏱  Aguardando ${delaySec}s antes do ${i+1}º envio...`, 'wait');
-        await waitWithCountdown(delaySec, i+1, total);
-      }
-
-      document.getElementById('progressLabel').textContent = `Enviando ${i+1}/${total}...`;
-      addLog(`📤 Enviando: !sr ${v.id} — "${v.title.substring(0,40)}..." [${v.service}]`, 'wait');
-
-      let result;
+    // Envia uma música. Retorna o resultado do backend.
+    async function sendOne(v) {
       try {
         const res = await fetch(`${BACKEND_URL}/api/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uuid: sessionUUID, videoId: v.id, title: v.title, service: v.service, channelName })
         });
-        result = await res.json();
+        return await res.json();
       } catch (err) {
-        result = { success: false, error: err.message };
+        return { success: false, reason: 'error', error: err.message };
+      }
+    }
+
+    // IDs a remover ao final (músicas enviadas com sucesso)
+    const sentUniqueIds = [];
+    // Cópia da fila para iterar (a fila real será modificada no fim)
+    const toSend = [...queue];
+
+    for (let i = 0; i < toSend.length; i++) {
+      const v = toSend[i];
+      setQueueItemState(v.uniqueId, 'sending');
+      setProgress(i, total);
+
+      // Delay normal entre envios
+      if (i > 0) {
+        addLog(`⏱  Aguardando ${delaySec}s antes do ${i+1}º envio...`, 'wait');
+        await countdown(delaySec, `Aguardando para envio ${i+1}/${total} —`);
       }
 
+      document.getElementById('progressLabel').textContent = `Enviando ${i+1}/${total}...`;
+      addLog(`📤 Enviando: !sr ${v.id} — "${v.title.substring(0,40)}..." [${v.service}]`, 'wait');
+
+      let result = await sendOne(v);
+
+      // ── Retry em caso de cooldown ──────────────────────────────────────
+      // Tenta reenviar enquanto o bot responder com cooldown (máx. 3 tentativas)
+      let retries = 0;
+      while (result.reason === 'cooldown' && retries < 3) {
+        retries++;
+        const waitTime = result.seconds || 5;
+        addLog(`⏳ [${i+1}/${total}] Cooldown detectado — reenviando em ${waitTime}s (tentativa ${retries}/3)`, 'wait');
+        await countdown(waitTime, `Cooldown — reenviando em`);
+        addLog(`🔄 Reenviando: !sr ${v.id}`, 'wait');
+        result = await sendOne(v);
+      }
+
+      // ── Avalia o resultado final ───────────────────────────────────────
       if (result.success) {
-        addLog(`✓ [${i+1}/${total}]  !sr ${v.id} aceito`, 'ok');
+        addLog(`✓ [${i+1}/${total}] !sr ${v.id} aceito`, 'ok');
         setQueueItemState(v.uniqueId, 'sent');
+        sentUniqueIds.push(v.uniqueId);  // marca para remover da fila
+      } else if (result.reason === 'duplicate') {
+        addLog(`⚠ [${i+1}/${total}] !sr ${v.id} — já está na fila do bot`, 'err');
+        setQueueItemState(v.uniqueId, '');  // permanece na fila
+      } else if (result.reason === 'cooldown') {
+        addLog(`✗ [${i+1}/${total}] !sr ${v.id} — cooldown persistente após 3 tentativas`, 'err');
+        setQueueItemState(v.uniqueId, '');  // permanece na fila
       } else {
-        addLog(`✗ [${i+1}/${total}]  Falha: ${result.error || 'rejeitado'}`, 'err');
-        setQueueItemState(v.uniqueId, '');
+        addLog(`✗ [${i+1}/${total}] Falha: ${result.error || 'rejeitado'}`, 'err');
+        setQueueItemState(v.uniqueId, '');  // permanece na fila
       }
       setProgress(i+1, total);
     }
 
-    addLog(`🎉  Envio finalizado!`, 'done');
+    // ── Remove da fila todas as músicas enviadas com sucesso ─────────────
+    const removedCount = sentUniqueIds.length;
+    queue = queue.filter(item => !sentUniqueIds.includes(item.uniqueId));
+    renderQueue();
+    updateCounter();
+    renderFavoritesGrid();
+
+    const remaining = queue.length;
+    if (remaining > 0) {
+      addLog(`🎉 Concluído! ${removedCount} enviada(s) e removida(s). ${remaining} permanece(m) na fila (erro/duplicada).`, 'done');
+    } else {
+      addLog(`🎉 Concluído! Todas as ${removedCount} música(s) foram enviadas e removidas da fila.`, 'done');
+    }
     document.getElementById('progressLabel').textContent = 'Concluído';
 
     isSending = false;
