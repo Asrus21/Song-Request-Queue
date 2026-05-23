@@ -743,8 +743,10 @@
       </div>
       <div id="voiceStatus" style="display:none; margin-top: 10px; padding: 10px 14px; background: rgba(145,71,255,0.1); border: 1px solid rgba(145,71,255,0.3); border-radius: 10px; font-size: 11px; color: var(--text); text-align: center;">
         <span id="voiceStatusIcon">🎤</span> <span id="voiceStatusText">Escutando...</span>
-        <div style="font-size: 9px; color: var(--muted); margin-top: 4px;">
-          Comandos: <span style="color: var(--accent);">"iniciar"</span> · <span style="color: var(--accent);">"limpar"</span> · <span style="color: var(--accent);">"remover último"</span> · <span style="color: var(--accent);">"remover número X"</span> · <span style="color: var(--accent);">"primeiro"</span>...<span style="color: var(--accent);">"oitavo"</span>
+        <div style="font-size: 9px; color: var(--muted); margin-top: 6px; line-height: 1.7;">
+          <b style="color: var(--accent);">Controle:</b> "iniciar" · "limpar" · "remover último" · "remover número X"<br>
+          <b style="color: var(--accent);">Escolher:</b> "primeiro"..."oitavo" (após pesquisar)<br>
+          <b style="color: var(--accent);">Idioma:</b> "inglês" · "japonês" · "português" — ou <b>duplo-clique no 🎤</b> para alternar
         </div>
       </div>
       <div style="font-size: 10px; color: var(--muted); margin-top: 8px; text-align: center;">
@@ -1837,9 +1839,15 @@
   let micActive    = false;
   let waitingForChoice = false;  // true depois de uma busca, esperando "primeiro/segundo/..."
   let lastSearchResults = [];
+  let currentLang = 'pt-BR';     // idioma atual da escuta
+  let lastInterim = '';          // último texto parcial recebido
 
   // Web Speech API — Chrome/Edge nativo
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  // Idiomas suportados — rotaciona quando detectamos que pode ser estrangeiro
+  const LANG_CYCLE = ['pt-BR', 'en-US', 'ja-JP'];
+  const LANG_LABEL = { 'pt-BR': '🇧🇷 PT', 'en-US': '🇺🇸 EN', 'ja-JP': '🇯🇵 JA' };
 
   function initVoiceRecognition() {
     if (!SpeechRecognition) {
@@ -1848,14 +1856,30 @@
     }
 
     recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    recognition.continuous = true;        // escuta contínua
-    recognition.interimResults = false;   // só resultados finais
+    recognition.lang = currentLang;
+    recognition.continuous = true;
+    recognition.interimResults = true;   // ← MOSTRA RESULTADOS PARCIAIS
+    recognition.maxAlternatives = 3;     // pede 3 alternativas para escolher a melhor
 
     recognition.onresult = (event) => {
-      const last = event.results.length - 1;
-      const transcript = event.results[last][0].transcript.trim().toLowerCase();
-      handleVoiceCommand(transcript);
+      // Pega o resultado mais recente
+      const last = event.results[event.results.length - 1];
+      const transcript = last[0].transcript.trim();
+
+      if (!last.isFinal) {
+        // Resultado parcial — atualiza o display em tempo real
+        lastInterim = transcript;
+        setVoiceStatus(`💭 "${transcript}..."`, '🎤');
+        return;
+      }
+
+      // Resultado final — processa
+      // Coleta todas as alternativas para tentar match com comandos
+      const alternatives = [];
+      for (let i = 0; i < last.length; i++) {
+        alternatives.push(last[i].transcript.trim().toLowerCase());
+      }
+      handleVoiceCommand(alternatives);
     };
 
     recognition.onerror = (e) => {
@@ -1864,11 +1888,9 @@
         alert('Permissão de microfone negada. Habilite o microfone nas configurações do navegador.');
         stopMic();
       }
-      // Em "no-speech" ou outros erros transitórios, deixa o onend reiniciar
     };
 
     recognition.onend = () => {
-      // Reinicia automaticamente enquanto o mic estiver ativo
       if (micActive) {
         try { recognition.start(); } catch (_) {}
       }
@@ -1883,7 +1905,7 @@
     try { recognition.start(); } catch (_) {}
     document.getElementById('micBtn').classList.add('active');
     document.getElementById('voiceStatus').style.display = 'block';
-    setVoiceStatus('Escutando... fale o nome de uma música ou um comando');
+    setVoiceStatus(`Escutando em ${LANG_LABEL[currentLang]}... fale o nome de uma música ou um comando`);
   }
 
   function stopMic() {
@@ -1904,10 +1926,35 @@
     document.getElementById('voiceStatusIcon').textContent = icon;
   }
 
-  // Mapeia "primeiro" → 1, "segundo" → 2, etc.
+  // Troca o idioma de reconhecimento (rotação cíclica)
+  function cycleLanguage() {
+    const idx = LANG_CYCLE.indexOf(currentLang);
+    currentLang = LANG_CYCLE[(idx + 1) % LANG_CYCLE.length];
+    if (recognition) {
+      recognition.lang = currentLang;
+      // Força reiniciar para aplicar
+      if (micActive) {
+        try { recognition.stop(); } catch (_) {}
+      }
+    }
+    return currentLang;
+  }
+
+  // Detecta se o texto parece estar em outro idioma (palavras sem sentido em PT)
+  function looksForeign(text) {
+    // Texto muito curto não dá pra avaliar
+    if (text.length < 4) return false;
+    // Se quase nenhuma vogal de PT, provavelmente é outro idioma
+    const portugueseChars = text.match(/[áéíóúâêîôûãõàèìòùç]/g) || [];
+    const totalLetters = text.match(/[a-záéíóúâêîôûãõàèìòùç]/gi) || [];
+    if (totalLetters.length === 0) return false;
+    // Se o texto é só "abcdef" sem nenhum acento e tem palavras estranhas → tentar outro idioma
+    return false; // por padrão não rotaciona; rotação manual via duplo-clique
+  }
+
   const POSITION_WORDS = {
-    'primeiro': 1, 'primeira': 1, '1': 1, 'um': 1,
-    'segundo': 2, 'segunda': 2, '2': 2, 'dois': 2,
+    'primeiro': 1, 'primeira': 1, '1': 1, 'um': 1, 'uma': 1,
+    'segundo': 2, 'segunda': 2, '2': 2, 'dois': 2, 'duas': 2,
     'terceiro': 3, 'terceira': 3, '3': 3, 'três': 3, 'tres': 3,
     'quarto': 4, 'quarta': 4, '4': 4, 'quatro': 4,
     'quinto': 5, 'quinta': 5, '5': 5, 'cinco': 5,
@@ -1916,39 +1963,121 @@
     'oitavo': 8, 'oitava': 8, '8': 8, 'oito': 8
   };
 
-  // Converte "número um", "número 5" para posição numérica
-  function parsePositionFromText(text) {
-    // Procura por dígito direto: "remover número 3"
-    const numMatch = text.match(/n[uú]mero\s+(\d+)/);
-    if (numMatch) return parseInt(numMatch[1]);
+  // Detecta se a frase INTEIRA é só uma posição (não palavra solta no meio de outra frase)
+  // Aceita: "primeiro", "o primeiro", "número 3", "3"
+  // Rejeita: "fire force opening 1", "um pouco de música", "primeiramente vamos..."
+  function findPositionStrict(text) {
+    const cleaned = text.trim().toLowerCase()
+      .replace(/[.,!?]/g, '')
+      .replace(/^(o|a|os|as)\s+/, '')          // remove artigos
+      .replace(/^(adicionar|adiciona|escolher|escolho|esse|essa|este|esta)\s+/, '')
+      .replace(/^(quero|seleciona|seleciono)\s+/, '');
 
-    // Procura por palavra: "remover número três"
-    for (const word in POSITION_WORDS) {
-      if (text.includes(`número ${word}`) || text.includes(`numero ${word}`)) {
-        return POSITION_WORDS[word];
+    // Frase = só um número (ex: "3", "5")
+    const onlyNumber = cleaned.match(/^(\d+)$/);
+    if (onlyNumber) {
+      const n = parseInt(onlyNumber[1]);
+      return (n >= 1 && n <= 8) ? n : null;
+    }
+
+    // Frase = "número X" (ex: "número 3", "número três")
+    const numberWord = cleaned.match(/^n[uú]mero\s+(\d+)$/);
+    if (numberWord) {
+      const n = parseInt(numberWord[1]);
+      return (n >= 1 && n <= 8) ? n : null;
+    }
+
+    // Frase = só uma palavra ordinal (ex: "primeiro", "primeira")
+    const ordinals = {
+      'primeiro': 1, 'primeira': 1, 'um': 1, 'uma': 1,
+      'segundo': 2, 'segunda': 2, 'dois': 2, 'duas': 2,
+      'terceiro': 3, 'terceira': 3, 'três': 3, 'tres': 3,
+      'quarto': 4, 'quarta': 4, 'quatro': 4,
+      'quinto': 5, 'quinta': 5, 'cinco': 5,
+      'sexto': 6, 'sexta': 6, 'seis': 6,
+      'sétimo': 7, 'sétima': 7, 'setimo': 7, 'setima': 7, 'sete': 7,
+      'oitavo': 8, 'oitava': 8, 'oito': 8
+    };
+    if (ordinals[cleaned] !== undefined) return ordinals[cleaned];
+
+    // "número X" por palavra
+    const numWordMatch = cleaned.match(/^n[uú]mero\s+(\w+)$/);
+    if (numWordMatch && ordinals[numWordMatch[1]] !== undefined) {
+      return ordinals[numWordMatch[1]];
+    }
+
+    return null;
+  }
+
+  // Mesma lógica para comando de REMOVER por posição — exige "remover X" exato
+  function findRemovePosition(text) {
+    const cleaned = text.trim().toLowerCase().replace(/[.,!?]/g, '');
+    // "remover 3", "remover número 5", "remover primeiro", "tirar segundo"
+    const match = cleaned.match(/^(remover|remove|tira|tirar|excluir)\s+(.+)$/);
+    if (!match) return null;
+    return findPositionStrict(match[2]);
+  }
+
+  // Verifica se alguma alternativa contém o comando de controle
+  function matchesCommand(alternatives, patterns) {
+    for (const alt of alternatives) {
+      for (const pattern of patterns) {
+        if (pattern.test(alt)) return alt;
       }
     }
     return null;
   }
 
-  function handleVoiceCommand(transcript) {
-    console.log('[VOZ]', transcript);
-    setVoiceStatus(`Ouvi: "${transcript}"`, '✨');
+  function handleVoiceCommand(alternatives) {
+    // alternatives é um array — a primeira é a mais provável, mas comandos podem estar em outras
+    const primary = alternatives[0] || '';
+    console.log('[VOZ] alternativas:', alternatives);
+    setVoiceStatus(`Ouvi: "${primary}"`, '✨');
 
-    // ── COMANDOS DE CONTROLE ────────────────────────────────────────────
-    if (/^(iniciar|enviar|começar|comecar|mandar)\b/.test(transcript)) {
+    // ── TROCA DE IDIOMA (comando especial) ──────────────────────────────
+    if (matchesCommand(alternatives, [/\b(mudar|trocar|próximo|proximo|change|switch)\s+(idioma|language|lang)\b/])) {
+      const newLang = cycleLanguage();
+      setVoiceStatus(`Idioma alterado para ${LANG_LABEL[newLang]}`, '🌐');
+      return;
+    }
+
+    // Atalhos diretos por idioma
+    if (matchesCommand(alternatives, [/\b(inglês|ingles|english)\b/])) {
+      currentLang = 'en-US';
+      if (recognition) recognition.lang = currentLang;
+      if (micActive) { try { recognition.stop(); } catch (_) {} }
+      setVoiceStatus(`Idioma alterado para 🇺🇸 EN`, '🌐');
+      return;
+    }
+    if (matchesCommand(alternatives, [/\b(japonês|japones|japanese|nihongo)\b/])) {
+      currentLang = 'ja-JP';
+      if (recognition) recognition.lang = currentLang;
+      if (micActive) { try { recognition.stop(); } catch (_) {} }
+      setVoiceStatus(`Idioma alterado para 🇯🇵 JA`, '🌐');
+      return;
+    }
+    if (matchesCommand(alternatives, [/\b(português|portugues|portuguese)\b/])) {
+      currentLang = 'pt-BR';
+      if (recognition) recognition.lang = currentLang;
+      if (micActive) { try { recognition.stop(); } catch (_) {} }
+      setVoiceStatus(`Idioma alterado para 🇧🇷 PT`, '🌐');
+      return;
+    }
+
+    // ── COMANDOS DE CONTROLE (match parcial em qualquer alternativa) ────
+    if (matchesCommand(alternatives, [/^(iniciar|enviar|começar|comecar|mandar|start)\b/])) {
       setVoiceStatus('Iniciando envio para o chat...', '📡');
       startSending();
       return;
     }
 
-    if (/^limpar\b/.test(transcript) || transcript === 'limpar fila') {
+    if (matchesCommand(alternatives, [/^limpar\b/, /^limpa\b/, /^clear\b/])) {
       setVoiceStatus('Fila limpa', '🗑️');
       clearQueue();
       return;
     }
 
-    if (/^remover (último|ultimo)\b/.test(transcript) || transcript === 'tirar último' || transcript === 'tirar ultimo') {
+    if (matchesCommand(alternatives, [/^remover\s+(último|ultimo)\b/, /^tira(r)?\s+(o\s+)?(último|ultimo)\b/])) {
       if (queue.length === 0) {
         setVoiceStatus('Fila já está vazia', '⚠️');
         return;
@@ -1962,9 +2091,9 @@
       return;
     }
 
-    // Remover por número/posição
-    if (/^remover/.test(transcript) || /^tirar/.test(transcript)) {
-      const pos = parsePositionFromText(transcript);
+    // Remover por número/posição — só dispara se a frase começar com "remover X" ou "tirar X"
+    for (const alt of alternatives) {
+      const pos = findRemovePosition(alt);
       if (pos !== null) {
         if (pos < 1 || pos > queue.length) {
           setVoiceStatus(`Posição ${pos} inválida (fila tem ${queue.length} itens)`, '⚠️');
@@ -1981,11 +2110,11 @@
     }
 
     // ── ESCOLHER RESULTADO DA BUSCA ─────────────────────────────────────
+    // Só conta como escolha se a fala for SÓ a posição (não no meio de outra frase)
     if (waitingForChoice && lastSearchResults.length > 0) {
-      // Procura "primeiro", "segundo", etc., possivelmente isolado
-      for (const word in POSITION_WORDS) {
-        if (transcript === word || transcript.startsWith(word + ' ') || transcript.endsWith(' ' + word)) {
-          const pos = POSITION_WORDS[word];
+      for (const alt of alternatives) {
+        const pos = findPositionStrict(alt);
+        if (pos !== null) {
           if (pos > lastSearchResults.length) {
             setVoiceStatus(`Resultado ${pos} não existe (só ${lastSearchResults.length} resultados)`, '⚠️');
             return;
@@ -1993,29 +2122,26 @@
           const chosen = lastSearchResults[pos - 1];
           addToQueue(chosen);
           waitingForChoice = false;
-          setVoiceStatus(`Adicionado: ${chosen.title.substring(0, 40)}`, '✓');
+          setVoiceStatus(`Adicionado #${pos}: ${chosen.title.substring(0, 40)}`, '✓');
           return;
         }
       }
     }
 
     // ── BUSCA POR VOZ ───────────────────────────────────────────────────
-    // Qualquer outra coisa → coloca no campo de busca e pesquisa
-    const cleanQuery = transcript.replace(/^pesquisar\s+/i, '').replace(/^buscar\s+/i, '');
+    const cleanQuery = primary.replace(/^pesquisar\s+/i, '').replace(/^buscar\s+/i, '').replace(/^procurar\s+/i, '');
     if (cleanQuery.length < 2) {
       setVoiceStatus('Comando não reconhecido', '⚠️');
       return;
     }
 
     document.getElementById('searchInput').value = cleanQuery;
-    setVoiceStatus(`Pesquisando: "${cleanQuery}"`, '🔍');
+    setVoiceStatus(`Pesquisando: "${cleanQuery}" (${LANG_LABEL[currentLang]})`, '🔍');
     performSearchVoice();
   }
 
-  // Wrapper de performSearch que armazena os resultados para escolha por voz
   async function performSearchVoice() {
     await performSearch();
-    // Aguarda um tick para os resultados aparecerem no DOM/videoMap
     setTimeout(() => {
       const cards = document.querySelectorAll('#resultsGrid .video-card');
       lastSearchResults = Array.from(cards)
@@ -2023,16 +2149,34 @@
         .filter(Boolean);
       if (lastSearchResults.length > 0) {
         waitingForChoice = true;
-        setVoiceStatus(`${lastSearchResults.length} resultados — fale "primeiro", "segundo"... para adicionar`, '🎯');
+        setVoiceStatus(`${lastSearchResults.length} resultados — fale "primeiro", "segundo"... para adicionar. Se nada bater, fale "inglês" ou "japonês" e tente novamente.`, '🎯');
       } else {
-        setVoiceStatus('Nenhum resultado encontrado', '⚠️');
+        setVoiceStatus('Nenhum resultado. Tente trocar de idioma: fale "inglês", "japonês" ou "português"', '⚠️');
       }
     }, 300);
   }
 
+  // Botão de mic — clique simples liga/desliga, clique duplo troca idioma
+  let micClickTimer = null;
+  function handleMicClick() {
+    if (micClickTimer) {
+      clearTimeout(micClickTimer);
+      micClickTimer = null;
+      // Clique duplo → troca idioma
+      const newLang = cycleLanguage();
+      setVoiceStatus(`Idioma alterado para ${LANG_LABEL[newLang]}`, '🌐');
+      if (!micActive) startMic();
+      return;
+    }
+    micClickTimer = setTimeout(() => {
+      micClickTimer = null;
+      toggleMic();
+    }, 250);
+  }
+
   // Inicializa o reconhecimento e o botão
   initVoiceRecognition();
-  document.getElementById('micBtn').onclick = toggleMic;
+  document.getElementById('micBtn').onclick = handleMicClick;
 
   window.performSearch = performSearch;
   window.clearQueue = clearQueue;
