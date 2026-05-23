@@ -102,23 +102,12 @@
     }
     .github-link {
       margin-left: 8px;
-      opacity: 0.8;
+      opacity: 0.7;
       transition: opacity 0.2s, transform 0.2s;
       display: inline-flex;
       align-items: center;
     }
     .github-link:hover { opacity: 1; transform: scale(1.05); }
-    
-    /* Logo do GitHub com fundo transparente */
-    .github-icon {
-      width: 28px;
-      height: 28px;
-      filter: brightness(0) invert(1);
-      transition: filter 0.2s;
-    }
-    .github-link:hover .github-icon {
-      filter: brightness(0) invert(0.7);
-    }
 
     .service-buttons {
       display: flex;
@@ -305,6 +294,27 @@
     .btn-search:hover { transform: translateY(-1px); }
     .btn-search.youtube:hover { border-color: var(--youtube); color: var(--youtube); }
     .btn-search.spotify:hover { border-color: var(--spotify); color: var(--spotify); }
+    .btn-mic {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      min-width: 50px;
+      padding: 0 14px;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+    .btn-mic:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
+    .btn-mic.active {
+      background: linear-gradient(135deg, #ff3c5f, #c41e3a);
+      border-color: #ff3c5f;
+      color: white;
+      animation: pulse-mic 1.4s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(255,60,95,0.5);
+    }
+    @keyframes pulse-mic {
+      0%, 100% { box-shadow: 0 0 20px rgba(255,60,95,0.5); }
+      50% { box-shadow: 0 0 30px rgba(255,60,95,0.9); }
+    }
     .btn-send { background: linear-gradient(135deg, var(--twitch), var(--accent)); color: #fff; width: 100%; padding: 15px; font-size: 13px; border-radius: 12px; }
     .btn-send:not(:disabled):hover { opacity: 0.9; transform: translateY(-2px); }
     .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
@@ -667,9 +677,7 @@
       <span id="queueCount">0</span>
     </div>
     <a href="https://github.com/asrus21/Song-Request-Queue" target="_blank" class="github-link" title="Ver código no GitHub">
-      <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-      </svg>
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="28" height="28">
     </a>
   </header>
 
@@ -725,10 +733,19 @@
       <div class="card-label">// pesquisar música</div>
       <div class="row">
         <input type="text" id="searchInput" placeholder="Nome da música, artista, vídeo..." disabled>
+        <button class="btn btn-mic" id="micBtn" disabled title="Ligar/desligar microfone para comandos de voz">
+          <span id="micIcon">🎤</span>
+        </button>
         <button class="btn btn-search youtube" id="searchBtn" disabled>
           <span id="searchLoader" class="spin" style="display:none"></span>
           <span id="searchBtnText">🔍 BUSCAR</span>
         </button>
+      </div>
+      <div id="voiceStatus" style="display:none; margin-top: 10px; padding: 10px 14px; background: rgba(145,71,255,0.1); border: 1px solid rgba(145,71,255,0.3); border-radius: 10px; font-size: 11px; color: var(--text); text-align: center;">
+        <span id="voiceStatusIcon">🎤</span> <span id="voiceStatusText">Escutando...</span>
+        <div style="font-size: 9px; color: var(--muted); margin-top: 4px;">
+          Comandos: <span style="color: var(--accent);">"iniciar"</span> · <span style="color: var(--accent);">"limpar"</span> · <span style="color: var(--accent);">"remover último"</span> · <span style="color: var(--accent);">"remover número X"</span> · <span style="color: var(--accent);">"primeiro"</span>...<span style="color: var(--accent);">"oitavo"</span>
+        </div>
       </div>
       <div style="font-size: 10px; color: var(--muted); margin-top: 8px; text-align: center;">
         🔍 Pesquisando no: <span id="activeServiceLabel" style="color: var(--youtube); font-weight: bold;">YouTube</span>
@@ -1096,6 +1113,9 @@
     document.getElementById('searchBtn').disabled = false;
     document.getElementById('sendBtn').disabled = false;
     document.getElementById('clearBtn').disabled = false;
+    const micBtn = document.getElementById('micBtn');
+    const hasSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (micBtn && hasSpeech) micBtn.disabled = false;
   }
 
   function disableFeatures() {
@@ -1103,6 +1123,9 @@
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('sendBtn').disabled = true;
     document.getElementById('clearBtn').disabled = true;
+    const micBtn = document.getElementById('micBtn');
+    if (micBtn) micBtn.disabled = true;
+    if (typeof stopMic === 'function') stopMic();
   }
 
     // ── PLAYLISTS API ─────────────────────────────────────────────────────────
@@ -1807,6 +1830,210 @@
   window.closePlaylistModalHandler = window.closePlaylistModalHandler;
   window.loginWithTwitch = loginWithTwitch;
   window.setActiveService = setActiveService;
+  // ════════════════════════════════════════════════════════════════════════
+  //                       RECONHECIMENTO DE VOZ
+  // ════════════════════════════════════════════════════════════════════════
+  let recognition  = null;
+  let micActive    = false;
+  let waitingForChoice = false;  // true depois de uma busca, esperando "primeiro/segundo/..."
+  let lastSearchResults = [];
+
+  // Web Speech API — Chrome/Edge nativo
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function initVoiceRecognition() {
+    if (!SpeechRecognition) {
+      document.getElementById('micBtn').title = 'Reconhecimento de voz não disponível neste navegador (use Chrome/Edge)';
+      return false;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;        // escuta contínua
+    recognition.interimResults = false;   // só resultados finais
+
+    recognition.onresult = (event) => {
+      const last = event.results.length - 1;
+      const transcript = event.results[last][0].transcript.trim().toLowerCase();
+      handleVoiceCommand(transcript);
+    };
+
+    recognition.onerror = (e) => {
+      console.warn('Erro no reconhecimento de voz:', e.error);
+      if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+        alert('Permissão de microfone negada. Habilite o microfone nas configurações do navegador.');
+        stopMic();
+      }
+      // Em "no-speech" ou outros erros transitórios, deixa o onend reiniciar
+    };
+
+    recognition.onend = () => {
+      // Reinicia automaticamente enquanto o mic estiver ativo
+      if (micActive) {
+        try { recognition.start(); } catch (_) {}
+      }
+    };
+
+    return true;
+  }
+
+  function startMic() {
+    if (!recognition && !initVoiceRecognition()) return;
+    micActive = true;
+    try { recognition.start(); } catch (_) {}
+    document.getElementById('micBtn').classList.add('active');
+    document.getElementById('voiceStatus').style.display = 'block';
+    setVoiceStatus('Escutando... fale o nome de uma música ou um comando');
+  }
+
+  function stopMic() {
+    micActive = false;
+    waitingForChoice = false;
+    try { recognition && recognition.stop(); } catch (_) {}
+    document.getElementById('micBtn').classList.remove('active');
+    document.getElementById('voiceStatus').style.display = 'none';
+  }
+
+  function toggleMic() {
+    if (micActive) stopMic();
+    else startMic();
+  }
+
+  function setVoiceStatus(text, icon = '🎤') {
+    document.getElementById('voiceStatusText').textContent = text;
+    document.getElementById('voiceStatusIcon').textContent = icon;
+  }
+
+  // Mapeia "primeiro" → 1, "segundo" → 2, etc.
+  const POSITION_WORDS = {
+    'primeiro': 1, 'primeira': 1, '1': 1, 'um': 1,
+    'segundo': 2, 'segunda': 2, '2': 2, 'dois': 2,
+    'terceiro': 3, 'terceira': 3, '3': 3, 'três': 3, 'tres': 3,
+    'quarto': 4, 'quarta': 4, '4': 4, 'quatro': 4,
+    'quinto': 5, 'quinta': 5, '5': 5, 'cinco': 5,
+    'sexto': 6, 'sexta': 6, '6': 6, 'seis': 6,
+    'sétimo': 7, 'sétima': 7, 'setimo': 7, 'setima': 7, '7': 7, 'sete': 7,
+    'oitavo': 8, 'oitava': 8, '8': 8, 'oito': 8
+  };
+
+  // Converte "número um", "número 5" para posição numérica
+  function parsePositionFromText(text) {
+    // Procura por dígito direto: "remover número 3"
+    const numMatch = text.match(/n[uú]mero\s+(\d+)/);
+    if (numMatch) return parseInt(numMatch[1]);
+
+    // Procura por palavra: "remover número três"
+    for (const word in POSITION_WORDS) {
+      if (text.includes(`número ${word}`) || text.includes(`numero ${word}`)) {
+        return POSITION_WORDS[word];
+      }
+    }
+    return null;
+  }
+
+  function handleVoiceCommand(transcript) {
+    console.log('[VOZ]', transcript);
+    setVoiceStatus(`Ouvi: "${transcript}"`, '✨');
+
+    // ── COMANDOS DE CONTROLE ────────────────────────────────────────────
+    if (/^(iniciar|enviar|começar|comecar|mandar)\b/.test(transcript)) {
+      setVoiceStatus('Iniciando envio para o chat...', '📡');
+      startSending();
+      return;
+    }
+
+    if (/^limpar\b/.test(transcript) || transcript === 'limpar fila') {
+      setVoiceStatus('Fila limpa', '🗑️');
+      clearQueue();
+      return;
+    }
+
+    if (/^remover (último|ultimo)\b/.test(transcript) || transcript === 'tirar último' || transcript === 'tirar ultimo') {
+      if (queue.length === 0) {
+        setVoiceStatus('Fila já está vazia', '⚠️');
+        return;
+      }
+      const removed = queue[queue.length - 1];
+      queue.pop();
+      renderQueue();
+      updateCounter();
+      renderFavoritesGrid();
+      setVoiceStatus(`Removido: ${removed.title.substring(0, 40)}`, '✓');
+      return;
+    }
+
+    // Remover por número/posição
+    if (/^remover/.test(transcript) || /^tirar/.test(transcript)) {
+      const pos = parsePositionFromText(transcript);
+      if (pos !== null) {
+        if (pos < 1 || pos > queue.length) {
+          setVoiceStatus(`Posição ${pos} inválida (fila tem ${queue.length} itens)`, '⚠️');
+          return;
+        }
+        const removed = queue[pos - 1];
+        queue.splice(pos - 1, 1);
+        renderQueue();
+        updateCounter();
+        renderFavoritesGrid();
+        setVoiceStatus(`Removido #${pos}: ${removed.title.substring(0, 40)}`, '✓');
+        return;
+      }
+    }
+
+    // ── ESCOLHER RESULTADO DA BUSCA ─────────────────────────────────────
+    if (waitingForChoice && lastSearchResults.length > 0) {
+      // Procura "primeiro", "segundo", etc., possivelmente isolado
+      for (const word in POSITION_WORDS) {
+        if (transcript === word || transcript.startsWith(word + ' ') || transcript.endsWith(' ' + word)) {
+          const pos = POSITION_WORDS[word];
+          if (pos > lastSearchResults.length) {
+            setVoiceStatus(`Resultado ${pos} não existe (só ${lastSearchResults.length} resultados)`, '⚠️');
+            return;
+          }
+          const chosen = lastSearchResults[pos - 1];
+          addToQueue(chosen);
+          waitingForChoice = false;
+          setVoiceStatus(`Adicionado: ${chosen.title.substring(0, 40)}`, '✓');
+          return;
+        }
+      }
+    }
+
+    // ── BUSCA POR VOZ ───────────────────────────────────────────────────
+    // Qualquer outra coisa → coloca no campo de busca e pesquisa
+    const cleanQuery = transcript.replace(/^pesquisar\s+/i, '').replace(/^buscar\s+/i, '');
+    if (cleanQuery.length < 2) {
+      setVoiceStatus('Comando não reconhecido', '⚠️');
+      return;
+    }
+
+    document.getElementById('searchInput').value = cleanQuery;
+    setVoiceStatus(`Pesquisando: "${cleanQuery}"`, '🔍');
+    performSearchVoice();
+  }
+
+  // Wrapper de performSearch que armazena os resultados para escolha por voz
+  async function performSearchVoice() {
+    await performSearch();
+    // Aguarda um tick para os resultados aparecerem no DOM/videoMap
+    setTimeout(() => {
+      const cards = document.querySelectorAll('#resultsGrid .video-card');
+      lastSearchResults = Array.from(cards)
+        .map(c => videoMap[c.dataset.id])
+        .filter(Boolean);
+      if (lastSearchResults.length > 0) {
+        waitingForChoice = true;
+        setVoiceStatus(`${lastSearchResults.length} resultados — fale "primeiro", "segundo"... para adicionar`, '🎯');
+      } else {
+        setVoiceStatus('Nenhum resultado encontrado', '⚠️');
+      }
+    }, 300);
+  }
+
+  // Inicializa o reconhecimento e o botão
+  initVoiceRecognition();
+  document.getElementById('micBtn').onclick = toggleMic;
+
   window.performSearch = performSearch;
   window.clearQueue = clearQueue;
   window.startSending = startSending;
