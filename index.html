@@ -2018,11 +2018,12 @@
     return findPositionStrict(match[2]);
   }
 
-  // Verifica se alguma alternativa contém o comando de controle
+  // Verifica se alguma alternativa (já normalizada: sem pontuação, trim) bate com algum padrão
   function matchesCommand(alternatives, patterns) {
     for (const alt of alternatives) {
+      const norm = alt.toLowerCase().replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ').trim();
       for (const pattern of patterns) {
-        if (pattern.test(alt)) return alt;
+        if (pattern.test(norm)) return norm;
       }
     }
     return null;
@@ -2064,20 +2065,20 @@
       return;
     }
 
-    // ── COMANDOS DE CONTROLE (match parcial em qualquer alternativa) ────
-    if (matchesCommand(alternatives, [/^(iniciar|enviar|começar|comecar|mandar|start)\b/])) {
+    // ── COMANDOS DE CONTROLE (frase inteira deve ser o comando) ──────
+    if (matchesCommand(alternatives, [/^(iniciar|enviar|começar|comecar|mandar)$/])) {
       setVoiceStatus('Iniciando envio para o chat...', '📡');
       startSending();
       return;
     }
 
-    if (matchesCommand(alternatives, [/^limpar\b/, /^limpa\b/, /^clear\b/])) {
+    if (matchesCommand(alternatives, [/^(limpar|limpa|limpar fila|clear)$/])) {
       setVoiceStatus('Fila limpa', '🗑️');
       clearQueue();
       return;
     }
 
-    if (matchesCommand(alternatives, [/^remover\s+(último|ultimo)\b/, /^tira(r)?\s+(o\s+)?(último|ultimo)\b/])) {
+    if (matchesCommand(alternatives, [/^(remover|remove|tirar|tira)\s+(o\s+)?(último|ultimo)$/])) {
       if (queue.length === 0) {
         setVoiceStatus('Fila já está vazia', '⚠️');
         return;
@@ -2129,9 +2130,10 @@
     }
 
     // ── BUSCA POR VOZ ───────────────────────────────────────────────────
-    const cleanQuery = primary.replace(/^pesquisar\s+/i, '').replace(/^buscar\s+/i, '').replace(/^procurar\s+/i, '');
-    if (cleanQuery.length < 2) {
-      setVoiceStatus('Comando não reconhecido', '⚠️');
+    // Qualquer coisa que não foi comando vira busca — mesmo texto curto
+    const cleanQuery = primary.replace(/^pesquisar\s+/i, '').replace(/^buscar\s+/i, '').replace(/^procurar\s+/i, '').trim();
+    if (!cleanQuery) {
+      setVoiceStatus('Não consegui entender — tente novamente', '⚠️');
       return;
     }
 
