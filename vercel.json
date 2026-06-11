@@ -1,6 +1,13 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/song-request-queue/api/(.*)", "destination": "/api/index" },
     { "source": "/song-request-queue/(.*)", "destination": "/$1" },
     { "source": "/song-request-queue", "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  }
 }
