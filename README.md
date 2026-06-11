@@ -1,7 +1,7 @@
 # 🎵 Song Request Queue - Twitch + YouTube + Spotify
 
 <div align="center">
-  <a href="https://asrus21.github.io/Song-Request-Queue/">
+  <a href="https://www.asrus.app/song-request-queue/">
     <img src="assets/sr-logo.png" alt="Song Request Logo" width="150">
     <br>
     <strong style="font-size: 20px;">Clique na logo para abrir o aplicativo</strong>
@@ -26,7 +26,7 @@
   <table>
     <tr>
       <td align="center">
-        <a href="https://asrus21.github.io/Song-Request-Queue/">
+        <a href="https://www.asrus.app/song-request-queue/">
           <img src="assets/sr-logo.png" width="40" alt="Logo">
           <br>
           <strong>🎵 Song Request Queue</strong>
@@ -43,7 +43,7 @@
   </table>
 </div>
 
-**🔗 Link direto:** https://asrus21.github.io/Song-Request-Queue/
+**🔗 Link direto:** https://www.asrus.app/song-request-queue/
 
 ---
 
@@ -88,7 +88,7 @@ text
 
 ### 1. Acesse o aplicativo
 
-Acesse [https://asrus21.github.io/Song-Request-Queue/](https://asrus21.github.io/Song-Request-Queue/)
+Acesse [https://www.asrus.app/song-request-queue/](https://www.asrus.app/song-request-queue/)
 
 ### 2. Faça login com a Twitch
 
@@ -119,17 +119,67 @@ Clique no botão **"Login com Twitch"** e autorize o acesso do aplicativo.
 ---
 
 ## 📦 Arquitetura
-Browser (GitHub Pages)
-↓ OAuth popup
-Backend (Railway — Node.js)
-↓ queries
-PostgreSQL (Railway)
-↓ proxy
-YouTube Data API v3 + Spotify Web API
-↓ chat messages
-Twitch Helix API
 
-text
+```
+Browser (Vercel — www.asrus.app/song-request-queue/)
+    ↓ OAuth popup
+API Serverless (Vercel Functions — /api/* neste mesmo repositório)
+    ↓ queries
+PostgreSQL (Neon)
+    ↓ proxy
+YouTube Data API v3 + Spotify Web API
+    ↓ chat messages (Helix) + IRC anônimo (detecção de cooldown)
+Twitch
+```
+
+Frontend e backend vivem **no mesmo repositório e no mesmo projeto Vercel**:
+
+```
+Song-Request-Queue/
+├── index.html        # SPA completa (busca, fila, favoritos, playlists, voz)
+├── callback.html     # OAuth callback
+├── api/
+│   └── index.js      # Backend Express rodando como Vercel Function
+├── db/
+│   └── init.sql      # Schema PostgreSQL (Neon) — idempotente
+├── vercel.json       # rewrites (/api/* → function) + maxDuration
+└── package.json      # dependências do backend
+```
+
+---
+
+## 🚀 Deploy (Vercel + Neon)
+
+### 1. Banco de dados (Neon)
+
+1. No painel da Vercel, adicione a integração **Neon** (Storage → Create Database → Neon) ao projeto, ou crie o banco direto em [neon.tech](https://neon.tech).
+2. A integração define `DATABASE_URL` automaticamente. Se criou manualmente, adicione `DATABASE_URL` nas Environment Variables do projeto na Vercel.
+3. Crie as tabelas de **uma** destas formas:
+   - Acesse `https://song-request-queue.vercel.app/api/setup` uma vez após o deploy (idempotente); ou
+   - Cole o conteúdo de `db/init.sql` no SQL Editor da Neon.
+
+### 2. Variáveis de ambiente (Vercel → Settings → Environment Variables)
+
+| Variável | Valor |
+|----------|-------|
+| `DATABASE_URL` | connection string da Neon (definida pela integração) |
+| `TWITCH_CLIENT_ID` | Client ID do app na Twitch |
+| `TWITCH_CLIENT_SECRET` | Client Secret do app na Twitch |
+| `TWITCH_REDIRECT_URI` | `https://song-request-queue.vercel.app/api/auth/twitch/callback` |
+| `YOUTUBE_API_KEY` | chave da YouTube Data API v3 |
+| `SPOTIFY_CLIENT_ID` | Client ID do app no Spotify |
+| `SPOTIFY_CLIENT_SECRET` | Client Secret do app no Spotify |
+| `FRONTEND_URL` | `https://www.asrus.app/song-request-queue/callback.html` |
+
+### 3. Twitch Developer Console
+
+Em **OAuth Redirect URLs**, cadastre:
+
+```
+https://song-request-queue.vercel.app/api/auth/twitch/callback
+```
+
+Scopes usados: `user:read:email user:write:chat`
 
 ---
 
@@ -142,8 +192,8 @@ text
 - **Twitch Helix API** - Envio de mensagens no chat
 - **YouTube Data API v3** - Busca de vídeos
 - **Spotify Web API** - Busca de músicas
-- **Node.js + Express** - Backend (Railway)
-- **PostgreSQL** - Banco de dados para favoritos
+- **Node.js + Express** - Backend (Vercel Functions, neste repositório em `api/`)
+- **PostgreSQL (Neon)** - Banco de dados para favoritos, sessões e playlists
 - **Session Storage** - Gerenciamento de sessão
 
 ---
@@ -192,20 +242,21 @@ Distribuído sob a licença MIT. Veja o arquivo `LICENSE` para mais informaçõe
 - [Twitch OAuth & API](https://dev.twitch.tv/docs/api/)
 - [YouTube Data API](https://developers.google.com/youtube/v3)
 - [Spotify Web API](https://developer.spotify.com/)
-- [Railway](https://railway.app/) - Hospedagem do backend
+- [Vercel](https://vercel.com/) - Hospedagem do frontend e da API serverless
+- [Neon](https://neon.tech/) - PostgreSQL serverless
 - [Google Fonts](https://fonts.google.com/) - Fontes Space Mono e Unbounded
 
 ---
 
 <div align="center">
-  <a href="https://asrus21.github.io/Song-Request-Queue/">
+  <a href="https://www.asrus.app/song-request-queue/">
     <img src="assets/sr-logo.png" alt="Logo" width="80">
     <br>
     <strong>🎯 Clique aqui para acessar o Song Request Queue 🎯</strong>
   </a>
   <br><br>
-  <a href="https://asrus21.github.io/Song-Request-Queue/">
-    🔗 https://asrus21.github.io/Song-Request-Queue/
+  <a href="https://www.asrus.app/song-request-queue/">
+    🔗 https://www.asrus.app/song-request-queue/
   </a>
 </div>
 
